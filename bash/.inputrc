@@ -1,0 +1,27 @@
+set bell-style none
+
+# faster completion
+set show-all-if-unmodified on
+set completion-ignore-case on
+
+# colorized completion
+set colored-stats on
+set visible-stats on
+set mark-symlinked-directories on
+set colored-completion-prefix on
+set menu-complete-display-prefix on
+
+# disable control echo - do not show eg. ^C
+set echo-control-characters off
+
+# bracketed paste - prevent running pasted commands
+set enable-bracketed-paste on
+
+# keyboard shortcuts
+## prepend command with `sudo` with Alt-s
+"\es": "\C-asudo \C-e"
+## move through word with Alt-Left/Right
+"\e[1;5D": backward-word
+"\e[1;5C": forward-word
+## change to previous directory with Ctrl-b
+"\C-b": "cd -\C-m"

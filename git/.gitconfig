@@ -1,0 +1,12 @@
+
+[user]
+	name = Michał Chmurkowski
+	email = 4909359+mchmurkowski@users.noreply.github.com
+[core]
+	excludesfile = ~/.gitignore_global
+	editor = vim
+	autocrlf = input
+[push]
+	autoSetupRemote = true
+[init]
+	defaultBranch = main

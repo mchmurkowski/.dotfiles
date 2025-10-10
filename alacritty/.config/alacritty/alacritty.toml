@@ -1,0 +1,10 @@
+[general]
+import = [ "~/.config/alacritty/kanso_zen.toml" ]
+
+[window]
+padding = { x = 6, y = 3 }
+decorations = "None"
+
+[font]
+normal = { family = "IBM Plex Mono" }
+size = 13

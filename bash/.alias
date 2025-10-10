@@ -1,0 +1,23 @@
+alias vi="nvim"
+alias vim="nvim"
+alias vimdiff="nvim -d"
+
+alias ~="cd ~"
+
+alias ping="ping -c 5"
+
+# be verbose about file operations
+alias cp="cp -v"
+alias mv="mv -v"
+alias rm="rm -v"
+alias mkdir="mkdir -pv"
+alias rmdir="rmdir -v"
+
+# modern alternatives to popular commands
+alias cat="bat -pp"
+alias cd="z"
+alias fetch="fastfetch"
+alias find="fd"
+alias grep="rg"
+alias ls="eza"
+alias tree="eza --tree"
