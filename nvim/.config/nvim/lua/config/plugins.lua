@@ -26,15 +26,6 @@ add({
 })
 
 add({
-  source = "mason-org/mason-lspconfig.nvim",
-  depends = {
-    "mason-org/mason.nvim",
-    "neovim/nvim-lspconfig",
-    "folke/lazydev.nvim" -- setup lua_ls for vim stuff
-  },
-})
-
-add({
   source = "nvim-mini/mini.completion",
   depends = {
     "nvim-mini/mini.icons",
@@ -55,29 +46,6 @@ require("nvim-treesitter.configs").setup({
     enable = true,
     additional_vim_regex_highlighting = false
   }
-})
-
-require("mason").setup({
-  ui = {
-    icons = {
-      package_installed = "✓",
-      package_pending = "➜",
-      package_uninstalled = "✗"
-    }
-  }
-})
-
-require("mason-lspconfig").setup({
-  ensure_installed = { "lua_ls", "jedi_language_server", "ruff" }
-})
-
-require("lazydev").setup({
-  library = {
-    {
-      path = "$(3rd)/luv/library",
-      word = { "vim%.uv" }
-    },
-  },
 })
 
 require("mini.icons").setup({
