@@ -1,6 +1,7 @@
 alias vi="nvim"
 alias vim="nvim"
 alias vimdiff="nvim -d"
+alias fv="fzf --bind 'enter:become(nvim {})'"
 
 alias ~="cd ~"
 
