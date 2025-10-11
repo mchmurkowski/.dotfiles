@@ -39,4 +39,5 @@ opt.undodir = os.getenv("HOME") .. "/.vim/undodir"
 opt.undofile = true
 opt.updatetime = 250
 opt.winbar = "%=%m %t" -- add topbar with file name and flag
+opt.winborder = "single"
 opt.wrap = false
