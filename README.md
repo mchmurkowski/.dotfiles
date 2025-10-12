@@ -8,6 +8,7 @@ Contains configuration for:
 - bash
 - dwm[^1]
 - editorconfig
+- emacs
 - git
 - nvim
 - starship
