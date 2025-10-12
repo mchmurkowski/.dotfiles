@@ -6,6 +6,10 @@
 (require 'package)
 (package-initialize)
 
+(if (display-graphic-p)
+    (scroll-bar-mode -1)
+  (menu-bar-mode -1))
+
 (add-to-list 'package-archives '("melpa" . "https://melpa.org/packages"))
 
 (when (< emacs-major-version 29)
@@ -13,6 +17,12 @@
     (unless package-archive-contents
       (package-refresh-contents))
     (package-install 'use-package)))
+
+;; do not show warnings from packages installation
+(add-to-list 'display-buffer-alist
+             '("\\`\\*\\(Warnings\\|Compile-Log\\)\\*\\'"
+               (display-buffer-no-window)
+               (allow-no-window . t)))
 
 (use-package display-line-numbers
   :ensure nil
@@ -115,3 +125,8 @@
      '("<escape>" . ignore)))
   :config
   (meow-setup))
+
+(setq create-lockfiles nil)
+(setq vc-follow-symlinks t)
+
+(load-theme 'modus-vivendi)
