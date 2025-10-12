@@ -20,7 +20,7 @@ static const char *colors[][3]      = {
 };
 
 /* tagging */
-static const char *tags[] = { "term", "web", "all" };
+static const char *tags[] = { "term", "web", "misc" };
 
 static const Rule rules[] = {
 	/* xprop(1):
@@ -30,7 +30,6 @@ static const Rule rules[] = {
 	/* class         instance    title       tags mask     isfloating   monitor */
 	{ "Alacritty",   NULL,       NULL,       1 << 0,       0,           -1 },
 	{ "firefox-esr", NULL,       NULL,       1 << 1,       0,           -1 },
-	{ NULL,          NULL,       NULL,       1 << 2,       0,           -1 },
 };
 
 /* layout(s) */
