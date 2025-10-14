@@ -1,14 +1,7 @@
 ;;; -*- lexical-binding: t -*-
 
-(setq custom-file (locate-user-emacs-file "custom.el"))
-(load custom-file :no-error-if-file-is-missing)
-
 (require 'package)
 (package-initialize)
-
-(if (display-graphic-p)
-    (scroll-bar-mode -1)
-  (menu-bar-mode -1))
 
 (add-to-list 'package-archives '("melpa" . "https://melpa.org/packages"))
 
@@ -23,6 +16,37 @@
              '("\\`\\*\\(Warnings\\|Compile-Log\\)\\*\\'"
                (display-buffer-no-window)
                (allow-no-window . t)))
+
+(use-package emacs
+  :ensure nil
+  :config
+  (setq custom-file (locate-user-emacs-file "custom.el"))
+  (load custom-file :no-error-if-file-is-missing)
+  
+  (setq make-backup-files nil
+	create-lockfiles nil)
+  
+  (setq vc-follow-symlinks t)
+
+  (setq inhibit-startup-screen t
+	initial-major-mode 'org-mode
+	initial-scratch-message "")
+  
+  (setq ring-bell-function 'ignore)
+  (if (display-graphic-p)
+      (scroll-bar-mode -1)
+    (menu-bar-mode -1))
+  (setq custom-safe-themes t)
+  :init
+  (load-theme 'modus-vivendi))
+
+(use-package recentf
+  :ensure nil
+  :hook (after-init . recentf-mode)
+  :config
+  (setq recentf-max-saved-items 50
+	recentf-max-menu-items 10)
+  (global-set-key "\C-x\ \C-r" 'recentf-open-files))
 
 (use-package display-line-numbers
   :ensure nil
@@ -124,9 +148,5 @@
      '("'" . repeat)
      '("<escape>" . ignore)))
   :config
-  (meow-setup))
-
-(setq create-lockfiles nil)
-(setq vc-follow-symlinks t)
-
-(load-theme 'modus-vivendi)
+  (meow-setup)
+  (meow-global-mode))
