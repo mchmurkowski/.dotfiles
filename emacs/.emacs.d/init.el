@@ -1,9 +1,17 @@
-;;; -*- lexical-binding: t -*-
+;; -*- lexical-binding: t -*-
 
+;; deal with custom file
+(setopt custom-file (locate-user-emacs-file "custom.el"))
+(load custom-file :no-error-if-file-is-missing)
+
+;; add modules to path
+(add-to-list 'load-path (expand-file-name "lisp" user-emacs-directory))
+
+;; setup use-package
 (require 'package)
 (package-initialize)
 
-(add-to-list 'package-archives '("melpa" . "https://melpa.org/packages"))
+(add-to-list 'package-archives '("melpa" . "https://melpa.org/packages/"))
 
 (when (< emacs-major-version 29)
   (unless (package-installed-p 'use-package)
@@ -11,142 +19,115 @@
       (package-refresh-contents))
     (package-install 'use-package)))
 
-;; do not show warnings from packages installation
 (add-to-list 'display-buffer-alist
              '("\\`\\*\\(Warnings\\|Compile-Log\\)\\*\\'"
                (display-buffer-no-window)
                (allow-no-window . t)))
 
+;; basic settings and improvements
 (use-package emacs
   :ensure nil
-  :config
-  (setq custom-file (locate-user-emacs-file "custom.el"))
-  (load custom-file :no-error-if-file-is-missing)
-  
-  (setq make-backup-files nil
-	create-lockfiles nil)
-  
-  (setq vc-follow-symlinks t)
-
-  (setq inhibit-startup-screen t
-	initial-major-mode 'org-mode
-	initial-scratch-message "")
-  
-  (setq ring-bell-function 'ignore)
-  (if (display-graphic-p)
-      (scroll-bar-mode -1)
-    (menu-bar-mode -1))
-  (setq custom-safe-themes t)
   :init
-  (load-theme 'modus-vivendi))
-
-(use-package recentf
-  :ensure nil
-  :hook (after-init . recentf-mode)
+  (setopt initial-major-mode 'org-mode)
+  (setopt initial-scratch-message "")
   :config
-  (setq recentf-max-saved-items 50
-	recentf-max-menu-items 10)
-  (global-set-key "\C-x\ \C-r" 'recentf-open-files))
-
-(use-package display-line-numbers
-  :ensure nil
-  :defer
-  :config
-  (setq display-line-numbers-type 'relative)
-  :custom
-  (display-line-numbers-width-start t)
-  :hook
-  (prog-mode . display-line-numbers-mode))
+  (setopt create-lockfiles nil)
+  (setopt make-backup-files nil)
+  (setopt auto-save-no-message t)
+  (setopt use-short-answers t)
+  (setopt visible-bell nil)
+  (setopt ring-bell-function #'ignore)
+  (setopt find-file-visit-truename t)
+  (setopt vc-follow-symlinks t)
+  (setopt sentence-end-double-space nil)
+  (setopt require-final-newline t)
+  (setopt indent-tabs-mode nil)
+  (setopt tab-width 4))
 
 (use-package delsel
   :ensure nil
   :hook (after-init . delete-selection-mode))
 
-(use-package meow
-  :ensure t
-  :init
-  (defun meow-setup ()
-    (setq meow-cheatsheet-layout meow-cheatsheet-layout-qwerty)
-    (meow-motion-overwrite-define-key
-     '("j" . meow-next)
-     '("k" . meow-prev)
-     '("<escape>" . ignore))
-    (meow-leader-define-key
-     ;; Use SPC (0-9) for digit arguments.
-     '("1" . meow-digit-argument)
-     '("2" . meow-digit-argument)
-     '("3" . meow-digit-argument)
-     '("4" . meow-digit-argument)
-     '("5" . meow-digit-argument)
-     '("6" . meow-digit-argument)
-     '("7" . meow-digit-argument)
-     '("8" . meow-digit-argument)
-     '("9" . meow-digit-argument)
-     '("0" . meow-digit-argument)
-     '("/" . meow-keypad-describe-key)
-     '("?" . meow-cheatsheet))
-    (meow-normal-define-key
-     '("0" . meow-expand-0)
-     '("9" . meow-expand-9)
-     '("8" . meow-expand-8)
-     '("7" . meow-expand-7)
-     '("6" . meow-expand-6)
-     '("5" . meow-expand-5)
-     '("4" . meow-expand-4)
-     '("3" . meow-expand-3)
-     '("2" . meow-expand-2)
-     '("1" . meow-expand-1)
-     '("-" . negative-argument)
-     '(";" . meow-reverse)
-     '("," . meow-inner-of-thing)
-     '("." . meow-bounds-of-thing)
-     '("[" . meow-beginning-of-thing)
-     '("]" . meow-end-of-thing)
-     '("a" . meow-append)
-     '("A" . meow-open-below)
-     '("b" . meow-back-word)
-     '("B" . meow-back-symbol)
-     '("c" . meow-change)
-     '("d" . meow-delete)
-     '("D" . meow-backward-delete)
-     '("e" . meow-next-word)
-     '("E" . meow-next-symbol)
-     '("f" . meow-find)
-     '("g" . meow-cancel-selection)
-     '("G" . meow-grab)
-     '("h" . meow-left)
-     '("H" . meow-left-expand)
-     '("i" . meow-insert)
-     '("I" . meow-open-above)
-     '("j" . meow-next)
-     '("J" . meow-next-expand)
-     '("k" . meow-prev)
-     '("K" . meow-prev-expand)
-     '("l" . meow-right)
-     '("L" . meow-right-expand)
-     '("m" . meow-join)
-     '("n" . meow-search)
-     '("o" . meow-block)
-     '("O" . meow-to-block)
-     '("p" . meow-yank)
-     '("q" . meow-quit)
-     '("Q" . meow-goto-line)
-     '("r" . meow-replace)
-     '("R" . meow-swap-grab)
-     '("s" . meow-kill)
-     '("t" . meow-till)
-     '("u" . meow-undo)
-     '("U" . meow-undo-in-selection)
-     '("v" . meow-visit)
-     '("w" . meow-mark-word)
-     '("W" . meow-mark-symbol)
-     '("x" . meow-line)
-     '("X" . meow-goto-line)
-     '("y" . meow-save)
-     '("Y" . meow-sync-grab)
-     '("z" . meow-pop-selection)
-     '("'" . repeat)
-     '("<escape>" . ignore)))
+(use-package savehist
+  :ensure nil
+  :hook (after-init . savehist-mode))
+
+(use-package saveplace
+  :ensure nil
+  :hook (after-init . save-place-mode))
+
+(use-package recentf
+  :ensure nil
   :config
-  (meow-setup)
-  (meow-global-mode))
+  (setopt recentf-max-saved-items 50)
+  (setopt recentf-max-menu-items 10)
+  (global-set-key (kbd "C-x C-r") 'recentf-open-files)
+  :hook (after-init . recentf-mode))
+
+;; help
+(use-package which-key
+  :ensure nil
+  :config
+  (setopt which-key-max-display-columns 3)
+  (setopt whick-key-idle-delay 1.5)
+  :hook (after-init . which-key-mode))
+
+(use-package helpful
+  :ensure t
+  :bind (("C-h f" . #'helpful-callable)
+         ("C-h v" . #'helpful-variable)
+         ("C-h k" . #'helpful-key)
+         ("C-h C-d". #'helpful-at-point)
+         ("C-h F" . #'helpful-function)
+         ("C-h C" . #'helpful-command)))
+
+;; editing
+(use-package display-line-numbers
+  :ensure nil
+  :config
+  (setopt display-line-numbers-width 4)
+  (setopt display-line-numbers-type 'relative)
+  :hook
+  ((prog-mode . display-line-numbers-mode)
+   (conf-mode . display-line-numbers-mode)))
+
+;;; modal editing via meow
+(require 'meow-module)
+
+(use-package editorconfig
+  :ensure nil
+  :hook
+  ((prog-mode . editorconfig-mode)
+   (conf-mode . editorconfig-mode)))
+
+;; vertico, marginalia, etc.
+(use-package vertico
+  :ensure t
+  :hook (after-init . vertico-mode))
+
+(use-package marginalia
+  :ensure t
+  :hook (after-init . marginalia-mode))
+
+(use-package orderless
+  :ensure t
+  :config
+  (setopt completion-styles '(orderless basic))
+  (setopt completion-category-defaults nil)
+  (setopt completion-category-overrides nil))
+
+;; completion
+(use-package corfu
+  :ensure t
+  :hook (after-init . global-corfu-mode)
+  :bind (:map corfu-map ("<tab>" . corfu-complete))
+  :init
+  (setopt tab-always-indent 'complete)
+  :config
+  (setopt corfu-preview-current nil)
+  (setopt corfu-min-width 20)
+  (setopt corfu-popupinfo-delay '(1.25 . 0.5))
+  (corfu-popupinfo-mode 1)
+  (with-eval-after-load 'savehist
+    (corfu-history-mode 1)
+    (add-to-list 'savehist-additional-variables 'corfu-history)))
