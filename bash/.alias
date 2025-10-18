@@ -3,8 +3,6 @@ alias vim="nvim"
 alias vimdiff="nvim -d"
 alias fv="fzf --bind 'enter:become(nvim {})'"
 
-alias ~="cd ~"
-
 alias ping="ping -c 5"
 
 # be verbose about file operations
