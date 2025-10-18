@@ -11,7 +11,11 @@
 (if (display-graphic-p)
     (progn
       (load-theme 'modus-operandi-tinted t)
-      (set-frame-font "IBM Plex Mono 13" nil t)))
+      (set-frame-font "IBM Plex Mono 13" nil t))
+  ;; use dark theme on WSL
+  (when (string= (system-name) "LAPTOP-O7M8TTB2")
+    (progn
+      (load-theme 'modus-vivendi t))))
 
 ;; setup use-package
 (require 'package)
