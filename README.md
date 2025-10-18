@@ -6,14 +6,13 @@ Contains configuration for:
 
 - alacritty
 - bash
-- dwm[^1]
 - editorconfig
 - emacs
 - git
 - nvim
+- river
 - starship
 - tmux
-- xinit
 
 # Usage
 
@@ -22,5 +21,3 @@ Dotfiles are managed with `stow`:
 ```bash
 man stow
 ```
-
-[^1]: dwm patches: [attachbottom](https://dwm.suckless.org/patches/attachbottom/), [fullgaps](https://dwm.suckless.org/patches/fullgaps/).
