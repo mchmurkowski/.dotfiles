@@ -1,16 +1,9 @@
 #!/bin/sh
 
-# This is the example configuration file for river.
-#
-# If you wish to edit this, you will probably want to copy it to
-# $XDG_CONFIG_HOME/river/init or $HOME/.config/river/init first.
-#
 # See the river(1), riverctl(1), and rivertile(1) man pages for complete
 # documentation.
 
-# Note: the "Super" modifier is also known as Logo, GUI, Windows, Mod4, etc.
-
-# Super+Shift+Return to start terminal 
+# Super+Shift+Return to start terminal
 riverctl map normal Super+Shift Return spawn alacritty
 
 # Super+P to start a launcher
@@ -84,11 +77,11 @@ do
     # Super+[1-9] to focus tag [0-8]
     riverctl map normal Super $i set-focused-tags $tags
 
-    # Super+Shift+[1-9] to tag focused view with tag [0-8]
-    riverctl map normal Super+Shift $i set-view-tags $tags
+    # Super+Control+[1-9] to tag focused view with tag [0-8]
+    riverctl map normal Super+Control $i set-view-tags $tags
 
-    # Super+Control+[1-9] to toggle focus of tag [0-8]
-    riverctl map normal Super+Control $i toggle-focused-tags $tags
+    # Super+Shift+[1-9] to toggle focus of tag [0-8]
+    riverctl map normal Super+Shift $i toggle-focused-tags $tags
 
     # Super+Shift+Control+[1-9] to toggle tag [0-8] of focused view
     riverctl map normal Super+Shift+Control $i toggle-view-tags $tags
@@ -151,8 +144,15 @@ riverctl border-width 3
 riverctl border-color-focused 0x005e8b
 riverctl border-color-unfocused 0xc2bcb5
 
+# Set the keyboard layout
+riverctl keyboard-layout "pl"
+
 # Set keyboard repeat rate
-riverctl set-repeat 50 300
+riverctl set-repeat 30 300
+
+# Set focus follows mouse
+riverctl focus-follows-cursor normal
+riverctl set-cursor-warp on-focus-change
 
 # Make all views with an app-id that starts with "float" and title "foo" start floating.
 riverctl rule-add -app-id 'float*' -title 'foo' float
@@ -160,12 +160,13 @@ riverctl rule-add -app-id 'float*' -title 'foo' float
 # Make all views with app-id "bar" and any title use client-side decorations
 riverctl rule-add -app-id "bar" csd
 
-riverctl default-attach-mode bottom
-riverctl focus-follows-cursor normal
-riverctl set-cursor-warp on-focus-change
+# Application rules for spawning in tags
+riverctl rule-add -app-id "emacs" tags $((1 << 0))
+riverctl rule-add -app-id "Alacritty" tags $((1 << 1))
+riverctl rule-add -app-id "firefox" tags $((1 << 2))
 
-# Set the keyboard layout
-riverctl keyboard-layout "pl"
+# Make new windows spawn at the bottom of the stack
+riverctl default-attach-mode bottom
 
 # Set the default layout generator to be rivertile and start it.
 # River will send the process group of the init executable SIGTERM on exit.
