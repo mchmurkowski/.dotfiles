@@ -15,6 +15,4 @@
 
 (setopt inhibit-startup-screen t)
 
-(load-theme 'modus-vivendi t)
-
 (setopt native-comp-speed 2)

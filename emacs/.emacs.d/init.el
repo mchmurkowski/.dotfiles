@@ -7,6 +7,12 @@
 ;; add modules to path
 (add-to-list 'load-path (expand-file-name "lisp" user-emacs-directory))
 
+;; set theme and fonts
+(if (display-graphic-p)
+    (progn
+      (load-theme 'modus-operandi-tinted t)
+      (set-frame-font "IBM Plex Mono 13" nil t)))
+
 ;; setup use-package
 (require 'package)
 (package-initialize)
@@ -28,7 +34,7 @@
 (use-package emacs
   :ensure nil
   :init
-  (setopt initial-major-mode 'org-mode)
+  (setopt initial-major-mode 'fundamental-mode)
   (setopt initial-scratch-message "")
   :config
   (setopt create-lockfiles nil)
