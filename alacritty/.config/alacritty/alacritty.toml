@@ -1,5 +1,5 @@
 [general]
-import = [ "~/.config/alacritty/kanso_zen.toml" ]
+import = [ "~/.config/alacritty/modus-operandi-tinted.toml" ]
 
 [window]
 padding = { x = 6, y = 3 }
