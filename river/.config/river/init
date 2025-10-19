@@ -168,6 +168,9 @@ riverctl rule-add -app-id "firefox" tags $((1 << 2))
 # Make new windows spawn at the bottom of the stack
 riverctl default-attach-mode bottom
 
+# Autostart
+riverctl spawn emacs
+
 # Set the default layout generator to be rivertile and start it.
 # River will send the process group of the init executable SIGTERM on exit.
 riverctl default-layout rivertile
