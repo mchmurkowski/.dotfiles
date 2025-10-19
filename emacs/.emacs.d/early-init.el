@@ -15,4 +15,6 @@
 
 (setopt inhibit-startup-screen t)
 
+(setopt default-frame-alist '((undecorated . t)))
+
 (setopt native-comp-speed 2)
