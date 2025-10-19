@@ -91,6 +91,15 @@
          ("C-h F" . #'helpful-function)
          ("C-h C" . #'helpful-command)))
 
+;; run emacs as a server
+(use-package server
+  :ensure nil
+  :defer 1
+  :config
+  (setq server-client-instructions nil)
+  (unless (or (server-running-p) (daemonp))
+    (server-start)))
+
 ;; editing
 (use-package display-line-numbers
   :ensure nil
