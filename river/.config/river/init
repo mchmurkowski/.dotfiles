@@ -166,11 +166,8 @@ riverctl xcursor-theme Hackneyed-24px
 riverctl focus-follows-cursor normal
 riverctl set-cursor-warp on-focus-change
 
-# Make all views with an app-id that starts with "float" and title "foo" start floating.
-riverctl rule-add -app-id 'float*' -title 'foo' float
-
-# Make all views with app-id "bar" and any title use client-side decorations
-riverctl rule-add -app-id "bar" csd
+# Make all apps use server-side decorations
+riverctl rule-add ssd
 
 # Application rules for spawning in tags
 riverctl rule-add -app-id "emacs" tags $((1 << 0))
