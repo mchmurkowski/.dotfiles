@@ -20,6 +20,9 @@ riverctl map normal Super Q close
 # Super+Shift+E to exit river
 riverctl map normal Super+Shift E exit
 
+# Control+Alt+L to lock the screen
+riverctl map normal Alt+Control L spawn "waylock -ignore-empty-password -init-color 0x2F4F4F -input-color 0xA0E8AF -fail-color 0xFFCF56"
+
 # Super+J and Super+K to focus the next/previous view in the layout stack
 riverctl map normal Super J focus-view next
 riverctl map normal Super K focus-view previous
