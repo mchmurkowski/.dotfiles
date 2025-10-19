@@ -3,6 +3,11 @@
 # See the river(1), riverctl(1), and rivertile(1) man pages for complete
 # documentation.
 
+
+# XDG Desktop Portals and DBUS interoperability
+riverctl spawn "dbus-update-activation-environment --systemd WAYLAND_DISPLAY XDG_CURRENT_DESKTOP=river"
+riverctl spawn "systemctl --user import-environment WAYLAND_DISPLAY XDG_CURRENT_DESKTOP=river"
+
 # Super+Shift+Return to start terminal
 riverctl map normal Super+Shift Return spawn alacritty
 
@@ -149,6 +154,10 @@ riverctl keyboard-layout "pl"
 
 # Set keyboard repeat rate
 riverctl set-repeat 30 300
+
+# Set cursor theme
+# also run `gsettings set org.gnome.desktop.interface cursor-theme [theme]`
+riverctl xcursor-theme Hackneyed-24px
 
 # Set focus follows mouse
 riverctl focus-follows-cursor normal
