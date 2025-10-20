@@ -1,12 +1,15 @@
 ;; -*- lexical-binding: t -*-
 
+
 ;; deal with custom file
 (setopt custom-file (locate-user-emacs-file "custom.el"))
 (load custom-file :no-error-if-file-is-missing)
 
+
 ;; add modules to path
 (add-to-list 'load-path (expand-file-name "lisp" user-emacs-directory))
 
+
 ;; set theme and fonts
 (if (display-graphic-p)
     (progn
@@ -18,6 +21,7 @@
     (progn
       (load-theme 'modus-vivendi t))))
 
+
 ;; setup use-package
 (require 'package)
 (package-initialize)
@@ -35,6 +39,7 @@
                (display-buffer-no-window)
                (allow-no-window . t)))
 
+
 ;; basic settings and improvements
 (use-package emacs
   :ensure nil
@@ -75,6 +80,7 @@
   (global-set-key (kbd "C-x C-r") 'recentf-open-files)
   :hook (after-init . recentf-mode))
 
+
 ;; help
 (use-package which-key
   :ensure nil
@@ -92,6 +98,7 @@
          ("C-h F" . #'helpful-function)
          ("C-h C" . #'helpful-command)))
 
+
 ;; run emacs as a server
 (use-package server
   :ensure nil
@@ -101,6 +108,7 @@
   (unless (or (server-running-p) (daemonp))
     (server-start)))
 
+
 ;; editing
 (use-package display-line-numbers
   :ensure nil
@@ -120,7 +128,8 @@
   ((prog-mode . editorconfig-mode)
    (conf-mode . editorconfig-mode)))
 
-;; vertico, marginalia, etc.
+
+;; minibuffer improvements: vertico, marginalia, consult etc.
 (use-package vertico
   :ensure t
   :hook (after-init . vertico-mode))
@@ -136,6 +145,18 @@
   (setopt completion-category-defaults nil)
   (setopt completion-category-overrides nil))
 
+(use-package consult
+  :ensure t
+  :init
+  (global-unset-key (kbd "C-z")) ;; disable C-z (suspend-frame) and use as consult prefix
+  :bind (
+         ("C-z g" . consult-grep)
+         ("C-z f" . consult-find)
+         ("C-z o" . consult-outline)
+         ("C-z l" . consult-line)
+         ("C-z b" . consult-buffer)))
+
+
 ;; completion
 (use-package corfu
   :ensure t
