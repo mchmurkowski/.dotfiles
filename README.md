@@ -8,6 +8,7 @@ Contains configuration for:
 - bash
 - editorconfig
 - emacs
+- fuzzel
 - git
 - nvim
 - river
