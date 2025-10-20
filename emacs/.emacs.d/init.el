@@ -81,6 +81,20 @@
   :hook (after-init . recentf-mode))
 
 
+;; navigation
+(use-package mouse
+  :ensure nil
+  :config
+  (setopt mouse-wheel-progressive-speed nil)
+  (setopt mouse-autoselect-window t)
+  (setopt mouse-wheel-follow-mouse t)
+  (setopt scroll-preserve-screen-position t)
+  (setopt scroll-conservatively 1)
+  (setopt scroll-margin 4)
+  (setopt hscroll-margin 6)
+  (setopt next-screen-context-lines 4))
+
+
 ;; help
 (use-package which-key
   :ensure nil
