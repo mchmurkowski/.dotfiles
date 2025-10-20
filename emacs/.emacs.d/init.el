@@ -1,16 +1,12 @@
 ;; -*- lexical-binding: t -*-
 
 
-;; deal with custom file
+;;; Deal with custom file
 (setopt custom-file (locate-user-emacs-file "custom.el"))
 (load custom-file :no-error-if-file-is-missing)
 
 
-;; add modules to path
-(add-to-list 'load-path (expand-file-name "lisp" user-emacs-directory))
-
-
-;; set theme and fonts
+;;; Looks - themes and fonts
 (if (display-graphic-p)
     (progn
       (load-theme 'modus-operandi-tinted t)
@@ -22,7 +18,8 @@
       (load-theme 'modus-vivendi t))))
 
 
-;; setup use-package
+;;; Package, modules & configuration setup
+;; bootstrap `use-package`
 (require 'package)
 (package-initialize)
 
@@ -39,8 +36,11 @@
                (display-buffer-no-window)
                (allow-no-window . t)))
 
+;; set path for user modules
+(add-to-list 'load-path (expand-file-name "lisp" user-emacs-directory))
+
 
-;; basic settings and improvements
+;;; Basic, sensible settings
 (use-package emacs
   :ensure nil
   :init
@@ -64,6 +64,16 @@
   :ensure nil
   :hook (after-init . delete-selection-mode))
 
+
+;;; Session & history management
+(use-package server
+  :ensure nil
+  :defer 1
+  :config
+  (setq server-client-instructions nil)
+  (unless (or (server-running-p) (daemonp))
+    (server-start)))
+
 (use-package savehist
   :ensure nil
   :hook (after-init . savehist-mode))
@@ -81,7 +91,10 @@
   :hook (after-init . recentf-mode))
 
 
-;; navigation
+;;; Editing & navigation
+;; enable modal editing
+(require 'meow-module)
+
 (use-package mouse
   :ensure nil
   :config
@@ -95,7 +108,7 @@
   (setopt next-screen-context-lines 4))
 
 
-;; help
+;; Help
 (use-package which-key
   :ensure nil
   :config
@@ -113,37 +126,7 @@
          ("C-h C" . #'helpful-command)))
 
 
-;; run emacs as a server
-(use-package server
-  :ensure nil
-  :defer 1
-  :config
-  (setq server-client-instructions nil)
-  (unless (or (server-running-p) (daemonp))
-    (server-start)))
-
-
-;; editing
-(use-package display-line-numbers
-  :ensure nil
-  :config
-  (setopt display-line-numbers-width 4)
-  (setopt display-line-numbers-type 'relative)
-  :hook
-  ((prog-mode . display-line-numbers-mode)
-   (conf-mode . display-line-numbers-mode)))
-
-;;; modal editing via meow
-(require 'meow-module)
-
-(use-package editorconfig
-  :ensure nil
-  :hook
-  ((prog-mode . editorconfig-mode)
-   (conf-mode . editorconfig-mode)))
-
-
-;; minibuffer improvements: vertico, marginalia, consult etc.
+;;; Minibuffer improvements: vertico, marginalia, consult etc.
 (use-package vertico
   :ensure t
   :hook (after-init . vertico-mode))
@@ -171,6 +154,24 @@
          ("C-z b" . consult-buffer)))
 
 
+;;; Programming
+;; relative line numbers
+(use-package display-line-numbers
+  :ensure nil
+  :config
+  (setopt display-line-numbers-width 4)
+  (setopt display-line-numbers-type 'relative)
+  :hook
+  ((prog-mode . display-line-numbers-mode)
+   (conf-mode . display-line-numbers-mode)))
+
+;; respect editorconfig
+(use-package editorconfig
+  :ensure nil
+  :hook
+  ((prog-mode . editorconfig-mode)
+   (conf-mode . editorconfig-mode)))
+
 ;; completion
 (use-package corfu
   :ensure t
