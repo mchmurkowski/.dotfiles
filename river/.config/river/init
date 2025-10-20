@@ -3,16 +3,23 @@
 # See the river(1), riverctl(1), and rivertile(1) man pages for complete
 # documentation.
 
+# Variables
+LAUNCHER_CMD="fuzzel"
+TERMINAL_CMD="alacritty"
+
+EDITOR_TAG=$((1 << 0))
+TERMINAL_TAG=$((1 << 1))
+BROWSER_TAG=$((1 << 2))
 
 # XDG Desktop Portals and DBUS interoperability
 riverctl spawn "dbus-update-activation-environment --systemd WAYLAND_DISPLAY XDG_CURRENT_DESKTOP=river"
 riverctl spawn "systemctl --user import-environment WAYLAND_DISPLAY XDG_CURRENT_DESKTOP=river"
 
 # Super+Shift+Return to start terminal
-riverctl map normal Super+Shift Return spawn alacritty
+riverctl map normal Super+Shift Return spawn $TERMINAL_CMD
 
 # Super+P to start a launcher
-riverctl map normal Super P spawn "fuzzel -I -l 5"
+riverctl map normal Super P spawn $LAUNCHER_CMD
 
 # Super+Q to close the focused view
 riverctl map normal Super Q close
@@ -170,9 +177,9 @@ riverctl set-cursor-warp on-focus-change
 riverctl rule-add ssd
 
 # Application rules for spawning in tags
-riverctl rule-add -app-id "emacs" tags $((1 << 0))
-riverctl rule-add -app-id "Alacritty" tags $((1 << 1))
-riverctl rule-add -app-id "firefox" tags $((1 << 2))
+riverctl rule-add -app-id "emacs" tags $EDITOR_TAG
+riverctl rule-add -app-id "Alacritty" tags $TERMINAL_TAG
+riverctl rule-add -app-id "firefox" tags $BROWSER_TAG
 
 # Make new windows spawn at the bottom of the stack
 riverctl default-attach-mode bottom
@@ -181,7 +188,7 @@ riverctl default-attach-mode bottom
 riverctl spawn emacs
 
 # Start with tag 2 (terminal) also selected
-riverctl toggle-focused-tags $((1 << 1))
+riverctl toggle-focused-tags $TERMINAL_TAG
 
 # Set the default layout generator to be rivertile and start it.
 # River will send the process group of the init executable SIGTERM on exit.
