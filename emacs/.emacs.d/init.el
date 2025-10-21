@@ -151,10 +151,13 @@
   (global-unset-key (kbd "C-z")) ;; disable C-z (suspend-frame) and use as consult prefix
   :bind (
          ("C-z g" . consult-grep)
+         ("C-z r" . consult-ripgrep)
          ("C-z f" . consult-find)
          ("C-z o" . consult-outline)
          ("C-z l" . consult-line)
-         ("C-z b" . consult-buffer)))
+         ("C-z b" . consult-buffer))
+  :config
+  (setopt consult-narrow-key "<"))
 
 
 ;;; Programming
