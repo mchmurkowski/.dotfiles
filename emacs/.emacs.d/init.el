@@ -105,7 +105,10 @@
   (setopt scroll-conservatively 1)
   (setopt scroll-margin 4)
   (setopt hscroll-margin 6)
-  (setopt next-screen-context-lines 4))
+  (setopt next-screen-context-lines 4)
+  :init
+  (if (not (display-graphic-p))
+      (xterm-mouse-mode t)))
 
 
 ;; Help
