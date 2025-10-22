@@ -15,8 +15,14 @@ require("mini.deps").setup({ path = { package = path_package } })
 
 local add = MiniDeps.add
 
-add("webhooked/kanso.nvim")
-vim.cmd("colorscheme kanso")
+add("miikanissi/modus-themes.nvim")
+require ("modus-themes").setup({
+  variant = "tinted",
+  styles = {
+    keywords = { italic = false },
+  },
+})
+vim.cmd("colorscheme modus")
 
 add({
   source = "nvim-treesitter/nvim-treesitter",
