@@ -38,3 +38,11 @@ vim.api.nvim_create_autocmd("FileType", {
     vim.opt_local.wrap = true
   end,
 })
+
+vim.api.nvim_create_autocmd("VimEnter", {
+  group = augroup("disable_highlight"),
+  desc = "Disable syntax highlighting with Tree Sitter",
+  callback = function()
+    vim.cmd("TSToggle highlight")
+  end,
+})
