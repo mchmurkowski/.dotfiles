@@ -7,7 +7,6 @@ Contains configuration for:
 - alacritty
 - bash
 - editorconfig
-- emacs
 - fuzzel
 - git
 - nvim

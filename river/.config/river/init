@@ -7,9 +7,8 @@
 LAUNCHER_CMD="fuzzel"
 TERMINAL_CMD="alacritty"
 
-EDITOR_TAG=$((1 << 0))
-TERMINAL_TAG=$((1 << 1))
-BROWSER_TAG=$((1 << 2))
+TERMINAL_TAG=$((1 << 0))
+BROWSER_TAG=$((1 << 1))
 
 # XDG Desktop Portals and DBUS interoperability
 riverctl spawn "dbus-update-activation-environment --systemd WAYLAND_DISPLAY XDG_CURRENT_DESKTOP=river"
@@ -177,18 +176,11 @@ riverctl set-cursor-warp on-focus-change
 riverctl rule-add ssd
 
 # Application rules for spawning in tags
-riverctl rule-add -app-id "emacs" tags $EDITOR_TAG
 riverctl rule-add -app-id "Alacritty" tags $TERMINAL_TAG
 riverctl rule-add -app-id "firefox" tags $BROWSER_TAG
 
 # Make new windows spawn at the bottom of the stack
 riverctl default-attach-mode bottom
-
-# Autostart
-riverctl spawn emacs
-
-# Start with tag 2 (terminal) also selected
-riverctl toggle-focused-tags $TERMINAL_TAG
 
 # Set the default layout generator to be rivertile and start it.
 # River will send the process group of the init executable SIGTERM on exit.
