@@ -129,6 +129,12 @@ riverctl map normal Super F11 enter-mode passthrough
 # Super+F11 to return to normal mode
 riverctl map passthrough Super F11 enter-mode normal
 
+# Super+T sends a notification with current time
+riverctl map normal Super T spawn "notify-send $(date +'%H:%M')"
+
+# Super+Esc dismisses last notification
+riverctl map normal Super Escape spawn "makoctl dismiss"
+
 # Various media key mapping examples for both normal and locked mode which do
 # not have a modifier
 for mode in normal locked
