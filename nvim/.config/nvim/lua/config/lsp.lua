@@ -1,4 +1,4 @@
-vim.lsp.enable({ "lua_ls", "jedi_language_server", "ruff" })
+vim.lsp.enable({ "lua_ls", "basedpyright", "ruff" })
 
 vim.diagnostic.config({
   virtual_lines = {
