@@ -45,7 +45,7 @@ add("nvim-mini/mini.comment")
 add("nvim-mini/mini.clue")
 
 require("nvim-treesitter.configs").setup({
-  ensure_installed = { "python", "lua", "vimdoc" },
+  ensure_installed = { "python", "lua", "fennel", "vimdoc" },
   sync_install = false,
   auto_install = false,
   highlight = {
