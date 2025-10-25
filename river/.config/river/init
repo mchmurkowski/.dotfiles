@@ -6,6 +6,7 @@
 # Variables
 LAUNCHER_CMD="fuzzel"
 TERMINAL_CMD="alacritty"
+SCRIPTS_DIR="~/.config/river/scripts"
 
 TERMINAL_TAG=$((1 << 0))
 BROWSER_TAG=$((1 << 1))
@@ -130,7 +131,7 @@ riverctl map normal Super F11 enter-mode passthrough
 riverctl map passthrough Super F11 enter-mode normal
 
 # Super+T sends a notification with current time
-riverctl map normal Super T spawn "notify-send $(date +'%H:%M')"
+riverctl map normal Super T spawn "$SCRIPTS_DIR/time_teller.sh"
 
 # Super+Esc dismisses last notification
 riverctl map normal Super Escape spawn "makoctl dismiss"
