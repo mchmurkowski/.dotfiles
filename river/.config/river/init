@@ -46,7 +46,7 @@ riverctl map normal Super Comma focus-output previous
 riverctl map normal Super+Shift Period send-to-output next
 riverctl map normal Super+Shift Comma send-to-output previous
 
-# Super+Return to bump the focused view to the top of the layout stack
+# Super+Shift+Return to bump the focused view to the top of the layout stack
 riverctl map normal Super+Shift Return zoom
 
 # Super+H and Super+L to decrease/increase the main ratio of rivertile(1)
