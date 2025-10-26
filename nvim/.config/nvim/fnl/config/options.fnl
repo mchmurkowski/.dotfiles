@@ -1,4 +1,4 @@
-(var opt vim.opt)
+(local opt vim.opt)
 
 (vim.schedule (fn set-clipboard []
                 (set opt.clipboard "unnamedplus")))
