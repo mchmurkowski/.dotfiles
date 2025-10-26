@@ -1,7 +1,7 @@
 (local opt vim.opt)
 
 (vim.schedule (fn set-clipboard []
-                (set opt.clipboard "unnamedplus")))
+                (set opt.clipboard :unnamedplus)))
 
 (set opt.breakindent true)
 (set opt.completeopt "menuone,noselect,fuzzy,nosort")
@@ -18,7 +18,9 @@
 (set opt.ruler false)
 (set opt.scrolloff 4)
 (set opt.shiftround true)
-(set opt.shiftwidth 0) ;; 0 defaults to tabstop value
+(set opt.shiftwidth 0)
+
+; 0 defaults to tabstop value
 (set opt.showmode false)
 (set opt.sidescrolloff 6)
 (set opt.signcolumn "yes:2")
@@ -26,15 +28,15 @@
 (set opt.smartindent true)
 (set opt.smoothscroll true)
 (set opt.splitbelow true)
-(set opt.splitkeep "screen")
+(set opt.splitkeep :screen)
 (set opt.splitright true)
 (set opt.swapfile false)
 (set opt.tabstop 4)
 (set opt.termguicolors true)
 (set opt.timeoutlen 300)
-(set opt.undodir (.. (os.getenv "HOME") "/.vim/undodir"))
+(set opt.undodir (.. (os.getenv :HOME) :/.vim/undodir))
 (set opt.undofile true)
 (set opt.updatetime 250)
 (set opt.winbar "%=%m %t")
-(set opt.winborder "single")
+(set opt.winborder :single)
 (set opt.wrap false)
