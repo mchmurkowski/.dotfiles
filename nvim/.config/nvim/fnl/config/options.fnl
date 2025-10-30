@@ -13,14 +13,13 @@
 (set opt.laststatus 0)
 (set opt.linebreak true)
 (set opt.number true)
-(set opt.numberwidth 4)
+(set opt.numberwidth 3)
 (set opt.relativenumber true)
 (set opt.ruler false)
 (set opt.scrolloff 4)
 (set opt.shiftround true)
-(set opt.shiftwidth 0)
-
 ; 0 defaults to tabstop value
+(set opt.shiftwidth 0)
 (set opt.showmode false)
 (set opt.sidescrolloff 6)
 (set opt.signcolumn "yes:2")
