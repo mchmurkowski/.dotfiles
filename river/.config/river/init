@@ -165,8 +165,8 @@ riverctl border-width 3
 riverctl border-color-focused 0x005e8b
 riverctl border-color-unfocused 0xc2bcb5
 
-# Set the keyboard layout, map caps lock to escape
-riverctl keyboard-layout -options "caps:escape" "pl"
+# Set the keyboard layout, map caps lock to ctrl
+riverctl keyboard-layout -options "ctrl:nocaps" "pl"
 
 # Set keyboard repeat rate
 riverctl set-repeat 30 300
