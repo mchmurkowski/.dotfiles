@@ -1,1 +1,1 @@
-notify-send $(date +'%H:%M')
+notify-send -t 2500 $(date +'%H:%M')
