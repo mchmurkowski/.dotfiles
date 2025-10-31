@@ -29,11 +29,15 @@
 
 (add {:source :nvim-mini/mini.completion :depends [:nvim-mini/mini.icons]})
 
-(add :nvim-mini/mini.files)
+(add :nvim-mini/mini.diff)
+
+(add :nvim-mini/mini.pick)
 
 (add :nvim-mini/mini.comment)
 
 (add :nvim-mini/mini.clue)
+
+(add :stevearc/conform.nvim)
 
 (local treesitter-configs (require :nvim-treesitter.configs))
 (treesitter-configs.setup {:ensure_installed [:python :lua :fennel :vimdoc]
@@ -45,11 +49,28 @@
 (local mini-icons (require :mini.icons))
 (mini-icons.setup {:style :ascii})
 
-(local mini-files (require :mini.files))
-(mini-files.setup)
+(local mini-diff (require :mini.diff))
+(mini-diff.setup)
+
+(local mini-pick (require :mini.pick))
+(mini-pick.setup (vim.keymap.set :n :<Leader>bb ":Pick buffers<CR>"
+                                 {:desc "Switch buffers"})
+                 (vim.keymap.set :n :<Leader>ff ":Pick files<CR>"
+                                 {:desc "Find files"})
+                 (vim.keymap.set :n :<Leader>hh ":Pick help<CR>"
+                                 {:desc "Search help"})
+                 (vim.keymap.set :n :<Leader>ss ":Pick grep_live<CR>"
+                                 {:desc "Grep search"}))
 
 (local mini-completion (require :mini.completion))
 (mini-completion.setup)
+
+(local conform (require :conform))
+(conform.setup {:formatters_by_ft {:lua [:stylua]
+                                   :python [:ruff_organize_imports
+                                            :ruff_format]
+                                   :fnl [:fnlfmt]}
+                :format_on_save {:timeout_ms 500 :lsp_format :fallback}})
 
 (local mini-comment (require :mini.comment))
 (mini-comment.setup)
