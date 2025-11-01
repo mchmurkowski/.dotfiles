@@ -7,6 +7,7 @@ Contains configuration for:
 - alacritty
 - bash
 - editorconfig
+- emacs
 - eza
 - fuzzel
 - git
