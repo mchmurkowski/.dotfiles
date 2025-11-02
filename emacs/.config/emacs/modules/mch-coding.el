@@ -10,6 +10,13 @@
 (add-hook 'prog-mode-hook #'mch-work-with-code)
 (add-hook 'conf-mode-hook #'mch-work-with-code)
 
+;; editorconfig
+(use-package editorconfig
+  :ensure nil
+  :diminish editorconfig-mode
+  :init
+  (editorconfig-mode 1))
+
 ;; code completion
 (use-package emacs
   :ensure nil
@@ -57,18 +64,26 @@
   :defer t
   :hook ((python-mode . eglot-ensure)
  	 (python-ts-mode . eglot-ensure)
- 	 (lua-ts-mode . eglot-ensure))
+ 	 (lua-ts-mode . eglot-ensure)
+	 (fennel-mode . eglot-ensure))
   :config
   (add-to-list 'eglot-server-programs
  	       `(python-ts-mode
  		 . ,(eglot-alternatives `(("basedpyright-langserver" "--stdio")
- 					  ("ruff" "server"))))
- 	       `(lua-ts-mode . ("lua-language-server"))))
+ 					  ("ruff" "server")))))
+  (add-to-list 'eglot-server-programs
+	       `(lua-ts-mode . ("lua-language-server")))
+  (add-to-list 'eglot-server-programs
+	       `(fennel-mode . ("fennel-ls"))))
 
 ;; language-specific-settings
 (use-package python
   :ensure nil
   :mode (("\\.py\\'" . python-ts-mode)))
+
+(use-package lua-ts-mode
+  :ensure nil
+  :mode (("\\.lua\\'" . lua-ts-mode)))
 
 (use-package fennel-mode
   :ensure t
