@@ -3,6 +3,12 @@
 ;; disable bell sound
 (setopt ring-bell-function 'ignore)
 
+;; do not use dialog boxes
+(setopt use-dialog-box nil)
+
+;; use y or n
+(setopt use-short-answers t)
+
 ;; setup the initial buffer
 (setopt initial-buffer-choice t)
 (setopt initial-major-mode 'fundamental-mode)
