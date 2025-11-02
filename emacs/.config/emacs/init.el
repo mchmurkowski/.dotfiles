@@ -17,4 +17,7 @@
 (require 'mch-navigation-and-scrolling) ; mouse navigation & scrolling behaviour
 (require 'mch-modal-editing) ; modal editing with meow
 
+;;; Modules
+(require 'mch-modeline)
+
 (provide 'mch-init)
