@@ -1,4 +1,4 @@
-;;; packages-configuration.el -*- lexical-binding: t; -*-
+;;; mch-package-configuration.el -*- lexical-binding: t; -*-
 
 (require 'package)
 (setopt package-archives
@@ -18,4 +18,4 @@
   :ensure t
   :demand t)
 
-(provide 'packages-configuration)
+(provide 'mch-package-configuration)

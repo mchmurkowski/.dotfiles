@@ -9,12 +9,12 @@
 
 ;;; Core
 
-(require 'packages-configuration) ; sources and use-package
-(require 'trash-and-history) ; customfile, backups, lockfiles, autosaves & recentfiles
-(require 'theme-and-font) ; set theme and font
-(require 'sane-settings) ; basic, sane settings
-(require 'better-minibuffer) ; vertico, marginalia, consult, orderless, which-key
-(require 'mouse-and-scroll) ; mouse navigation & scrolling behaviour
-(require 'modal-editing) ; modal editing with meow
+(require 'mch-package-configuration) ; sources and use-package
+(require 'mch-trash-and-history) ; customfile, backups, lockfiles, autosaves & recentfiles
+(require 'mch-theme-and-font) ; set theme and font
+(require 'mch-basic-settings) ; basic, sane settings
+(require 'mch-better-minibuffer) ; vertico, marginalia, consult, orderless, which-key
+(require 'mch-navigation-and-scrolling) ; mouse navigation & scrolling behaviour
+(require 'mch-modal-editing) ; modal editing with meow
 
 (provide 'mch-init)

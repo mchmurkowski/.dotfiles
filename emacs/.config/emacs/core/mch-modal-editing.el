@@ -1,4 +1,4 @@
-;;; modal-editing.el -*- lexical-binding: t; -*-
+;;; mch-modal-editing.el -*- lexical-binding: t; -*-
 
 (use-package meow
   :ensure t
@@ -90,4 +90,4 @@
   (meow-setup)
   (meow-global-mode))
 
-(provide 'modal-editing)
+(provide 'mch-modal-editing)

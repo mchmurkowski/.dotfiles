@@ -1,4 +1,4 @@
-;;; mouse-and-scroll.el -*- lexical-binding: t; -*-
+;;; mch-navigation-and-scrolling.el -*- lexical-binding: t; -*-
 
 (use-package mouse
   :ensure nil
@@ -22,4 +22,4 @@
   (setopt hscroll-margin 8)
   (setopt next-screen-context-lines 6))
 
-(provide 'mouse-and-scroll)
+(provide 'mch-navigation-and-scrolling)

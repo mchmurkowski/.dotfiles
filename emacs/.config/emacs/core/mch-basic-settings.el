@@ -1,4 +1,4 @@
-;;; sane-settings.el -*- lexical-binding: t; -*-
+;;; mch-basic-settings.el -*- lexical-binding: t; -*-
 
 ;; disable bell sound
 (setopt ring-bell-function 'ignore)
@@ -47,4 +47,4 @@
   (unless (or (server-running-p) (deamonp))
     (server-start)))
 
-(provide 'sane-settings)
+(provide 'mch-basic-settings)

@@ -1,4 +1,4 @@
-;;; trash-and-history.el -*- lexical-binding: t; -*-
+;;; mch-trash-and-history.el -*- lexical-binding: t; -*-
 
 ;; deal with custom-file
 (setopt custom-file (locate-user-emacs-file "custom.el"))
@@ -26,4 +26,4 @@
   (setopt recentf-max-menu-items 15)
   (setopt recentf-auto-cleanup 'never))
  
-(provide 'trash-and-history)
+(provide 'mch-trash-and-history)

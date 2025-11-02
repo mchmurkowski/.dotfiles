@@ -1,4 +1,4 @@
-;;; better-minibuffer.el -*- lexical-binding: t; -*-
+;;; mch-better-minibuffer.el -*- lexical-binding: t; -*-
 
 (use-package emacs
   :ensure nil
@@ -46,4 +46,4 @@
   :init (which-key-mode)
   :config (setopt which-key-idle-delay 0.5))
 
-(provide 'better-minibuffer)
+(provide 'mch-better-minibuffer)
