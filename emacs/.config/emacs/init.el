@@ -19,5 +19,6 @@
 
 ;;; Modules
 (require 'mch-modeline)
+(require 'mch-coding)
 
 (provide 'mch-init)

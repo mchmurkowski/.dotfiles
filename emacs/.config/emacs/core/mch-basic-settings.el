@@ -8,16 +8,6 @@
 (setopt initial-major-mode 'fundamental-mode)
 (setopt initial-scratch-message nil)
 
-;; enable line numbers in prog and conf modes
-(defun mch-work-with-code ()
-  "Enable relative line numbers"
-  (setopt display-line-numbers-width 3)
-  (setopt display-line-numbers-type 'relative)
-  (display-line-numbers-mode 1))
-
-(add-hook 'prog-mode-hook #'mch-work-with-code)
-(add-hook 'conf-mode-hook #'mch-work-with-code)
-
 ;; auto update file when changed outside emacs
 (use-package autorevert
   :ensure nil
