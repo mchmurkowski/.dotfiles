@@ -37,7 +37,8 @@
                '(horizontal-scroll-bars . nil)
                '(internal-border-width . 0)
                '(tool-bar-lines . 0)
-               '(menu-bar-lines . 0))))
+               '(menu-bar-lines . 0)
+	       '(fullscreen . maximized))))
 
 (when (not (getenv "WSLENV"))
   (setopt default-frame-alist
