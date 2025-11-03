@@ -20,6 +20,8 @@
   (setopt scroll-conservatively 1)
   (setopt scroll-margin 6)
   (setopt hscroll-margin 8)
-  (setopt next-screen-context-lines 6))
+  (setopt next-screen-context-lines 6)
+  (unless (display-graphic-p)
+    (xterm-mouse-mode 1)))
 
 (provide 'mch-navigation-and-scrolling)

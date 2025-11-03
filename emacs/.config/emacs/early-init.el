@@ -37,8 +37,12 @@
                '(horizontal-scroll-bars . nil)
                '(internal-border-width . 0)
                '(tool-bar-lines . 0)
-               '(menu-bar-lines . 0)
-	       '(undecorated . t))))
+               '(menu-bar-lines . 0))))
+
+(when (not (getenv "WSLENV"))
+  (setopt default-frame-alist
+	  (append (list
+		   '(undecorated . t)))))
 
 ;; Disable startup screens
 (setopt inhibit-startup-screen t)
@@ -111,19 +115,19 @@
             ;; Restore garbage collection settings (16MB threshold)
             (setopt gc-cons-threshold (* 16 1024 1024))
 	    (setopt gc-cons-percentage 0.1)
-            
+
             ;; Restore file name handler
             (setopt file-name-handler-alist default-file-name-handler-alist)
-            
+
             ;; Restore version control backends
             (setopt vc-handled-backends default-vc-handled-backends)
-            
+
             ;; Garbage collect when losing focus (optional but useful)
             (add-function :after after-focus-change-function
                           (lambda ()
                             (unless (frame-focus-state)
                               (garbage-collect))))
-            
+
             ;; Display startup time
             (message "Emacs loaded in %s with %d garbage collections."
                      (emacs-init-time "%.2f seconds")

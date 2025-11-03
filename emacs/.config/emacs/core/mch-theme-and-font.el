@@ -1,10 +1,14 @@
 ;;; mch-theme-and-font.el -*- lexical-binding: t; -*-
 
 ;; load theme
-(load-theme 'modus-operandi-tinted nil nil)
+(if (and (not (display-graphic-p)) (getenv "WSLENV"))
+    (load-theme 'modus-vivendi nil nil)
+  (load-theme 'modus-operandi-tinted nil nil))
 
 ;; set default font
-(set-frame-font "IBM Plex Mono 13" nil t)
+(if (getenv "WSLENV")
+    (set-frame-font "IBM Plex Mono 15" nil t)
+  (set-frame-font "IBM Plex Mono 13" nil t))
 
 ;; make fringes bigger
 (fringe-mode 8)
