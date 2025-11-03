@@ -85,7 +85,10 @@
      '("Y" . meow-sync-grab)
      '("z" . meow-pop-selection)
      '("'" . repeat)
-     '("<escape>" . ignore)))
+     '("<escape>" . ignore))
+    (meow-define-keys
+	'insert
+      '("ESC" . meow-insert-exit)))
   :config
   (meow-setup)
   (meow-global-mode))
