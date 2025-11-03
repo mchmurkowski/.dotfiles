@@ -3,6 +3,9 @@
 ;; disable bell sound
 (setopt ring-bell-function 'ignore)
 
+;; disable cursor blinking
+(blink-cursor-mode -1)
+
 ;; do not use dialog boxes
 (setopt use-dialog-box nil)
 
