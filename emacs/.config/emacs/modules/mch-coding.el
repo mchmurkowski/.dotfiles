@@ -74,7 +74,15 @@
   (add-to-list 'eglot-server-programs
 	       `(lua-ts-mode . ("lua-language-server")))
   (add-to-list 'eglot-server-programs
-	       `(fennel-mode . ("fennel-ls"))))
+	       `(fennel-mode . ("fennel-ls")))
+  :custom
+  (eglot-ignored-server-capabilities
+   '(:documentHighlightProvider
+     :documentFormattingProvider
+     :documentRangeFormattingProvider
+     :documentOnTypeFormattingProvider
+     :colorProvider
+     :foldingRangeProvider)))
 
 ;; language-specific-settings
 (use-package python
