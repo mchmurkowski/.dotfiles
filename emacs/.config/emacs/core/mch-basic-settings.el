@@ -43,7 +43,7 @@
   :ensure nil
   :config
   (setopt server-client-instructions nil)
-  (unless (or (server-running-p) (deamonp))
+  (unless (or (server-running-p) (daemonp))
     (server-start)))
 
 (provide 'mch-basic-settings)
