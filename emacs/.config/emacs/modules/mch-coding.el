@@ -82,7 +82,8 @@
      :documentRangeFormattingProvider
      :documentOnTypeFormattingProvider
      :colorProvider
-     :foldingRangeProvider)))
+     :foldingRangeProvider
+     :inlayHintProvider)))
 
 ;; language-specific-settings
 (use-package python
