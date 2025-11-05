@@ -96,6 +96,9 @@
 
 (use-package fennel-mode
   :ensure t
-  :mode (("\\.fnl\\'" . fennel-mode)))
+  :mode (("\\.fnl\\'" . fennel-mode))
+  :config
+  (with-eval-after-load 'org
+    (require 'ob-fennel)))
 
 (provide 'mch-coding)
