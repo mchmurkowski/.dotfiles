@@ -88,7 +88,10 @@
      '("<escape>" . ignore))
     (meow-define-keys
 	'insert
-      '("ESC" . meow-insert-exit)))
+      '("ESC" . meow-insert-exit))
+    (meow-define-keys
+	'normal
+      '("/" . consult-line)))
   :config
   (meow-setup)
   (meow-global-mode))
