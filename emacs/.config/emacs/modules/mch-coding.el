@@ -2,13 +2,26 @@
 
 ;; enable line numbers in prog and conf modes
 (defun mch-work-with-code ()
-  "Enable relative line numbers"
+  "Enable settings that help working with code"
+  ;; relative line numbers
   (setopt display-line-numbers-width 3)
   (setopt display-line-numbers-type 'relative)
-  (display-line-numbers-mode 1))
+  (display-line-numbers-mode 1)
+  ;; use spaces not tabs
+  (setopt indent-tabs-mode nil)
+  (setopt tab-width 4)
+  ;; display fill column
+  (setopt fill-column 80)
+  (display-fill-column-indicator-mode t)
+  ;; word-wrapping
+  (setopt word-wrap t)
+  (setopt truncate-lines t)
+  (setopt truncate-partial-width-windows nil))
 
 (add-hook 'prog-mode-hook #'mch-work-with-code)
 (add-hook 'conf-mode-hook #'mch-work-with-code)
+;; use visual line mode in text-mode
+(add-hook 'text-mode-hook #'visual-line-mode)
 
 ;; editorconfig
 (use-package editorconfig
@@ -32,6 +45,8 @@
   (corfu-auto t)
   (corfu-separator ?\s)
   (corfu-quit-at-boundry nil)
+  (corfu-preview-current nil)
+  (corfu-preselect 'prompt)
   (corfu-scroll-margin 5)
   (completion-styles '(orderless basic))
   :init
