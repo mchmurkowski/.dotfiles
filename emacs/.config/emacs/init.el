@@ -4,8 +4,8 @@
 ;;; Setting up package repositories and `use-package`
 (require 'package)
 (setopt package-archives
-	'(("gnu" . "https://elpa.gnu.org/packages/")
-	  ("melpa" . "https://melpa.org/packages/")))
+    '(("gnu" . "https://elpa.gnu.org/packages/")
+      ("melpa" . "https://melpa.org/packages/")))
 (unless (bound-and-true-p package--initialized) (package-initialize))
 (unless package-archive-contents (package-refresh-contents))
 
@@ -156,9 +156,9 @@
 (use-package consult
   :ensure t
   :bind (("C-s" . consult-line)
-	 ("C-x b" . consult-buffer)
-	 ("C-x C-f" . find-file)
-	 ("M-y" . consult-yank-pop)))
+     ("C-x b" . consult-buffer)
+     ("C-x C-f" . find-file)
+     ("M-y" . consult-yank-pop)))
 
 (use-package marginalia
   :ensure t
@@ -182,10 +182,10 @@
   (setopt mouse-autoselect-window t)
   (setopt focus-follows-mouse t)
   (setopt mouse-wheel-scroll-amount
-	  '(1
-	    ((shift) . 5)
-	    ((meta) . 0.5)
-	    ((control) . text-scale)))
+      '(1
+        ((shift) . 5)
+        ((meta) . 0.5)
+        ((control) . text-scale)))
   (setopt mouse-drag-copy-region nil)
   (setopt make-pointer-invisible t)
   (setopt mouse-wheel-progressive-speed t)
@@ -287,10 +287,10 @@
      '("'" . repeat)
      '("<escape>" . ignore))
     (meow-define-keys
-	'insert
+    'insert
       '("ESC" . meow-insert-exit))
     (meow-define-keys
-	'normal
+    'normal
       '("/" . consult-line)))
   :config
   (meow-setup)
@@ -356,12 +356,12 @@
   (setopt corfu-auto-prefix 2)
   (setopt corfu-quit-no-match 'separator)
   :bind (:map corfu-map
- 	      ("C-n" . corfu-next)
- 	      ("C-p" . corfu-previous)
- 	      ("<escape>" . corfu-quit)
- 	      ("<return>" . corfu-insert)
- 	      ("M-d" . corfu-show-documentation)
- 	      ("M-l" . corfu-show-location)))
+          ("C-n" . corfu-next)
+          ("C-p" . corfu-previous)
+          ("<escape>" . corfu-quit)
+          ("<return>" . corfu-insert)
+          ("M-d" . corfu-show-documentation)
+          ("M-l" . corfu-show-location)))
 
 (use-package cape
   :ensure t
@@ -376,18 +376,18 @@
   :ensure nil
   :defer t
   :hook ((python-mode . eglot-ensure)
- 	 (python-ts-mode . eglot-ensure)
- 	 (lua-ts-mode . eglot-ensure)
-	 (fennel-mode . eglot-ensure))
+     (python-ts-mode . eglot-ensure)
+     (lua-ts-mode . eglot-ensure)
+     (fennel-mode . eglot-ensure))
   :config
   (add-to-list 'eglot-server-programs
- 	       `(python-ts-mode
- 		 . ,(eglot-alternatives `(("basedpyright-langserver" "--stdio")
- 					  ("ruff" "server")))))
+           `(python-ts-mode
+         . ,(eglot-alternatives `(("basedpyright-langserver" "--stdio")
+                      ("ruff" "server")))))
   (add-to-list 'eglot-server-programs
-	       `(lua-ts-mode . ("lua-language-server")))
+           `(lua-ts-mode . ("lua-language-server")))
   (add-to-list 'eglot-server-programs
-	       `(fennel-mode . ("fennel-ls")))
+           `(fennel-mode . ("fennel-ls")))
   :custom
   (eglot-ignored-server-capabilities
    '(:documentHighlightProvider
