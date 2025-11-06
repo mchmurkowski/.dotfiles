@@ -17,6 +17,11 @@
 (setopt initial-major-mode 'fundamental-mode)
 (setopt initial-scratch-message nil)
 
+;; follow, symlinks
+(setopt find-file-visit-truename t)
+(setopt vc-follow-symlinks t)
+(setopt find-file-suppress-same-file-warnings t)
+
 ;; auto update file when changed outside emacs
 (use-package autorevert
   :ensure nil
