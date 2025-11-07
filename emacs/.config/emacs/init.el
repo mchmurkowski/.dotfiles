@@ -1,6 +1,5 @@
 ;;; init.el -*- lexical-binding: t; -*-
 
-
 ;;; Setting up package repositories and `use-package`
 (require 'package)
 (setopt package-archives
@@ -72,27 +71,31 @@
 
 
 ;;; Basic, sane settings
-;; disable ringing & flashing
-(setopt ring-bell-function 'ignore)
-
-;; disable cursor blinking
-(blink-cursor-mode -1)
-
-;; do not use dialog boxes
-(setopt use-dialog-box nil)
-
-;; use y or n
-(setopt use-short-answers t)
-
-;; setup the initial buffer
-(setopt initial-buffer-choice t)
-(setopt initial-major-mode 'fundamental-mode)
-(setopt initial-scratch-message nil)
-
-;; follow symlinks
-(setopt find-file-visit-truename t)
-(setopt vc-follow-symlinks t)
-(setopt find-file-suppress-same-file-warnings t)
+(use-package emacs
+  :ensure nil
+  :config
+  ;; disable ringing & flashing
+  (setopt ring-bell-function 'ignore)
+  ;; disable cursor blinking
+  (blink-cursor-mode -1)
+  ;; do not use dialog boxes
+  (setopt use-dialog-box nil)
+  ;; use y or n
+  (setopt use-short-answers t)
+  ;; setup the initial buffer
+  (setopt initial-buffer-choice t)
+  (setopt initial-major-mode 'fundamental-mode)
+  (setopt initial-scratch-message nil)
+  ;; you are not a typewriter
+  (setopt sentence-end-double-space nil)
+  ;; be posix. end files with a newline
+  (setopt require-final-newtline t)
+  ;; UTF-8 as default. probably unneccessary
+  (set-language-environment "UTF-8")
+  ;; follow symlinks
+  (setopt find-file-visit-truename t)
+  (setopt vc-follow-symlinks t)
+  (setopt find-file-suppress-same-file-warnings t))
 
 ;; auto update file when changed outside emacs
 (use-package autorevert
@@ -106,15 +109,6 @@
   :ensure nil
   :hook (after-init . delete-selection-mode))
 
-;; you are not a typewriter
-(setopt sentence-end-double-space nil)
-
-;; be posix. end files with a newline
-(setopt require-final-newtline t)
-
-;; UTF-8 as default. probably unneccessary
-(set-language-environment "UTF-8")
-
 ;; allow emacsclient to connect to running sessions
 (use-package server
   :ensure nil
@@ -125,32 +119,27 @@
 
 
 ;;; Better minibuffer - `vertico`, `consult`, `which-key` and like
-(use-package emacs
-  :ensure nil
-  :custom
-  (context-menu-mode t)
-  (enable-recursive-minibuffers t)
-  (read-extended-command-predicate #'command-completion-default-include-p)
-  (minibuffer-prompt-properties
-   '(read-only t cursor-intangible t face minibuffer-prompt)))
-
 (use-package vertico
   :ensure t
   :init
-  (vertico-mode 1))
+  (setopt context-menu-mode t)
+  (setopt enable-recursive-minibuffers t)
+  (setopt read-extended-command-predicate #'command-completion-default-include-p)
+  (setopt minibuffer-prompt-properties
+   '(read-only t cursor-intangible t face minibuffer-prompt))
+  :hook (after-init . vertico-mode))
 
 (use-package savehist
   :ensure nil
-  :init
-  (savehist-mode 1))
+  :hook (after-init . savehist-mode))
 
 (use-package orderless
   :ensure t
   :demand t
-  :custom
-  (completion-styles '(orderless))
-  (completion-category-defaults nil)
-  (completion-category-overrides
+  :config
+  (setopt completion-styles '(orderless))
+  (setopt completion-category-defaults nil)
+  (setopt completion-category-overrides
    '((file (styles partial-completion)))))
 
 (use-package consult
@@ -162,13 +151,12 @@
 
 (use-package marginalia
   :ensure t
-  :init
-  (marginalia-mode))
+  :hook (after-init . marginalia-mode))
 
 (use-package which-key
   :ensure t
   :diminish which-key-mode
-  :init (which-key-mode)
+  :hook (after-init . which-key-mode)
   :config
   (setopt which-key-idle-delay 0.5))
 
