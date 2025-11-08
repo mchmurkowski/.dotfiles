@@ -410,10 +410,13 @@
   (keymap-global-set "C-c l" #'org-store-link)
   (keymap-global-set "C-c a" #'org-agenda)
   (keymap-global-set "C-c c" #'org-capture)
+  :hook (org-mode . (lambda() (electric-indent-local-mode -1)))
   :config
-  (setopt org-directory (expand-file-name "~/Documents/org/"))
+  (setopt org-directory (expand-file-name "~/Org"))
   (setopt org-default-notes-file (concat org-directory "/notes.org"))
-  (setopt org-startup-folded 'content))
+  (setopt org-startup-folded 'content)
+  (setopt org-startup-indented t)
+  (setopt org-indent-mode-turns-on-hiding-stars nil))
 
 
 (provide 'mch-init)
