@@ -402,4 +402,18 @@
   (with-eval-after-load 'org
     (require 'ob-fennel)))
 
+
+;;; Org-mode setup
+(use-package org
+  :ensure nil
+  :init
+  (keymap-global-set "C-c l" #'org-store-link)
+  (keymap-global-set "C-c a" #'org-agenda)
+  (keymap-global-set "C-c c" #'org-capture)
+  :config
+  (setopt org-directory (expand-file-name "~/Documents/org/"))
+  (setopt org-default-notes-file (concat org-directory "/notes.org"))
+  (setopt org-startup-folded 'content))
+
+
 (provide 'mch-init)
