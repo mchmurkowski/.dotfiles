@@ -35,6 +35,7 @@
 (defvar mch-autosave-dir (expand-file-name "autosaves/" mch-tmp-dir))
 (dolist (d (list mch-tmp-dir mch-autosave-dir))
   (unless (file-directory-p d) (make-directory d t)))
+(setopt auto-save-include-big-deletions t)
 (setopt auto-save-file-name-transforms `((".*" ,mch-autosave-dir t)))
 (setopt auto-save-no-message t)
 
@@ -114,6 +115,7 @@
 ;; allow emacsclient to connect to running sessions
 (use-package server
   :ensure nil
+  :demand t
   :config
   (setopt server-client-instructions nil)
   (unless (or (server-running-p) (daemonp))
