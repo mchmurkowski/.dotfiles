@@ -95,7 +95,9 @@
   ;; follow symlinks
   (setopt find-file-visit-truename t)
   (setopt vc-follow-symlinks t)
-  (setopt find-file-suppress-same-file-warnings t))
+  (setopt find-file-suppress-same-file-warnings t)
+  ;; more readable buffer names
+  (setopt uniquify-buffer-name-style 'forward))
 
 ;; auto update file when changed outside emacs
 (use-package autorevert
@@ -183,6 +185,7 @@
   (setopt scroll-margin 6)
   (setopt hscroll-margin 8)
   (setopt next-screen-context-lines 6)
+  (setopt mouse-yank-at-point t)
   (unless (display-graphic-p)
     (xterm-mouse-mode 1)))
 
