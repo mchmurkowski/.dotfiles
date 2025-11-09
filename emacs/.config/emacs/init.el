@@ -108,7 +108,9 @@
   (setopt vc-follow-symlinks t)
   (setopt find-file-suppress-same-file-warnings t)
   ;; more readable buffer names
-  (setopt uniquify-buffer-name-style 'forward))
+  (setopt uniquify-buffer-name-style 'forward)
+  ;; move my focus to newly opened help buffer
+  (setopt help-window-select t))
 
 ;; auto update file when changed outside emacs
 (use-package autorevert
@@ -211,6 +213,7 @@
           (t (progn
                (move-to-window-line -1)
                (recenter))))))
+(keymap-global-set "<prior>" #'mch/scroll-half-page-up)
 
 (defun mch/scroll-half-page-up ()
   "scroll up half a page while keeping the cursor centered"
@@ -222,10 +225,22 @@
           (t (progn
                (move-to-window-line 0)
                (recenter))))))
-
-;; bind PageUp/PageDown to the above functions
-(keymap-global-set "<prior>" #'mch/scroll-half-page-up)
 (keymap-global-set "<next>" #'mch/scroll-half-page-down)
+
+;; switch focus to new windows
+(defun mch/split-and-follow-horizontally ()
+  (interactive)
+  (split-window-below)
+  (balance-windows)
+  (other-window 1))
+(keymap-global-set "C-x 2" #'mch/split-and-follow-horizontally)
+
+(defun mch/split-and-follow-vertically ()
+  (interactive)
+  (split-window-right)
+  (balance-windows)
+  (other-window 1))
+(keymap-global-set "C-x 3" #'mch/split-and-follow-vertically)
 
 
 ;;; Modal editing - `meow`
