@@ -15,10 +15,10 @@
 ;; (setopt use-package-always-ensure t)
 (setopt use-package-always-defer t)
 
-;; Install `diminish` to hide minor modes from modeline
-(use-package diminish
+;; dealing with minor modes in the modeline
+(use-package minions
   :ensure t
-  :demand t)
+  :hook (after-init . minions-mode))
 
 
 ;;; Deal with unwanted files
@@ -63,12 +63,6 @@
 
 ;; make fringes bigger
 (fringe-mode '(16 . 8))
-
-;; modeline
-(use-package mood-line
-  :ensure t
-  :init
-  (mood-line-mode))
 
 
 ;;; Basic, sane settings
@@ -159,7 +153,6 @@
 
 (use-package which-key
   :ensure t
-  :diminish which-key-mode
   :hook (after-init . which-key-mode)
   :config
   (setopt which-key-idle-delay 0.5))
@@ -317,7 +310,6 @@
 ;; editorconfig
 (use-package editorconfig
   :ensure nil
-  :diminish editorconfig-mode
   :init
   (editorconfig-mode 1))
 
