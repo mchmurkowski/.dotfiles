@@ -64,6 +64,22 @@
 ;; make fringes bigger
 (fringe-mode '(16 . 8))
 
+;; get rid of the borders (box) in GUI modeline
+(set-face-attribute 'mode-line nil :box nil)
+(set-face-attribute 'mode-line-inactive nil :box nil)
+
+;; set a simple modeline
+(setopt mode-line-format
+        (list
+         " "
+         "[%+] "
+         "%b "
+         'mode-line-format-right-align
+         "%m"
+         " | "
+         "%l:%C"
+         "   "))
+
 
 ;;; Basic, sane settings
 (use-package emacs
