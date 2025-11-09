@@ -200,6 +200,33 @@
   (unless (display-graphic-p)
     (xterm-mouse-mode 1)))
 
+;; half-page scrolling
+(defun mch/scroll-half-page-down ()
+  "scroll down half a page while keeping the cursor centered"
+  (interactive)
+  (let ((ln (line-number-at-pos (point)))
+        (lmax (line-number-at-pos (point-max))))
+    (cond ((= ln 1) (move-to-window-line nil))
+          ((= ln lmax) (recenter (window-end)))
+          (t (progn
+               (move-to-window-line -1)
+               (recenter))))))
+
+(defun mch/scroll-half-page-up ()
+  "scroll up half a page while keeping the cursor centered"
+  (interactive)
+  (let ((ln (line-number-at-pos (point)))
+        (lmax (line-number-at-pos (point-max))))
+    (cond ((= ln 1) nil)
+          ((= ln lmax) (move-to-window-line nil))
+          (t (progn
+               (move-to-window-line 0)
+               (recenter))))))
+
+;; bind PageUp/PageDown to the above functions
+(keymap-global-set "<prior>" #'mch/scroll-half-page-up)
+(keymap-global-set "<next>" #'mch/scroll-half-page-down)
+
 
 ;;; Modal editing - `meow`
 (use-package meow
