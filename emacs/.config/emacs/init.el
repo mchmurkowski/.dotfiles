@@ -365,6 +365,12 @@
 ;; use visual line mode in text-mode
 (add-hook 'text-mode-hook #'visual-line-mode)
 
+;; syntax highlighting
+(use-package treesit
+  :ensure nil
+  :config
+  (setopt treesit-font-lock-level 2))
+
 ;; editorconfig
 (use-package editorconfig
   :ensure nil
