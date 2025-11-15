@@ -1,3 +1,7 @@
+alias e="emacsclient --no-wait --reuse-frame --alternate-editor=''"
+alias en="emacsclient --no-wait --create-frame --alternate-editor=''"
+alias et="emacsclient --no-window-system --alternate-editor=''"
+
 alias vi="nvim"
 alias vim="nvim"
 alias vimdiff="nvim -d"
