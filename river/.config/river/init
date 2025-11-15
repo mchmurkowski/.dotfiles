@@ -11,6 +11,7 @@ SCRIPTS_DIR="~/.config/river/scripts"
 EMACS_TAG=$((1 << 0))
 TERMINAL_TAG=$((1 << 1))
 BROWSER_TAG=$((1 << 2))
+QGIS_TAG=$((1 << 7))
 
 ## XDG Desktop Portals and DBUS interoperability
 riverctl spawn "dbus-update-activation-environment --systemd WAYLAND_DISPLAY XDG_CURRENT_DESKTOP=river"
@@ -170,11 +171,17 @@ riverctl set-cursor-warp on-focus-change
 
 # Make all apps use server-side decorations
 riverctl rule-add ssd
+# exceptions
+riverctl rule-add -app-id "QGIS3" csd
+
+# Better work when float
+riverctl rule-add -app-id "QGIS3" float
 
 # Application rules for spawning in tags
 riverctl rule-add -app-id "emacs" tags $EMACS_TAG
 riverctl rule-add -app-id "Alacritty" tags $TERMINAL_TAG
 riverctl rule-add -app-id "firefox" tags $BROWSER_TAG
+riverctl rule-add -app-id "QGIS3" tags $QGIS_TAG
 
 ## AUTOSTART
 
