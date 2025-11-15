@@ -61,6 +61,13 @@
     (set-frame-font "IBM Plex Mono 15" nil t)
   (set-frame-font "IBM Plex Mono 13" nil t))
 
+;; disable scrollbars in a new emacsclient frame
+(defun mch/disable-scroll-bars (frame)
+  (modify-frame-parameters frame
+                           '((vertical-scroll-bars . nil)
+                             (horizontal-scroll-bars. nil))))
+(add-hook 'after-make-frame-functions #'mch/disable-scroll-bars)
+
 ;; make fringes bigger
 (fringe-mode '(16 . 8))
 
