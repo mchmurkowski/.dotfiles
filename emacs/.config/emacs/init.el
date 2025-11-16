@@ -98,6 +98,8 @@
   (setopt ring-bell-function 'ignore)
   ;; disable cursor blinking
   (blink-cursor-mode -1)
+  ;; do not show cursor in non-active windows
+  (setopt cursor-in-non-selected-windows nil)
   ;; do not use dialog boxes
   (setopt use-dialog-box nil)
   ;; use y or n
