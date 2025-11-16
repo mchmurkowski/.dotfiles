@@ -445,7 +445,8 @@
   (add-to-list 'eglot-server-programs
            `(lua-ts-mode . ("lua-language-server")))
   (add-to-list 'eglot-server-programs
-           `(fennel-mode . ("fennel-ls")))
+               `(fennel-mode . ("fennel-ls")))
+  (setopt eglot-autoshutdown t)
   :custom
   (eglot-ignored-server-capabilities
    '(:documentHighlightProvider
@@ -459,7 +460,9 @@
 ;; language-specific-settings
 (use-package python
   :ensure nil
-  :mode (("\\.py\\'" . python-ts-mode)))
+  :mode (("\\.py\\'" . python-ts-mode))
+  :init
+  (add-hook 'python-ts-mode-hook (lambda() (set-fill-column 88))))
 
 (use-package lua-ts-mode
   :ensure nil
