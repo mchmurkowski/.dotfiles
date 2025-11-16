@@ -82,6 +82,8 @@
          "[%+] "
          "%b "
          'mode-line-format-right-align
+         'mode-line-client
+         " | "
          "%m"
          " | "
          "%l:%C"
