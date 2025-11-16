@@ -486,7 +486,7 @@
   (setopt org-default-notes-file (concat org-directory "/notes.org"))
   (setopt org-startup-folded 'content)
   (setopt org-startup-indented t)
-  (setopt org-indent-mode-turns-on-hiding-stars nil))
-
+  (setopt org-indent-mode-turns-on-hiding-stars nil)
+  (setopt org-ellipsis " ▾"))
 
 (provide 'mch-init)
