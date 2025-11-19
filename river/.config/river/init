@@ -22,8 +22,8 @@ riverctl spawn "systemctl --user import-environment WAYLAND_DISPLAY XDG_CURRENT_
 ## Spawning applications
 # Super+Space to start a launcher
 riverctl map normal Super Space spawn $LAUNCHER_CMD
-# Super+T to start terminal
-riverctl map normal Super T spawn $TERMINAL_CMD
+# Super+Return to start terminal
+riverctl map normal Super Return spawn $TERMINAL_CMD
 # Super+Shift+T to start eshell
 riverctl map normal Super+Shift T spawn "emacsclient -c -e '(eshell)'"
 ## Quiting, exiting & locking the screen
@@ -37,8 +37,8 @@ riverctl map normal Super+Shift E exit
 riverctl map normal Alt+Control L spawn "waylock -ignore-empty-password -init-color 0x2F4F4F -input-color 0xA0E8AF -fail-color 0xFFCF56"
 
 ## Managing the stack
-# Super+Return to bump the focused view to the top of the layout stack
-riverctl map normal Super Return zoom
+# Super+O to bump the focused view to the top of the layout stack
+riverctl map normal Super O zoom
 # Super+J and Super+K to focus the next/previous view in the layout stack
 riverctl map normal Super J focus-view next
 riverctl map normal Super K focus-view previous
@@ -118,8 +118,8 @@ riverctl map normal Super F11 enter-mode passthrough
 # Super+F11 to return to normal mode
 riverctl map passthrough Super F11 enter-mode normal
 
-# Super+O sends a notification with current time
-riverctl map normal Super O spawn "$SCRIPTS_DIR/time_teller.sh"
+# Super+T sends a notification with current time
+riverctl map normal Super T spawn "$SCRIPTS_DIR/time_teller.sh"
 # Super+Esc dismisses last notification
 riverctl map normal Super Escape spawn "makoctl dismiss"
 
