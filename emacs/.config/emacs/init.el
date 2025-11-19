@@ -1,208 +1,192 @@
-;;; init.el -*- lexical-binding: t; -*-
+;;; init.el -*- lexical-binding: t -*-
 
-;;; Setting up package repositories and `use-package`
+;;; Package mangement setup
+
+;; Setup `package.el` & melpa
 (require 'package)
-(setopt package-archives
-    '(("gnu" . "https://elpa.gnu.org/packages/")
-      ("melpa" . "https://melpa.org/packages/")))
-(unless (bound-and-true-p package--initialized) (package-initialize))
-(unless package-archive-contents (package-refresh-contents))
+(add-to-list 'package-archives '("melpa" . "https://melpa.org/packages/"))
+(unless package--initialized (package-initialize))
 
+;; Setup `use-package.el`
 (unless (package-installed-p 'use-package)
   (package-refresh-contents)
   (package-install 'use-package))
 (require 'use-package)
-;; (setopt use-package-always-ensure t)
 (setopt use-package-always-defer t)
 
-;; dealing with minor modes in the modeline
-(use-package minions
-  :ensure t
-  :hook (after-init . minions-mode))
+;;; Customize write to seperate file
 
-
-;;; Deal with unwanted files
-;; deal with custom-file
-(setopt custom-file (locate-user-emacs-file "custom.el"))
+(setopt custom-file (expand-file-name "custom.el" user-emacs-directory))
 (load custom-file :no-error-if-file-missing)
 
-;; do not make backups & lockfiles
-(setopt make-backup-files nil)
-(setopt create-lockfiles nil)
-
-;; put autosaves in one place & stop notyfing me on autosave
-(defvar mch-tmp-dir (expand-file-name "tmp/" user-emacs-directory))
-(defvar mch-autosave-dir (expand-file-name "autosaves/" mch-tmp-dir))
-(dolist (d (list mch-tmp-dir mch-autosave-dir))
-  (unless (file-directory-p d) (make-directory d t)))
-(setopt auto-save-include-big-deletions t)
-(setopt auto-save-file-name-transforms `((".*" ,mch-autosave-dir t)))
-(setopt auto-save-no-message t)
-
-;; store information on recently visted files
-(use-package recentf
-  :ensure nil
-  :bind
-  ("C-x C-r". recentf-open)
-  :config
-  (setopt recentf-max-saved-items 75)
-  (setopt recentf-max-menu-items 15)
-  (setopt recentf-auto-cleanup 'never))
-
 
-;;; Looks - themes, fonts, ui
-;; set the theme
+;;; Interface
+
+;; Fonts
+(defun mch/default-font-setup ()
+  "Setup the default font"
+  (if (getenv "WSLENV")
+      (set-frame-font "IBM Plex Mono-15" nil t)
+    (set-frame-font "IBM Plex Mono-13" nil t)))
+
+(if (daemonp)
+    (add-hook 'after-make-frame-functions
+              (lambda (frame)
+                (with-selected-frame frame
+                  (mch/default-font-setup))))
+  (mch/default-font-setup))
+
+;; Theme
 (if (and (not (display-graphic-p)) (getenv "WSLENV"))
     (load-theme 'modus-vivendi nil nil)
   (load-theme 'modus-operandi-tinted nil nil))
 
-;; set the default font
-(if (getenv "WSLENV")
-    (set-frame-font "IBM Plex Mono 15" nil t)
-  (set-frame-font "IBM Plex Mono 13" nil t))
+;; Modeline
 
-;; disable scrollbars in a new emacsclient frame
-(defun mch/disable-scroll-bars (frame)
-  (modify-frame-parameters frame
-                           '((vertical-scroll-bars . nil)
-                             (horizontal-scroll-bars. nil))))
-(add-hook 'after-make-frame-functions #'mch/disable-scroll-bars)
-
-;; make fringes bigger
-(fringe-mode '(16 . 8))
-
-;; get rid of the borders (box) in GUI modeline
+;; Remove borders from the modeline
 (set-face-attribute 'mode-line nil :box nil)
 (set-face-attribute 'mode-line-inactive nil :box nil)
 
-;; set a simple modeline
-(setopt mode-line-format
-        (list
-         " "
-         "[%+] "
-         "%b "
-         'mode-line-format-right-align
-         'mode-line-client
-         " | "
-         "%m"
-         " | "
-         "%l:%C"
-         "   "))
+(use-package minions
+  ;; deal with minor-modes in the modeline
+  :ensure t
+  :hook (after-init . minions-mode))
 
 
-;;; Basic, sane settings
+;;; Some basic settings
+
 (use-package emacs
   :ensure nil
   :config
-  ;; disable ringing & flashing
+  ;; setup the initial buffer - move to early-init.el?
+  ;; (setopt initial-buffer-choice t)
+  ;; (setopt initial-scratch-message nil)
+  ;; disable some annoyances
   (setopt ring-bell-function 'ignore)
-  ;; disable cursor blinking
   (blink-cursor-mode -1)
-  ;; do not show cursor in non-active windows
   (setopt cursor-in-non-selected-windows nil)
-  ;; do not use dialog boxes
-  (setopt use-dialog-box nil)
-  ;; use y or n
   (setopt use-short-answers t)
-  ;; setup the initial buffer
-  (setopt initial-buffer-choice t)
-  (setopt initial-major-mode 'fundamental-mode)
-  (setopt initial-scratch-message nil)
-  ;; you are not a typewriter
+  (setopt use-dialog-box nil)
+  (setopt help-window-select t)
+  ;; be modern, be posix
   (setopt sentence-end-double-space nil)
-  ;; be posix. end files with a newline
-  (setopt require-final-newtline t)
-  ;; UTF-8 as default. probably unneccessary
+  (setopt require-final-newline t)
   (set-language-environment "UTF-8")
-  ;; follow symlinks
-  (setopt find-file-visit-truename t)
-  (setopt vc-follow-symlinks t)
-  (setopt find-file-suppress-same-file-warnings t)
   ;; more readable buffer names
   (setopt uniquify-buffer-name-style 'forward)
-  ;; move my focus to newly opened help buffer
-  (setopt help-window-select t))
+  ;; backups, lockfiles & autosave
+  (setopt make-backup-files nil)
+  (setopt create-lockfiles nil)
+  (setopt auto-save-include-big-deletions t)
+  (setopt auto-save-no-message t)
+  (defvar mch/tmp-dir (expand-file-name "tmp/" user-emacs-directory))
+  (defvar mch/autosave-dir (expand-file-name "autosaves/" mch/tmp-dir))
+  (dolist (d (list mch/tmp-dir mch/autosave-dir))
+    (unless (file-directory-p d) (make-directory d t)))
+  (setopt auto-save-file-name-transforms `((".*" ,mch/autosave-dir t))))
 
-;; auto update file when changed outside emacs
+(use-package recentf
+  :ensure nil
+  :bind ("C-x C-r" . recentf-open)
+  :hook (find-file . recentf-mode)
+  :config
+  (setopt recentf-max-saved-items 75)
+  (setopt recentf-max-menu-tems 15)
+  (setopt recentf-auto-cleanup 'never)
+  (dolist (itm '("^/usr/share/emacs/\.*$" "~/.config/emacs/bookmarks"))
+    (add-to-list 'recentf-exclude itm)))
+
+(use-package saveplace
+  :ensure nil
+  :hook (after-init . save-place-mode))
+
+(use-package delsel
+  ;; delete selection when entering new text over it
+  :ensure nil
+  :hook (after-init . delete-selection-mode))
+
 (use-package autorevert
+  ;; listen to file changes outside emacs
   :ensure nil
   :hook (after-init . global-auto-revert-mode)
   :config
   (setopt auto-revert-verbose t))
 
-;; delete selection when entering text
-(use-package delsel
-  :ensure nil
-  :hook (after-init . delete-selection-mode))
-
-;; allow emacsclient to connect to running sessions
 (use-package server
+  ;; run emacs instance as a server
   :ensure nil
   :demand t
   :config
   (setopt server-client-instructions nil)
+  ;; but only run when no daemon or server running
   (unless (or (server-running-p) (daemonp))
     (server-start)))
 
 
-;;; Better minibuffer - `vertico`, `consult`, `which-key` and like
+;;; Minibuffer enhancements
+;; TODO: embark
 (use-package vertico
+  ;; vertical minibuffer
   :ensure t
   :init
   (setopt context-menu-mode t)
   (setopt enable-recursive-minibuffers t)
   (setopt read-extended-command-predicate #'command-completion-default-include-p)
   (setopt minibuffer-prompt-properties
-   '(read-only t cursor-intangible t face minibuffer-prompt))
+          '(read-only t cursor-intangible t face minibuffer-prompt))
   :hook (after-init . vertico-mode))
 
 (use-package savehist
+  ;; remember minibuffer history
   :ensure nil
   :hook (after-init . savehist-mode))
 
 (use-package orderless
+  ;; "fuzzy" completion
   :ensure t
   :demand t
   :config
-  (setopt completion-styles '(orderless))
+  (setopt completion-styles '(orderless basic))
   (setopt completion-category-defaults nil)
   (setopt completion-category-overrides
-   '((file (styles partial-completion)))))
-
-(use-package consult
-  :ensure t
-  :bind (("C-s" . consult-line)
-     ("C-x b" . consult-buffer)
-     ("C-x C-f" . find-file)
-     ("M-y" . consult-yank-pop)))
+          '((file (styles partial-completion))))
+  (setopt completion-pcm-leading-wildcard t))
 
 (use-package marginalia
+  ;; add annotations to the minibuffer
   :ensure t
   :hook (after-init . marginalia-mode))
 
-(use-package which-key
+(use-package consult
   :ensure t
+  :bind
+  ("C-x C-b" . consult-buffer)
+  ("C-x r b" . consult-bookmark)
+  ("C-x p b" . consult-project-buffer)
+  ("M-g o" . consult-outline)
+  :config
+  (setopt consult-narrow-key "<"))
+
+(use-package which-key
+  :ensure nil
   :hook (after-init . which-key-mode)
   :config
   (setopt which-key-idle-delay 0.5))
 
 
-;;; Mouse navigation & scrolling behaviour
+;;; Navigation
+
+;; Mouse
 (use-package mouse
   :ensure nil
   :hook (after-init . mouse-wheel-mode)
   :config
-  ;; focus follows mouse
+  ;; behave like my window manager
   (setopt mouse-autoselect-window t)
   (setopt focus-follows-mouse t)
-  (setopt mouse-wheel-scroll-amount
-      '(1
-        ((shift) . 5)
-        ((meta) . 0.5)
-        ((control) . text-scale)))
   (setopt mouse-drag-copy-region nil)
   (setopt make-pointer-invisible t)
-  (setopt mouse-wheel-progressive-speed t)
+  (setopt mouse-wheel-progressive-speed nil)
   (setopt mouse-wheel-follow-mouse t)
   (setopt scroll-preserve-screen-position t)
   (setopt scroll-conservatively 1)
@@ -212,6 +196,25 @@
   (setopt mouse-yank-at-point t)
   (unless (display-graphic-p)
     (xterm-mouse-mode 1)))
+
+;; Keybindings
+(keymap-global-set "C-x b" 'ibuffer)
+
+(defun mch/split-v-and-follow ()
+  "split the view vertically and focus on the new split"
+  (interactive)
+  (split-window-right)
+  (balance-windows)
+  (other-window 1))
+(keymap-global-set "C-x 2" #'mch/split-v-and-follow)
+
+(defun mch/split-h-and-follow ()
+  "split the view horizontally and focus on the new split"
+  (interactive)
+  (split-window-below)
+  (balance-windows)
+  (other-window 1))
+(keymap-global-set "C-x 3" #'mch/split-h-and-follow)
 
 ;; half-page scrolling
 (defun mch/scroll-half-page-down ()
@@ -224,7 +227,7 @@
           (t (progn
                (move-to-window-line -1)
                (recenter))))))
-(keymap-global-set "<prior>" #'mch/scroll-half-page-up)
+(keymap-global-set "<next>" #'mch/scroll-half-page-down)
 
 (defun mch/scroll-half-page-up ()
   "scroll up half a page while keeping the cursor centered"
@@ -236,25 +239,183 @@
           (t (progn
                (move-to-window-line 0)
                (recenter))))))
-(keymap-global-set "<next>" #'mch/scroll-half-page-down)
-
-;; switch focus to new windows
-(defun mch/split-and-follow-horizontally ()
-  (interactive)
-  (split-window-below)
-  (balance-windows)
-  (other-window 1))
-(keymap-global-set "C-x 2" #'mch/split-and-follow-horizontally)
-
-(defun mch/split-and-follow-vertically ()
-  (interactive)
-  (split-window-right)
-  (balance-windows)
-  (other-window 1))
-(keymap-global-set "C-x 3" #'mch/split-and-follow-vertically)
+(keymap-global-set "<prior>" #'mch/scroll-half-page-up)
 
 
-;;; Modal editing - `meow`
+;;; Programming
+
+(defun mch/programming-setup ()
+  "basic setup for programming"
+  ;; set line numbers
+  (setopt display-line-numbers-width 3)
+  (setopt display-line-numbers-type 'relative)
+  (display-line-numbers-mode 1)
+  ;; use spaces not tabs
+  (setopt indent-tabs-mode nil)
+  (setopt tab-width 4)
+  ;; fill column at 80 characters
+  (setopt fill-column 80)
+  (display-fill-column-indicator-mode t)
+  ;; word-wrapping
+  (setopt word-wrap t)
+  (setopt truncate-lines t)
+  (setopt truncate-partial-width-windows nil))
+(add-hook 'prog-mode-hook #'mch/programming-setup)
+(add-hook 'conf-mode-hook #'mch/programming-setup)
+
+;; Syntax highlighting
+(use-package treesit
+  :ensure nil
+  :config
+  ;; less syntax highlighting in ts-modes
+  (setopt treesit-font-lock-level 2))
+
+;; Completion
+(use-package corfu
+  ;; simple completion framework
+  :ensure t
+  :bind (:map corfu-map
+              ("C-n" . corfu-next)
+              ("C-p" . corfu-previous)
+              ("<escape>" . corfu-quit)
+              ("<return>" . corfu-insert)
+              ("M-d" . corfu-show-documentation)
+              ("M-l" . corfu-show-location))
+  :init
+  (setopt tab-always-indent 'complete)
+  (setopt text-mode-ispell-word-completion nil)
+  (setopt read-extended-command-predicate #'command-completion-default-include-p)
+  (global-corfu-mode)
+  (corfu-history-mode t)
+  (corfu-indexed-mode t)
+  (corfu-popupinfo-mode t)
+  (setopt corfu-auto-delay 0.0)
+  (setopt corfu-auto-prefix 2)
+  (setopt corfu-quit-no-match 'separator)
+  :custom
+  (corfu-cycle t)
+  (corfu-auto t)
+  (corfu-separator ?\s)
+  (corfu-quit-at-boundry nil)
+  (corfu-preview-current nil)
+  (corfu-preselect 'prompt)
+  (corfu-scroll-margin 5)
+  (completion-styles '(orderless basic)))
+
+(use-package cape
+  ;; completion at point
+  :ensure t
+  :defer t
+  :init
+  (add-to-list 'completion-at-point-functions #'cape-dabbrev)
+  (add-to-list 'completion-at-point-functions #'cape-file)
+  (add-to-list 'completion-at-point-functions #'cape-elisp-block))
+
+;; Code formatting
+(use-package editorconfig
+  ;; read formatting rules from editorconfig file
+  :ensure nil
+  :init
+  (editorconfig-mode 1))
+
+;; Version control
+(use-package vc
+  :ensure nil
+  :init
+  (setopt find-file-visit-truename t)
+  (setopt find-file-suppress-same-file-warnings t)
+  :config
+  (setopt vc-follow-symlinks t))
+
+;; LSP
+(use-package eglot
+  :ensure nil
+  :defer t
+  :hook ((python-ts-mode . eglot-ensure)
+         (lua-ts-mode . eglot-ensure)
+         (fennel-ts-mode . eglot-ensure))
+  :config
+  (setopt eglot-autoshutdown t)
+  (setopt eglot-extend-to-xref t)
+  :custom
+  (eglot-ignored-server-capabilities
+   '(:documentHighlightProvider
+     :documentFormattingProvider
+     :documentRangeFormattingProvider
+     :documentOnTyprFormattingProvider
+     :colorProvider
+     :foldingRangeProvider
+     :inlayHintProvider)))
+
+;; Python
+(use-package python
+  :ensure nil
+  :mode ("\\.py\\'" . python-ts-mode)
+  :config
+  (add-to-list 'eglot-server-programs
+               `(python-ts-mode
+                 . ,(eglot-alternatives `(("basedpyright-langserver" "--stdio")
+                                          ("ruff" "server")))))
+  :init
+  (add-hook 'python-ts-mode-hook (lambda () (set-fill-column 88))))
+
+;; Lua
+(use-package lua-ts-mode
+  :ensure nil
+  :config
+  (add-to-list 'eglot-server-programs
+               `(lua-ts-mode . ("lua-language-server")))
+  :mode ("\\.lua\\'" . lua-ts-mode))
+
+;; Fennel
+(use-package fennel-mode
+  :ensure t
+  :mode ("\\.fnl\\'" . fenel-mode)
+  :config
+  (add-to-list 'eglot-server-programs
+               `(fennel-mode . ("fennel-ls")))
+;; enable fennel in org-mode source blocks
+  (with-eval-after-load 'org
+    (require 'ob-fennel)))
+
+;; Structural editing for lisps
+(use-package paredit
+  ;; parantheses, slurping & barfing
+  :ensure t
+  :hook ((emacs-lisp-mode . paredit-mode)
+         (lisp-interaction-mode . paredit-mode)
+         (fennel-mode . paredit-mode)))
+
+
+;;; Text editing
+
+;; visual line mode in text-mode
+(add-hook 'text-mode-hook #'visual-line-mode)
+
+;; Org-mode
+(use-package org
+     :ensure nil
+     :init
+     (keymap-global-set "C-c l" #'org-store-link)
+     (keymap-global-set "C-c a" #'org-agenda)
+     (keymap-global-set "C-c c" #'org-capture)
+     :hook (org-mode . (lambda () (electric-indent-mode -1)))
+     :config
+     (setopt org-direcotry (expand-file-name "~/Org"))
+     (setopt org-default-notes-file (concat org-directory "/notes.org"))
+     (setopt org-startup-folded 'content)
+     (setopt org-startup-indented t)
+     (setopt org-indent-mode-turn-on-hiding-stars nil)
+     (setopt org-elipsis " ▾"))
+
+;; Markdown
+(use-package markdown-mode
+  ;; github flavored markdown for README.md files
+  :ensure t
+  :mode ("README\\.md\\'" . gfm-mode))
+
+
+;;; Modal editing
 (use-package meow
   :ensure t
   :demand t
@@ -342,156 +503,15 @@
      '("'" . repeat)
      '("<escape>" . ignore))
     (meow-define-keys
-    'insert
+        'insert
       '("ESC" . meow-insert-exit))
     (meow-define-keys
-    'normal
-      '("/" . consult-line)))
+        'normal
+      '("/" . consult-line)
+      ;; ignore round braces and double-quote
+      '("(" . ignore)
+      '(")" . ignore)
+      '("\"" . ignore)))
   :config
   (meow-setup)
   (meow-global-mode))
-
-
-;; Coding
-;; enable line numbers in prog and conf modes
-(defun mch-work-with-code ()
-  "Enable settings that help working with code"
-  ;; relative line numbers
-  (setopt display-line-numbers-width 3)
-  (setopt display-line-numbers-type 'relative)
-  (display-line-numbers-mode 1)
-  ;; use spaces not tabs
-  (setopt indent-tabs-mode nil)
-  (setopt tab-width 4)
-  ;; display fill column
-  (setopt fill-column 80)
-  (display-fill-column-indicator-mode t)
-  ;; word-wrapping
-  (setopt word-wrap t)
-  (setopt truncate-lines t)
-  (setopt truncate-partial-width-windows nil))
-
-(add-hook 'prog-mode-hook #'mch-work-with-code)
-(add-hook 'conf-mode-hook #'mch-work-with-code)
-;; use visual line mode in text-mode
-(add-hook 'text-mode-hook #'visual-line-mode)
-
-;; syntax highlighting
-(use-package treesit
-  :ensure nil
-  :config
-  (setopt treesit-font-lock-level 2))
-
-;; editorconfig
-(use-package editorconfig
-  :ensure nil
-  :init
-  (editorconfig-mode 1))
-
-;; code completion
-(use-package emacs
-  :ensure nil
-  :custom
-  (tab-always-indent 'complete)
-  (text-mode-ispell-word-completion nil)
-  (read-extended-command-predicate #'command-completion-default-include-p))
-
-(use-package corfu
-  :ensure t
-  :custom
-  (corfu-cycle t)
-  (corfu-auto t)
-  (corfu-separator ?\s)
-  (corfu-quit-at-boundry nil)
-  (corfu-preview-current nil)
-  (corfu-preselect 'prompt)
-  (corfu-scroll-margin 5)
-  (completion-styles '(orderless basic))
-  :init
-  (global-corfu-mode)
-  (corfu-history-mode t)
-  (corfu-indexed-mode t)
-  (corfu-popupinfo-mode t)
-  (setopt corfu-auto-delay 0.0)
-  (setopt corfu-auto-prefix 2)
-  (setopt corfu-quit-no-match 'separator)
-  :bind (:map corfu-map
-          ("C-n" . corfu-next)
-          ("C-p" . corfu-previous)
-          ("<escape>" . corfu-quit)
-          ("<return>" . corfu-insert)
-          ("M-d" . corfu-show-documentation)
-          ("M-l" . corfu-show-location)))
-
-(use-package cape
-  :ensure t
-  :defer t
-  :init
-  (add-to-list 'completion-at-point-functions #'cape-dabbrev)
-  (add-to-list 'completion-at-point-functions #'cape-file)
-  (add-to-list 'completion-at-point-functions #'cape-elisp-block))
-
-;; lsp setup
-(use-package eglot
-  :ensure nil
-  :defer t
-  :hook ((python-mode . eglot-ensure)
-     (python-ts-mode . eglot-ensure)
-     (lua-ts-mode . eglot-ensure)
-     (fennel-mode . eglot-ensure))
-  :config
-  (add-to-list 'eglot-server-programs
-           `(python-ts-mode
-         . ,(eglot-alternatives `(("basedpyright-langserver" "--stdio")
-                      ("ruff" "server")))))
-  (add-to-list 'eglot-server-programs
-           `(lua-ts-mode . ("lua-language-server")))
-  (add-to-list 'eglot-server-programs
-               `(fennel-mode . ("fennel-ls")))
-  (setopt eglot-autoshutdown t)
-  :custom
-  (eglot-ignored-server-capabilities
-   '(:documentHighlightProvider
-     :documentFormattingProvider
-     :documentRangeFormattingProvider
-     :documentOnTypeFormattingProvider
-     :colorProvider
-     :foldingRangeProvider
-     :inlayHintProvider)))
-
-;; language-specific-settings
-(use-package python
-  :ensure nil
-  :mode (("\\.py\\'" . python-ts-mode))
-  :init
-  (add-hook 'python-ts-mode-hook (lambda() (set-fill-column 88))))
-
-(use-package lua-ts-mode
-  :ensure nil
-  :mode (("\\.lua\\'" . lua-ts-mode)))
-
-(use-package fennel-mode
-  :ensure t
-  :mode (("\\.fnl\\'" . fennel-mode))
-  :config
-  (with-eval-after-load 'org
-    (require 'ob-fennel)))
-
-
-;;; Org-mode setup
-(use-package org
-  :ensure nil
-  :init
-  (keymap-global-set "C-c l" #'org-store-link)
-  (keymap-global-set "C-c a" #'org-agenda)
-  (keymap-global-set "C-c c" #'org-capture)
-  :hook (org-mode . (lambda() (electric-indent-local-mode -1)))
-  :config
-  (setopt org-directory (expand-file-name "~/Org"))
-  (setopt org-default-notes-file (concat org-directory "/notes.org"))
-  (setopt org-startup-folded 'content)
-  (setopt org-startup-indented t)
-  (setopt org-indent-mode-turns-on-hiding-stars nil)
-  (setopt org-ellipsis " ▾"))
-
-(provide 'mch-init)
