@@ -67,6 +67,7 @@
   (setopt cursor-in-non-selected-windows nil)
   (setopt use-short-answers t)
   (setopt use-dialog-box nil)
+  (setopt use-file-dialog nil)
   (setopt help-window-select t)
   ;; be modern, be posix
   (setopt sentence-end-double-space nil)
@@ -85,6 +86,12 @@
     (unless (file-directory-p d) (make-directory d t)))
   (setopt auto-save-file-name-transforms `((".*" ,mch/autosave-dir t))))
 
+(use-package dired
+  :ensure nil
+  :config
+  (setopt dired-kill-when-opening-new-dired-buffer t)
+  (setopt dired-listing-switches "-aGh --group-directories-first"))
+
 (use-package recentf
   :ensure nil
   :bind ("C-x C-r" . recentf-open)
@@ -92,7 +99,8 @@
   :config
   (setopt recentf-max-saved-items 75)
   (setopt recentf-max-menu-tems 15)
-  (setopt recentf-auto-cleanup 'never)
+  (setopt recentf-auto-cleanup
+          (if (or (server-running-p) (daemonp)) 300 'never))
   (dolist (itm '("^/usr/share/emacs/\.*$" "~/.config/emacs/bookmarks"))
     (add-to-list 'recentf-exclude itm)))
 
@@ -110,6 +118,7 @@
   :ensure nil
   :hook (after-init . global-auto-revert-mode)
   :config
+  (setopt global-auto-revert-non-file-buffers t) ; for dired buffers
   (setopt auto-revert-verbose t))
 
 (use-package server
@@ -164,6 +173,17 @@
   ("C-x r b" . consult-bookmark)
   ("C-x p b" . consult-project-buffer)
   ("M-g o" . consult-outline)
+  ("M-g i" . consult-imenu)
+  ("M-g I" . consult-imenu-multi)
+  ("M-s d" . consult-fd)
+  ("M-s c" . consult-locate)
+  ("M-s g" . consult-grep)
+  ("M-s G" . consult-git-grep)
+  ("M-s r" . consult-ripgrep)
+  ("M-s l" . consult-line)
+  ("M-s L" . consult-line-multi)
+  ("M-s k" . consult-keep-lines)
+  ("M-s u" . consult-focus-lines)
   :config
   (setopt consult-narrow-key "<"))
 
@@ -247,7 +267,8 @@
 (defun mch/programming-setup ()
   "basic setup for programming"
   ;; set line numbers
-  (setopt display-line-numbers-width 3)
+  (setopt display-line-numbers-width 4)
+  (setopt display-line-numbers-widen t)
   (setopt display-line-numbers-type 'relative)
   (display-line-numbers-mode 1)
   ;; use spaces not tabs
@@ -285,6 +306,7 @@
   (setopt tab-always-indent 'complete)
   (setopt text-mode-ispell-word-completion nil)
   (setopt read-extended-command-predicate #'command-completion-default-include-p)
+  (setopt completion-ignore-case t)
   (global-corfu-mode)
   (corfu-history-mode t)
   (corfu-indexed-mode t)
@@ -352,10 +374,11 @@
   :ensure nil
   :mode ("\\.py\\'" . python-ts-mode)
   :config
-  (add-to-list 'eglot-server-programs
-               `(python-ts-mode
-                 . ,(eglot-alternatives `(("basedpyright-langserver" "--stdio")
-                                          ("ruff" "server")))))
+  (with-eval-after-load 'eglot
+    (add-to-list 'eglot-server-programs
+                 `(python-ts-mode
+                   . ,(eglot-alternatives `(("basedpyright-langserver" "--stdio")
+                                            ("ruff" "server"))))))
   :init
   (add-hook 'python-ts-mode-hook (lambda () (set-fill-column 88))))
 
@@ -363,8 +386,9 @@
 (use-package lua-ts-mode
   :ensure nil
   :config
-  (add-to-list 'eglot-server-programs
-               `(lua-ts-mode . ("lua-language-server")))
+  (with-eval-after-load 'eglot
+    (add-to-list 'eglot-server-programs
+                 `(lua-ts-mode . ("lua-language-server"))))
   :mode ("\\.lua\\'" . lua-ts-mode))
 
 ;; Fennel
@@ -372,8 +396,9 @@
   :ensure t
   :mode ("\\.fnl\\'" . fenel-mode)
   :config
-  (add-to-list 'eglot-server-programs
-               `(fennel-mode . ("fennel-ls")))
+  (with-eval-after-load 'eglot
+    (add-to-list 'eglot-server-programs
+                 `(fennel-mode . ("fennel-ls"))))
 ;; enable fennel in org-mode source blocks
   (with-eval-after-load 'org
     (require 'ob-fennel)))
