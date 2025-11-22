@@ -384,7 +384,10 @@
   :ensure t
   :hook ((emacs-lisp-mode . paredit-mode)
          (lisp-interaction-mode . paredit-mode)
-         (fennel-mode . paredit-mode)))
+         (fennel-mode . paredit-mode))
+  :config
+  (keymap-unset paredit-mode-map "M-s")
+  (keymap-set paredit-mode-map "M-i" #'paredit-splice-sexp))
 
 
 ;;; Text editing
@@ -406,7 +409,7 @@
      (setopt org-startup-folded 'content)
      (setopt org-startup-indented t)
      (setopt org-indent-mode-turn-on-hiding-stars nil)
-     (setopt org-elipsis " ▾"))
+     (setopt org-ellipsis " ▾"))
 
 ;; Markdown
 (use-package markdown-mode
