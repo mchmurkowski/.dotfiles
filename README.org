@@ -1,4 +1,5 @@
-# .dotfiles
+#+TITLE: .dotfiles
+#+AUTHOR: Michał Chmurkowski
 
 My personal dotfiles for Linux and WSL.
 
@@ -16,10 +17,10 @@ Contains configuration for:
 - starship
 - tmux
 
-# Usage
+* Usage
 
 Dotfiles are managed with `stow`:
 
-```bash
+#+BEGIN_SRC bash
 man stow
-```
+#+END_SRC
