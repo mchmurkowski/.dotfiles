@@ -24,10 +24,14 @@
 
 ;; Fonts
 (defun mch/default-font-setup ()
-  "Setup the default font"
+  "Setup the default font and line spacing"
   (if (getenv "WSLENV")
-      (set-frame-font "IBM Plex Mono-15" nil t)
-    (set-frame-font "IBM Plex Mono-13" nil t)))
+      (progn
+        (set-frame-font "IBM Plex Mono-15" nil t)
+        (setopt line-spacing 1))
+    (progn
+      (set-frame-font "IBM Plex Mono-13" nil t)
+      (setopt line-spacing 1))))
 
 (if (daemonp)
     (add-hook 'after-make-frame-functions
@@ -348,6 +352,16 @@
   (setopt find-file-suppress-same-file-warnings t)
   :config
   (setopt vc-follow-symlinks t))
+
+(use-package magit
+  ;; a git porcelain inside emacs
+  :ensure t
+  :commands (magit-status magit-log)
+  :bind (("C-x g" . magit-status)
+         ("C-x M-g" . magit-dispatch))
+  :config
+  (setopt git-commit-summary-max-length 50)
+  (setopt git-commit-fill-column 72))
 
 ;; LSP
 (use-package eglot
