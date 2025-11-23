@@ -98,7 +98,7 @@
   :hook (find-file . recentf-mode)
   :config
   (setopt recentf-max-saved-items 75)
-  (setopt recentf-max-menu-tems 15)
+  (setopt recentf-max-menu-items 15)
   (setopt recentf-auto-cleanup
           (if (or (server-running-p) (daemonp)) 300 'never))
   (dolist (itm '("^/usr/share/emacs/\.*$" "~/.config/emacs/bookmarks"))
@@ -541,5 +541,6 @@
       '(")" . ignore)
       '("\"" . ignore)))
   :config
+  (setopt meow-goto-line-function 'consult-goto-line)
   (meow-setup)
   (meow-global-mode))
