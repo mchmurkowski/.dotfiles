@@ -41,9 +41,11 @@
   (mch/default-font-setup))
 
 ;; Theme
-(if (and (not (display-graphic-p)) (getenv "WSLENV"))
-    (load-theme 'modus-vivendi nil nil)
-  (load-theme 'modus-operandi-tinted nil nil))
+(cond ((and (display-graphic-p) (getenv "WSLENV"))
+       (load-theme 'modus-operandi nil nil))
+      ((and (not (display-graphic-p)) (getenv "WSLENV"))
+       (load-theme 'modus-vivendi nil nil))
+      (t (load-theme 'modus-operandi-tinted nil nil)))
 
 ;; Modeline
 
