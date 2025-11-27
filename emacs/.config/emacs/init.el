@@ -398,6 +398,15 @@
   :init
   (add-hook 'python-ts-mode-hook (lambda () (set-fill-column 88))))
 
+(use-package hy-mode
+  :ensure t
+  :mode ("\\.hy\\'" . hy-mode))
+
+(use-package uv-mode
+  :ensure t
+  :hook ((python-ts-mode . uv-mode-auto-activate-hook)
+         (hy-mode . uv-mode-auto-activate-hook)))
+
 ;; Lua
 (use-package lua-ts-mode
   :ensure nil
@@ -425,6 +434,7 @@
   :ensure t
   :hook ((emacs-lisp-mode . paredit-mode)
          (lisp-interaction-mode . paredit-mode)
+         (hy-mode . paredit-mode)
          (fennel-mode . paredit-mode))
   :config
   (keymap-unset paredit-mode-map "M-s")
