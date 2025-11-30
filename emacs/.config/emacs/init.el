@@ -81,6 +81,8 @@
   (set-language-environment "UTF-8")
   ;; more readable buffer names
   (setopt uniquify-buffer-name-style 'forward)
+  ;; more pleasant underlining
+  (setopt x-underline-at-descent-line t)
   ;; backups, lockfiles & autosave
   (setopt make-backup-files nil)
   (setopt create-lockfiles nil)
@@ -455,11 +457,12 @@
      (keymap-global-set "C-c c" #'org-capture)
      :hook (org-mode . (lambda () (electric-indent-mode -1)))
      :config
-     (setopt org-direcotry (expand-file-name "~/Org"))
+     (setopt org-directory (expand-file-name "~/Org"))
      (setopt org-default-notes-file (concat org-directory "/notes.org"))
      (setopt org-startup-folded 'content)
      (setopt org-startup-indented t)
      (setopt org-indent-mode-turn-on-hiding-stars nil)
+     (setopt org-hide-emphasis-markers t)
      (setopt org-ellipsis " ▾"))
 
 ;; Markdown
