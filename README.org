@@ -19,7 +19,7 @@ Contains configuration for:
 
 * Usage
 
-Dotfiles are managed with `stow`:
+Dotfiles are managed with =stow=:
 
 #+BEGIN_SRC bash
 man stow
