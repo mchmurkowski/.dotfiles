@@ -53,10 +53,12 @@
 (set-face-attribute 'mode-line nil :box nil)
 (set-face-attribute 'mode-line-inactive nil :box nil)
 
-(use-package minions
-  ;; deal with minor-modes in the modeline
-  :ensure t
-  :hook (after-init . minions-mode))
+;; Setup a minimal modeline
+(setopt mode-line-format '(" [%*] %b"
+                           mode-line-format-right-align
+                           "%l:%C | "
+                           mode-name
+                           "  "))
 
 
 ;;; Some basic settings
@@ -378,8 +380,11 @@
   (setopt xref-show-xrefs-function #'consult-xref)
   (setopt xref-show-definitions-function #'consult-xref)
   :config
+  (setopt eglot-sync-connect 0)
   (setopt eglot-autoshutdown t)
   (setopt eglot-extend-to-xref t)
+  (setopt jsonrpc-event-hook nil)
+  (setopt eglot-events-buffer-config '(:size 0 :format short))
   :custom
   (eglot-ignored-server-capabilities
    '(:documentHighlightProvider
