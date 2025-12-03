@@ -374,6 +374,9 @@
   :hook ((python-ts-mode . eglot-ensure)
          (lua-ts-mode . eglot-ensure)
          (fennel-ts-mode . eglot-ensure))
+  :init
+  (setopt xref-show-xrefs-function #'consult-xref)
+  (setopt xref-show-definitions-function #'consult-xref)
   :config
   (setopt eglot-autoshutdown t)
   (setopt eglot-extend-to-xref t)
