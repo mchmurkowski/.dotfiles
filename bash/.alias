@@ -2,6 +2,9 @@ alias e="emacsclient --no-wait --reuse-frame --alternate-editor=''"
 alias en="emacsclient --no-wait --create-frame --alternate-editor=''"
 alias et="emacsclient --no-window-system --alternate-editor=''"
 
+alias vi="vis"
+alias vim="vis"
+
 alias ping="ping -c 5"
 
 # be verbose about file operations

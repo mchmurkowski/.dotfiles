@@ -12,10 +12,10 @@ Contains configuration for:
 - eza
 - fuzzel
 - git
-- nvim
 - river
 - starship
 - tmux
+- vis
 
 * Usage
 
