@@ -13,7 +13,7 @@
 
 (vsubscribe :init
             (fn []
-              (vset {:theme :base16-paraiso})))
+              (vset {:theme :base16-grayscale-dark})))
 
 (vsubscribe :win-open
             (fn [win]

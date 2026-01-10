@@ -1,26 +1,26 @@
 -- base16-vis (https://github.com/pshevtsov/base16-vis)
 -- by Petr Shevtsov
--- Paraiso scheme by Jan T. Sott
+-- Grayscale Light scheme by Alexandre Gavioli (https://github.com/Alexx2/)
 
 local lexers = vis.lexers
 
 local colors = {
-	['base00'] = '#2f1e2e',
-	['base01'] = '#41323f',
-	['base02'] = '#4f424c',
-	['base03'] = '#776e71',
-	['base04'] = '#8d8687',
-	['base05'] = '#a39e9b',
-	['base06'] = '#b9b6b0',
-	['base07'] = '#e7e9db',
-	['base08'] = '#ef6155',
-	['base09'] = '#f99b15',
-	['base0A'] = '#fec418',
-	['base0B'] = '#48b685',
-	['base0C'] = '#5bc4bf',
-	['base0D'] = '#06b6ef',
-	['base0E'] = '#815ba4',
-	['base0F'] = '#e96ba8',
+	['base00'] = '#f7f7f7',
+	['base01'] = '#e3e3e3',
+	['base02'] = '#b9b9b9',
+	['base03'] = '#ababab',
+	['base04'] = '#525252',
+	['base05'] = '#464646',
+	['base06'] = '#252525',
+	['base07'] = '#101010',
+	['base08'] = '#7c7c7c',
+	['base09'] = '#999999',
+	['base0A'] = '#a0a0a0',
+	['base0B'] = '#8e8e8e',
+	['base0C'] = '#868686',
+	['base0D'] = '#686868',
+	['base0E'] = '#747474',
+	['base0F'] = '#5e5e5e',
 }
 
 lexers.colors = colors
