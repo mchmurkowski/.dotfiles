@@ -13,16 +13,15 @@
 
 (vsubscribe :init
             (fn []
-              (if (os.getenv "WSLENV")
+              (if (os.getenv :WSLENV)
                   (vset {:theme :base16-grayscale-dark})
                   (vset {:theme :base16-grayscale-light}))))
 
-(vsubscribe :win-open
-            (fn [win]
-              (vset {:relativenumber :on})
-              (vset {:autoindent :on})
-              (vset {:tabwidth :4})
-              (vset {:expandtab :on})
-              (vset {:ignorecase :on})
-              (vset {:showeof :off})
-              (vset {:colorcolumn :88})))
+(vsubscribe :win-open (fn [win]
+                        (vset {:relativenumber :on})
+                        (vset {:autoindent :on})
+                        (vset {:tabwidth :4})
+                        (vset {:expandtab :on})
+                        (vset {:ignorecase :on})
+                        (vset {:showeof :off})
+                        (vset {:colorcolumn :88})))
