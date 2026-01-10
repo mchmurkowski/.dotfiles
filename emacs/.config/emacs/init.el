@@ -375,7 +375,7 @@
   :defer t
   :hook ((python-ts-mode . eglot-ensure)
          (lua-ts-mode . eglot-ensure)
-         (fennel-ts-mode . eglot-ensure))
+         (fennel-mode . eglot-ensure))
   :init
   (setopt xref-show-xrefs-function #'consult-xref)
   (setopt xref-show-definitions-function #'consult-xref)
@@ -429,7 +429,7 @@
 ;; Fennel
 (use-package fennel-mode
   :ensure t
-  :mode ("\\.fnl\\'" . fenel-mode)
+  :mode ("\\.fnl\\'" . fennel-mode)
   :config
   (with-eval-after-load 'eglot
     (add-to-list 'eglot-server-programs
