@@ -13,7 +13,9 @@
 
 (vsubscribe :init
             (fn []
-              (vset {:theme :base16-grayscale-dark})))
+              (if (os.getenv "WSLENV")
+                  (vset {:theme :base16-grayscale-dark})
+                  (vset {:theme :base16-grayscale-light}))))
 
 (vsubscribe :win-open
             (fn [win]
