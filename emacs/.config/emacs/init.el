@@ -350,6 +350,10 @@
   :init
   (editorconfig-mode 1))
 
+;; Terminal
+(use-package vterm
+  :ensure t)
+
 ;; Version control
 (use-package vc
   :ensure nil
@@ -576,8 +580,10 @@
       ;; ignore round braces and double-quote
       '("(" . ignore)
       '(")" . ignore)
-      '("\"" . ignore)))
+      '("\"" . ignore))
+    (meow-define-state disable "dummy state"))
   :config
   (setopt meow-goto-line-function 'consult-goto-line)
+  (add-to-list 'meow-state-mode-alist '(vterm-mode . disable))
   (meow-setup)
   (meow-global-mode))
