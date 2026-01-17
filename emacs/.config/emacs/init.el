@@ -584,6 +584,6 @@
     (meow-define-state disable "dummy state"))
   :config
   (setopt meow-goto-line-function 'consult-goto-line)
-  (add-to-list 'meow-state-mode-alist '(vterm-mode . disable))
+  (add-to-list 'meow-mode-state-list '(vterm-mode . disable))
   (meow-setup)
   (meow-global-mode))
