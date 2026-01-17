@@ -587,3 +587,12 @@
   (add-to-list 'meow-mode-state-list '(vterm-mode . disable))
   (meow-setup)
   (meow-global-mode))
+
+(use-package meow-tree-sitter
+  :ensure t
+  :requires meow
+  :init
+  (meow-normal-define-key
+   '("o" . meow-tree-sitter-node))
+  :config
+  (meow-tree-sitter-register-defaults))
