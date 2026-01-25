@@ -295,6 +295,8 @@
 (use-package treesit
   :ensure nil
   :config
+  (setopt treesit-language-source-alist
+          `((lua "https://github.com/tree-sitter-grammars/tree-sitter-lua.git")))
   ;; less syntax highlighting in ts-modes
   (setopt treesit-font-lock-level 2))
 
