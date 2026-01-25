@@ -26,12 +26,9 @@
 (defun mch/default-font-setup ()
   "Setup the default font and line spacing"
   (if (getenv "WSLENV")
-      (progn
-        (set-frame-font "IBM Plex Mono-15" nil t)
-        (setopt line-spacing 1))
-    (progn
-      (set-frame-font "IBM Plex Mono-13" nil t)
-      (setopt line-spacing 1))))
+    (set-frame-font "IBM Plex Mono-15" nil t)
+    (set-frame-font "IBM Plex Mono-13" nil) t)
+  (setopt line-spacing 1))
 
 (if (daemonp)
     (add-hook 'after-make-frame-functions
