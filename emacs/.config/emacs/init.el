@@ -393,7 +393,7 @@
    '(:documentHighlightProvider
      :documentFormattingProvider
      :documentRangeFormattingProvider
-     :documentOnTyprFormattingProvider
+     :documentOnTypeFormattingProvider
      :colorProvider
      :foldingRangeProvider
      :inlayHintProvider)))
