@@ -488,6 +488,13 @@
   :ensure t
   :demand t
   :init
+  ;; unshackle C-[ from the escape key
+  (let ((frame (framep (selected-frame))))
+    (or (eq t frame)
+        (eq 'pc frame)
+        (define-key input-decode-map
+                    (kbd "C-[")
+                    [control-bracketleft])))
   (defun meow-setup ()
     (setq meow-cheatsheet-layout meow-cheatsheet-layout-qwerty)
     (meow-motion-overwrite-define-key
@@ -572,7 +579,7 @@
      '("<escape>" . ignore))
     (meow-define-keys
         'insert
-      '("ESC" . meow-insert-exit))
+      '("<control-bracketleft>" . meow-insert-exit))
     (meow-define-keys
         'normal
       '("/" . consult-line)
