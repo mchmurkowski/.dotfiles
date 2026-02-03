@@ -586,7 +586,8 @@
       ;; ignore round braces and double-quote
       '("(" . ignore)
       '(")" . ignore)
-      '("\"" . ignore))
+      '("\"" . ignore)
+      '("<control-bracketleft>" . ignore))
     (meow-define-state disable "dummy state"))
   :config
   (setopt meow-goto-line-function 'consult-goto-line)
