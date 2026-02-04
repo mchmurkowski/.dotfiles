@@ -57,6 +57,11 @@
                            mode-name
                            "  "))
 
+(use-package spacious-padding
+  :ensure t
+  :if window-system
+  :hook (after-init . spacious-padding-mode))
+
 
 ;;; Some basic settings
 
