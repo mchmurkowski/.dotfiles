@@ -587,11 +587,14 @@
       '("(" . ignore)
       '(")" . ignore)
       '("\"" . ignore)
-      '("<control-bracketleft>" . ignore))
-    (meow-define-state disable "dummy state"))
+      '("<control-bracketleft>" . ignore)))
   :config
   (setopt meow-goto-line-function 'consult-goto-line)
-  (add-to-list 'meow-mode-state-list '(vterm-mode . disable))
+  (add-to-list 'meow-mode-state-list '(shell-mode . insert))
+  (add-to-list 'meow-mode-state-list '(eshell-mode . insert))
+  (add-to-list 'meow-mode-state-list '(vterm-mode . insert))
+  (add-to-list 'meow-mode-state-list '(comint-mode . insert))
+  (add-to-list 'meow-mode-state-list '(vc-git-log-edit-mode . insert))
   (meow-setup)
   (meow-global-mode))
 
