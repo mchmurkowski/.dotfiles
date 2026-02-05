@@ -595,6 +595,7 @@
       '("<control-bracketleft>" . ignore)))
   :config
   (setopt meow-goto-line-function 'consult-goto-line)
+  (setopt meow-expand-hint-remove-delay 0.0)
   (setopt meow-use-clipboard t)
   (add-to-list 'meow-mode-state-list '(shell-mode . insert))
   (add-to-list 'meow-mode-state-list '(eshell-mode . insert))
