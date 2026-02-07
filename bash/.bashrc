@@ -6,6 +6,9 @@ if [[ "$INSIDE_EMACS" = 'vterm' ]] \
 	source ${EMACS_VTERM_PATH}/etc/emacs-vterm-bash.sh
 fi
 
+[ -n "$EAT_SHELL_INTEGRATION_DIR" ] && \
+    source "$EAT_SHELL_INTEGRATION_DIR/bash"
+
 if [[ "$TERM" != "dumb" ]]; then
     eval "$(fzf --bash)"
     eval "$(starship init bash)"
