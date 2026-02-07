@@ -367,7 +367,9 @@
   :hook ((eat-mode . completion-preview-mode)
          (eshell-load . eat-eshell-mode))
   :init
-  (setopt eshell-visual-commands nil))
+  (setopt eshell-visual-commands nil)
+  :config
+  (setopt eat-kill-buffer-on-exit t))
 
 (use-package vterm
   :ensure t)
