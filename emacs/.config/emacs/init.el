@@ -356,14 +356,21 @@
   (editorconfig-mode 1))
 
 ;;;; Shells, terminal & REPLs
-(use-package vterm
-  :ensure t)
-
 (use-package eshell
   :ensure nil
   :hook ((eshell-mode . completion-preview-mode))
   :init
   (setopt eshell-banner-message ""))
+
+(use-package eat
+  :ensure t
+  :hook ((eat-mode . completion-preview-mode)
+         (eshell-load . eat-eshell-mode))
+  :init
+  (setopt eshell-visual-commands nil))
+
+(use-package vterm
+  :ensure t)
 
 ;;;; Version control
 (use-package vc
