@@ -613,6 +613,7 @@
   (setopt meow-use-clipboard t)
   (add-to-list 'meow-mode-state-list '(shell-mode . insert))
   (add-to-list 'meow-mode-state-list '(eshell-mode . insert))
+  (add-to-list 'meow-mode-state-list '(eat-mode . insert))
   (add-to-list 'meow-mode-state-list '(vterm-mode . insert))
   (add-to-list 'meow-mode-state-list '(comint-mode . insert))
   (add-to-list 'meow-mode-state-list '(vc-git-log-edit-mode . insert))
