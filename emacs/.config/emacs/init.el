@@ -308,6 +308,8 @@
 (use-package corfu
   ;; simple completion framework
   :ensure t
+  :hook ((prog-mode . corfu-mode)
+         (conf-mode . corfu-mode))
   :bind (:map corfu-map
               ("C-n" . corfu-next)
               ("C-p" . corfu-previous)
@@ -320,7 +322,6 @@
   (setopt text-mode-ispell-word-completion nil)
   (setopt read-extended-command-predicate #'command-completion-default-include-p)
   (setopt completion-ignore-case t)
-  (global-corfu-mode)
   (corfu-history-mode t)
   (corfu-indexed-mode t)
   (corfu-popupinfo-mode t)
@@ -356,6 +357,12 @@
 ;;;; Shells, terminal & REPLs
 (use-package vterm
   :ensure t)
+
+(use-package eshell
+  :ensure nil
+  :hook ((eshell-mode . completion-preview-mode))
+  :init
+  (setopt eshell-banner-message ""))
 
 ;;;; Version control
 (use-package vc
