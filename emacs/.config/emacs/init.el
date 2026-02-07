@@ -71,6 +71,7 @@
   ;; setup the initial buffer - move to early-init.el?
   ;; (setopt initial-buffer-choice t)
   ;; (setopt initial-scratch-message nil)
+  (setopt initial-major-mode 'fundamental-mode)
   ;; disable some annoyances
   (setopt ring-bell-function 'ignore)
   (blink-cursor-mode -1)
