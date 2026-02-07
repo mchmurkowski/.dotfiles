@@ -1,34 +1,34 @@
 ;;; init.el -*- lexical-binding: t -*-
 
-;;; Package mangement setup
+;;; Keep ~customize~ from polluting my =init.el=
 
-;; Setup `package.el` & melpa
+(setopt custom-file (expand-file-name "custom.el" user-emacs-directory))
+(load custom-file :no-error-if-file-missing)
+
+;;; Package mangement
+
+;;;; Setup =package.el= & add the melpa archive
 (require 'package)
 (add-to-list 'package-archives '("melpa" . "https://melpa.org/packages/"))
 (unless package--initialized (package-initialize))
 
-;; Setup `use-package.el`
+;;;; Setup =use-package.el=
 (unless (package-installed-p 'use-package)
   (package-refresh-contents)
   (package-install 'use-package))
 (require 'use-package)
 (setopt use-package-always-defer t)
 
-;;; Customize write to seperate file
-
-(setopt custom-file (expand-file-name "custom.el" user-emacs-directory))
-(load custom-file :no-error-if-file-missing)
-
 
 ;;; Interface
 
-;; Fonts
+;;;; Fonts
 (defun mch/default-font-setup ()
   "Setup the default font and line spacing"
   (if (getenv "WSLENV")
     (set-frame-font "IBM Plex Mono-15" nil t)
-    (set-frame-font "IBM Plex Mono-13" nil) t)
-  (setopt line-spacing 1))
+    (set-frame-font "IBM Plex Mono-13" nil t))
+  (setopt line-spacing 2))
 
 (if (daemonp)
     (add-hook 'after-make-frame-functions
@@ -37,15 +37,14 @@
                   (mch/default-font-setup))))
   (mch/default-font-setup))
 
-;; Theme
+;;;; Theme
 (cond ((and (display-graphic-p) (getenv "WSLENV"))
        (load-theme 'modus-operandi nil nil))
       ((and (not (display-graphic-p)) (getenv "WSLENV"))
        (load-theme 'modus-vivendi nil nil))
       (t (load-theme 'modus-operandi-tinted nil nil)))
 
-;; Modeline
-
+;;;; Modeline
 ;; Remove borders from the modeline
 (set-face-attribute 'mode-line nil :box nil)
 (set-face-attribute 'mode-line-inactive nil :box nil)
@@ -57,6 +56,7 @@
                            mode-name
                            "  "))
 
+;;;; Spacious padding
 (use-package spacious-padding
   :ensure t
   :if window-system
@@ -208,7 +208,7 @@
 
 ;;; Navigation
 
-;; Mouse
+;;;; Mouse
 (use-package mouse
   :ensure nil
   :hook (after-init . mouse-wheel-mode)
@@ -229,7 +229,7 @@
   (unless (display-graphic-p)
     (xterm-mouse-mode 1)))
 
-;; Keybindings
+;;;; Keybindings
 (keymap-global-set "C-x b" 'ibuffer)
 
 (defun mch/split-v-and-follow ()
@@ -248,7 +248,6 @@
   (other-window 1))
 (keymap-global-set "C-x 3" #'mch/split-h-and-follow)
 
-;; half-page scrolling
 (defun mch/scroll-half-page-down ()
   "scroll down half a page while keeping the cursor centered"
   (interactive)
@@ -296,7 +295,7 @@
 (add-hook 'prog-mode-hook #'mch/programming-setup)
 (add-hook 'conf-mode-hook #'mch/programming-setup)
 
-;; Syntax highlighting
+;;;; Syntax highlighting
 (use-package treesit
   :ensure nil
   :config
@@ -305,7 +304,7 @@
   ;; less syntax highlighting in ts-modes
   (setopt treesit-font-lock-level 2))
 
-;; Completion
+;;;; Completion
 (use-package corfu
   ;; simple completion framework
   :ensure t
@@ -347,18 +346,18 @@
   (add-to-list 'completion-at-point-functions #'cape-file)
   (add-to-list 'completion-at-point-functions #'cape-elisp-block))
 
-;; Code formatting
+;;;; Code formatting
 (use-package editorconfig
   ;; read formatting rules from editorconfig file
   :ensure nil
   :init
   (editorconfig-mode 1))
 
-;; Terminal
+;;;; Shells, terminal & REPLs
 (use-package vterm
   :ensure t)
 
-;; Version control
+;;;; Version control
 (use-package vc
   :ensure nil
   :init
@@ -377,7 +376,7 @@
   (setopt git-commit-summary-max-length 50)
   (setopt git-commit-fill-column 72))
 
-;; LSP
+;;;; LSP
 (use-package eglot
   :ensure nil
   :defer t
@@ -403,7 +402,7 @@
      :foldingRangeProvider
      :inlayHintProvider)))
 
-;; Python
+;;;; Python
 (use-package python
   :ensure nil
   :mode ("\\.py\\'" . python-ts-mode)
@@ -425,7 +424,7 @@
   :hook ((python-ts-mode . uv-mode-auto-activate-hook)
          (hy-mode . uv-mode-auto-activate-hook)))
 
-;; Lua
+;;;; Lua
 (use-package lua-ts-mode
   :ensure nil
   :config
@@ -434,7 +433,7 @@
                  `(lua-ts-mode . ("lua-language-server"))))
   :mode ("\\.lua\\'" . lua-ts-mode))
 
-;; Fennel
+;;;; Fennel
 (use-package fennel-mode
   :ensure t
   :mode ("\\.fnl\\'" . fennel-mode)
@@ -446,7 +445,7 @@
   (with-eval-after-load 'org
     (require 'ob-fennel)))
 
-;; Structural editing for lisps
+;;;; Structural editing for lisps
 (use-package paredit
   ;; parantheses, slurping & barfing
   :ensure t
@@ -464,7 +463,7 @@
 ;; visual line mode in text-mode
 (add-hook 'text-mode-hook #'visual-line-mode)
 
-;; Org-mode
+;;;; Org-mode
 (use-package org
      :ensure nil
      :init
@@ -481,7 +480,7 @@
      (setopt org-hide-emphasis-markers t)
      (setopt org-ellipsis " ▾"))
 
-;; Markdown
+;;;; Markdown
 (use-package markdown-mode
   ;; github flavored markdown for README.md files
   :ensure t
