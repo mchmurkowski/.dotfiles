@@ -360,7 +360,13 @@
   :ensure nil
   :hook ((eshell-mode . completion-preview-mode))
   :init
-  (setopt eshell-banner-message ""))
+  (setopt eshell-banner-message "")
+  (setopt eshell-prompt-function
+          (lambda ()
+            (concat "\n" (abbreviate-file-name (eshell/pwd))
+                    (unless (eshell-exit-success-p)
+                      (format "[%d]" eshell-last-command-status))
+                    (if (= (file-user-uid) 0) " # " " λ ")))))
 
 (use-package eat
   :ensure t
