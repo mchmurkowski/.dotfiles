@@ -655,4 +655,4 @@
 (use-package sam
   :vc (:url "https://github.com/hkjels/sam.el"
        :branch "main")
-  :bind ("M-%" . sam))
+  :bind ("M-s s" . sam))
