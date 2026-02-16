@@ -23,19 +23,23 @@
 ;;; Interface
 
 ;;;; Fonts
-(defun mch/default-font-setup ()
-  "Setup the default font and line spacing"
-  (if (getenv "WSLENV")
-    (set-frame-font "IBM Plex Mono-15" nil t)
-    (set-frame-font "IBM Plex Mono-13" nil t))
-  (setopt line-spacing 2))
-
-(if (daemonp)
-    (add-hook 'after-make-frame-functions
-              (lambda (frame)
-                (with-selected-frame frame
-                  (mch/default-font-setup))))
-  (mch/default-font-setup))
+(use-package faces
+  :ensure nil
+  :init
+  (defun mch/default-font-setup ()
+    "Setup the default font and line spacing"
+    (if (getenv "WSLENV")
+        (set-frame-font "IBM Plex Mono-15" nil t)
+      (set-frame-font "IBM Plex Mono-13" nil t))
+    (setopt line-spacing 2))
+  :config
+  ;; setup the default font for frames
+  (if (daemonp)
+      (add-hook 'after-make-frame-functions
+                (lambda (frame)
+                  (with-selected-frame frame
+                    (mch/default-font-setup))))
+    (mch/default-font-setup)))
 
 ;;;; Theme
 (cond ((and (display-graphic-p) (getenv "WSLENV"))
@@ -48,7 +52,6 @@
 ;; Remove borders from the modeline
 (set-face-attribute 'mode-line nil :box nil)
 (set-face-attribute 'mode-line-inactive nil :box nil)
-
 ;; Setup a minimal modeline
 (setopt mode-line-format '(" [%*] %b"
                            mode-line-format-right-align
