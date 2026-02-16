@@ -650,3 +650,9 @@
    '("o" . meow-tree-sitter-node))
   :config
   (meow-tree-sitter-register-defaults))
+
+;;; Structural regular expressions like Sam or Vis
+(use-package sam
+  :vc (:url "https://github.com/hkjels/sam.el"
+       :branch "main")
+  :bind ("M-%" . sam))
