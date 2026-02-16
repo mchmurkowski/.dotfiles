@@ -80,6 +80,7 @@
   (setopt use-dialog-box nil)
   (setopt use-file-dialog nil)
   (setopt help-window-select t)
+
   ;; be modern, be posix
   (setopt sentence-end-double-space nil)
   (setopt require-final-newline t)
@@ -230,48 +231,58 @@
   (unless (display-graphic-p)
     (xterm-mouse-mode 1)))
 
-;;;; Keybindings
-(keymap-global-set "C-x b" 'ibuffer)
+;;;; Windows
+(use-package window
+  :ensure nil
+  :init
+  (defun mch/split-v-and-follow ()
+    "split the view vertically and focus on the new split"
+    (interactive)
+    (split-window-right)
+    (balance-windows)
+    (other-window 1))
+  (defun mch/split-h-and-follow ()
+    "split the view horizontally and focus on the new split"
+    (interactive)
+    (split-window-below)
+    (balance-windows)
+    (other-window 1))
+  (defun mch/scroll-half-page-down ()
+    "scroll down half a page while keeping the cursor centered"
+    (interactive)
+    (let ((ln (line-number-at-pos (point)))
+          (lmax (line-number-at-pos (point-max))))
+      (cond ((= ln 1) (move-to-window-line nil))
+            ((= ln lmax) (recenter (window-end)))
+            (t (progn
+                 (move-to-window-line -1)
+                 (recenter))))))
+  (defun mch/scroll-half-page-up ()
+    "scroll up half a page while keeping the cursor centered"
+    (interactive)
+    (let ((ln (line-number-at-pos (point)))
+          (lmax (line-number-at-pos (point-max))))
+      (cond ((= ln 1) nil)
+            ((= ln lmax) (move-to-window-line nil))
+            (t (progn
+                 (move-to-window-line 0)
+                 (recenter))))))
+  :config
+  ;; prefer vertical splits over horizontal when 'splitting sensibly'
+  (setopt split-width-threshold 170)
+  (setopt split-height-threshold nil)
+  ;; better behaviour for manual splits
+  (keymap-global-set "C-x 2" #'mch/split-v-and-follow)
+  (keymap-global-set "C-x 3" #'mch/split-h-and-follow)
+  ;; half page scrolling
+  (keymap-global-set "<next>" #'mch/scroll-half-page-down)
+  (keymap-global-set "<prior>" #'mch/scroll-half-page-up))
 
-(defun mch/split-v-and-follow ()
-  "split the view vertically and focus on the new split"
-  (interactive)
-  (split-window-right)
-  (balance-windows)
-  (other-window 1))
-(keymap-global-set "C-x 2" #'mch/split-v-and-follow)
-
-(defun mch/split-h-and-follow ()
-  "split the view horizontally and focus on the new split"
-  (interactive)
-  (split-window-below)
-  (balance-windows)
-  (other-window 1))
-(keymap-global-set "C-x 3" #'mch/split-h-and-follow)
-
-(defun mch/scroll-half-page-down ()
-  "scroll down half a page while keeping the cursor centered"
-  (interactive)
-  (let ((ln (line-number-at-pos (point)))
-        (lmax (line-number-at-pos (point-max))))
-    (cond ((= ln 1) (move-to-window-line nil))
-          ((= ln lmax) (recenter (window-end)))
-          (t (progn
-               (move-to-window-line -1)
-               (recenter))))))
-(keymap-global-set "<next>" #'mch/scroll-half-page-down)
-
-(defun mch/scroll-half-page-up ()
-  "scroll up half a page while keeping the cursor centered"
-  (interactive)
-  (let ((ln (line-number-at-pos (point)))
-        (lmax (line-number-at-pos (point-max))))
-    (cond ((= ln 1) nil)
-          ((= ln lmax) (move-to-window-line nil))
-          (t (progn
-               (move-to-window-line 0)
-               (recenter))))))
-(keymap-global-set "<prior>" #'mch/scroll-half-page-up)
+;;;; Other keybindings
+(use-package ibuffer
+  :ensure nil
+  :init
+  (keymap-global-set "C-x b" 'ibuffer))
 
 
 ;;; Programming
