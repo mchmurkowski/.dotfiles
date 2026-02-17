@@ -6,7 +6,6 @@
 (load custom-file :no-error-if-file-missing)
 
 ;;; Package mangement
-
 ;;;; Setup =package.el= & add the melpa archive
 (require 'package)
 (add-to-list 'package-archives '("melpa" . "https://melpa.org/packages/"))
@@ -21,7 +20,6 @@
 
 
 ;;; Interface
-
 ;;;; Fonts
 (use-package faces
   :ensure nil
@@ -67,7 +65,6 @@
 
 
 ;;; Some basic settings
-
 (use-package emacs
   :ensure nil
   :config
@@ -83,7 +80,6 @@
   (setopt use-dialog-box nil)
   (setopt use-file-dialog nil)
   (setopt help-window-select t)
-
   ;; be modern, be posix
   (setopt sentence-end-double-space nil)
   (setopt require-final-newline t)
@@ -212,7 +208,6 @@
 
 
 ;;; Navigation
-
 ;;;; Mouse
 (use-package mouse
   :ensure nil
@@ -289,7 +284,6 @@
 
 
 ;;; Programming
-
 (defun mch/programming-setup ()
   "basic setup for programming"
   ;; set line numbers
@@ -496,7 +490,6 @@
 
 
 ;;; Text editing
-
 ;; visual line mode in text-mode
 (add-hook 'text-mode-hook #'visual-line-mode)
 
