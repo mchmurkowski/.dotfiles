@@ -373,7 +373,22 @@
             (concat "\n" (abbreviate-file-name (eshell/pwd))
                     (unless (eshell-exit-success-p)
                       (format "[%d]" eshell-last-command-status))
-                    (if (= (file-user-uid) 0) " # " " λ ")))))
+                    (if (= (file-user-uid) 0) " # " " λ "))))
+  :config
+  ;; lifted from https://tony-zorman.com/posts/emacs-potpourri.html#integrating-zoxide-with-eshell
+  (advice-add 'eshell/cd :around
+              (lambda (cd &rest args)
+                "On directory change, add the path to zoxide's database."
+                (let ((old-path (eshell/pwd))
+                      (_ (apply cd args))
+                      (new-path (eshell/pwd)))
+                  (when (and old-path new-path (not (string= old-path new-path)))
+                    (shell-command-to-string (concat "zoxide add " new-path))))))
+  (defun eshell/z (dir)
+    "Navigate to a previously visited directory."
+    (eshell/cd
+     (string-trim (shell-command-to-string (concat "zoxide query " dir))))
+    (eshell/ls)))
 
 (use-package eat
   :ensure t
