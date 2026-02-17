@@ -1,7 +1,6 @@
 ;;; init.el -*- lexical-binding: t -*-
 
 ;;; Keep ~customize~ from polluting my =init.el=
-
 (setopt custom-file (expand-file-name "custom.el" user-emacs-directory))
 (load custom-file :no-error-if-file-missing)
 
@@ -386,7 +385,8 @@
   (setopt eat-kill-buffer-on-exit t))
 
 (use-package vterm
-  :ensure t)
+  :ensure t
+  :commands (vterm vterm-other-window))
 
 ;;;; Version control
 (use-package vc
