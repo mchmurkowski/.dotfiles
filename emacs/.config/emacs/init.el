@@ -491,6 +491,15 @@
   (with-eval-after-load 'org
     (require 'ob-fennel)))
 
+;;;; Outline minor mode when editing emacs lisp
+(use-package outline
+  ;; NOTE: look into hs-minor-mode
+  :ensure nil
+  :hook (emacs-lisp-mode . outline-minor-mode)
+  :bind (:map outline-minor-mode-map
+              ("C-<tab>" . outline-cycle)
+              ("<backtab>" . outline-cycle-buffer)))
+
 ;;;; Structural editing for lisps
 (use-package paredit
   ;; parantheses, slurping & barfing
