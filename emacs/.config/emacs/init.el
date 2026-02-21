@@ -83,8 +83,6 @@
   (setopt sentence-end-double-space nil)
   (setopt require-final-newline t)
   (set-language-environment "UTF-8")
-  ;; more readable buffer names
-  (setopt uniquify-buffer-name-style 'forward)
   ;; more pleasant underlining
   (setopt x-underline-at-descent-line t)
   ;; backups, lockfiles & autosave
@@ -97,6 +95,11 @@
   (dolist (d (list mch/tmp-dir mch/autosave-dir))
     (unless (file-directory-p d) (make-directory d t)))
   (setopt auto-save-file-name-transforms `((".*" ,mch/autosave-dir t))))
+
+(use-package uniquify
+  :ensure nil
+  :config
+  (setopt uniquify-buffer-name-style 'forward))
 
 (use-package dired
   :ensure nil
