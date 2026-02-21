@@ -56,6 +56,12 @@
                            mode-name
                            "  "))
 
+(use-package hide-mode-line
+  :ensure t
+  :hook ((eshell-mode . hide-mode-line-mode)
+         (eat-mode . hide-mode-line-mode)
+         (vterm-mode . hide-mode-line-mode)))
+
 ;;;; Spacious padding
 (use-package spacious-padding
   :ensure t
@@ -522,20 +528,20 @@
 
 ;;;; Org-mode
 (use-package org
-     :ensure nil
-     :init
-     (keymap-global-set "C-c l" #'org-store-link)
-     (keymap-global-set "C-c a" #'org-agenda)
-     (keymap-global-set "C-c c" #'org-capture)
-     :hook (org-mode . (lambda () (electric-indent-mode -1)))
-     :config
-     (setopt org-directory (expand-file-name "~/Org"))
-     (setopt org-default-notes-file (concat org-directory "/notes.org"))
-     (setopt org-startup-folded 'content)
-     (setopt org-startup-indented t)
-     (setopt org-indent-mode-turn-on-hiding-stars nil)
-     (setopt org-hide-emphasis-markers t)
-     (setopt org-ellipsis " ▾"))
+  :ensure nil
+  :init
+  (keymap-global-set "C-c l" #'org-store-link)
+  (keymap-global-set "C-c a" #'org-agenda)
+  (keymap-global-set "C-c c" #'org-capture)
+  :hook (org-mode . (lambda () (electric-indent-mode -1)))
+  :config
+  (setopt org-directory (expand-file-name "~/Org"))
+  (setopt org-default-notes-file (concat org-directory "/notes.org"))
+  (setopt org-startup-folded 'content)
+  (setopt org-startup-indented t)
+  (setopt org-indent-mode-turn-on-hiding-stars nil)
+  (setopt org-hide-emphasis-markers t)
+  (setopt org-ellipsis " ▾"))
 
 (use-package ox-typst
   :ensure t
