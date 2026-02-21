@@ -534,6 +534,10 @@
      (setopt org-hide-emphasis-markers t)
      (setopt org-ellipsis " ▾"))
 
+(use-package ox-typst
+  :ensure t
+  :after org)
+
 ;;;; Markdown
 (use-package markdown-mode
   ;; github flavored markdown for README.md files
