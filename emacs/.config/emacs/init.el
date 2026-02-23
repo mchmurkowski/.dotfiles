@@ -276,9 +276,10 @@
                  (move-to-window-line 0)
                  (recenter))))))
   :config
-  ;; prefer vertical splits over horizontal when 'splitting sensibly'
-  (setopt split-width-threshold 170)
-  (setopt split-height-threshold nil)
+  ;; prefer horizontal splits with wide windows
+  (setopt split-width-threshold 80)
+  ;; prefer vertical splits with long or narrow windows
+  (setopt split-height-threshold 40)
   ;; better behaviour for manual splits
   (keymap-global-set "C-x 2" #'mch/split-v-and-follow)
   (keymap-global-set "C-x 3" #'mch/split-h-and-follow)
