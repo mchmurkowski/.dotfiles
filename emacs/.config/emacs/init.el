@@ -217,7 +217,7 @@
   (setopt which-key-idle-delay 0.5))
 
 
-;;; Navigation
+;;; Navigation & behaviour
 ;;;; Mouse
 (use-package mouse
   :ensure nil
@@ -244,19 +244,49 @@
   :ensure nil
   :init
   (defun mch/split-v-and-follow ()
-    "split the view vertically and focus on the new split"
+    "Split the view vertically and focus on the new split"
     (interactive)
     (split-window-right)
     (balance-windows)
     (other-window 1))
   (defun mch/split-h-and-follow ()
-    "split the view horizontally and focus on the new split"
+    "Split the view horizontally and focus on the new split"
     (interactive)
     (split-window-below)
     (balance-windows)
     (other-window 1))
+  :config
+  ;; prefer horizontal splits with wide windows
+  (setopt split-width-threshold 80)
+  ;; prefer vertical splits with long or narrow windows
+  (setopt split-height-threshold 40)
+  ;; better behaviour for manual splits
+  (keymap-global-set "C-x 2" #'mch/split-v-and-follow)
+  (keymap-global-set "C-x 3" #'mch/split-h-and-follow)
+
+;;; TODO: Popup management: look into popper.el and shackle.el
+
+;;;; Keyboard
+(use-package repeat
+  :ensure nil
+  :hook (after-init . repeat-mode))
+
+;;; Keybindings
+(use-package bind-key
+  :ensure nil
+  :no-require t
+  :init
+  ;; lifted from: https://emacsredux.com/blog/2025/06/01/let-s-make-keyboard-quit-smarter/
+  (defun mch/keyboard-quit-dwim ()
+    "Smarter version of the built-in `keyboard-quit'"
+    (interactive)
+    (if (active-minibuffer-window)
+        (if (minibufferp)
+            (minibuffer-keyboard-quit)
+          (abort-recursive-edit))
+      (keyboard-quit)))
   (defun mch/scroll-half-page-down ()
-    "scroll down half a page while keeping the cursor centered"
+    "Scroll down half a page while keeping the cursor centered."
     (interactive)
     (let ((ln (line-number-at-pos (point)))
           (lmax (line-number-at-pos (point-max))))
@@ -266,7 +296,7 @@
                  (move-to-window-line -1)
                  (recenter))))))
   (defun mch/scroll-half-page-up ()
-    "scroll up half a page while keeping the cursor centered"
+    "Scroll up half a page while keeping the cursor centered."
     (interactive)
     (let ((ln (line-number-at-pos (point)))
           (lmax (line-number-at-pos (point-max))))
@@ -276,21 +306,11 @@
                  (move-to-window-line 0)
                  (recenter))))))
   :config
-  ;; prefer horizontal splits with wide windows
-  (setopt split-width-threshold 80)
-  ;; prefer vertical splits with long or narrow windows
-  (setopt split-height-threshold 40)
-  ;; better behaviour for manual splits
-  (keymap-global-set "C-x 2" #'mch/split-v-and-follow)
-  (keymap-global-set "C-x 3" #'mch/split-h-and-follow)
+  ;; keyboard-quit do what I mean
+  (global-set-key [remap keyboard-quit] #'mch/keyboard-quit-dwim))
   ;; half page scrolling
   (keymap-global-set "<next>" #'mch/scroll-half-page-down)
   (keymap-global-set "<prior>" #'mch/scroll-half-page-up))
-
-;;;; Keyboard
-(use-package repeat
-  :ensure nil
-  :hook (after-init . repeat-mode))
 
 
 ;;; Programming
