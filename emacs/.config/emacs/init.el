@@ -189,6 +189,8 @@
 
 (use-package consult
   :ensure t
+  :init
+  (keymap-global-set "C-x b" 'ibuffer)
   :bind
   ("C-x C-b" . consult-buffer)
   ("C-x r b" . consult-bookmark)
@@ -284,11 +286,10 @@
   (keymap-global-set "<next>" #'mch/scroll-half-page-down)
   (keymap-global-set "<prior>" #'mch/scroll-half-page-up))
 
-;;;; Other keybindings
-(use-package ibuffer
+;;;; Keyboard
+(use-package repeat
   :ensure nil
-  :init
-  (keymap-global-set "C-x b" 'ibuffer))
+  :hook (after-init . repeat-mode))
 
 
 ;;; Programming
