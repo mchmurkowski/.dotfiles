@@ -707,4 +707,6 @@
 (use-package sam
   :vc (:url "https://github.com/hkjels/sam.el"
        :branch "main")
+  :init
+  (add-to-list 'project-vc-ignores "~/.config/emacs/elpa/sam")
   :bind ("M-s s" . sam))
