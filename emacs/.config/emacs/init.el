@@ -674,6 +674,7 @@
      '("<escape>" . ignore))
     (meow-define-keys
         'insert
+      '("<escape>" . ignore)
       '("<control-bracketleft>" . meow-insert-exit))
     (meow-define-keys
         'normal
