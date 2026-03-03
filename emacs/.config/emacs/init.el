@@ -396,7 +396,8 @@
 ;;;; Shells, terminal & REPLs
 (use-package eshell
   :ensure nil
-  :hook ((eshell-mode . completion-preview-mode))
+  :hook ((eshell-mode . completion-preview-mode)
+         (eshell-mode . visual-line-mode))
   :init
   (setopt eshell-banner-message "")
   (setopt eshell-prompt-function
