@@ -84,13 +84,13 @@
   (setopt use-short-answers t)
   (setopt use-dialog-box nil)
   (setopt use-file-dialog nil)
-  (setopt help-window-select t)
   ;; be modern, be posix
   (setopt sentence-end-double-space nil)
   (setopt require-final-newline t)
   (set-language-environment "UTF-8")
   ;; more pleasant underlining
   (setopt x-underline-at-descent-line t)
+  (setopt view-read-only t)
   ;; backups, lockfiles & autosave
   (setopt make-backup-files nil)
   (setopt create-lockfiles nil)
@@ -116,7 +116,8 @@
 (use-package recentf
   :ensure nil
   :bind ("C-x C-r" . recentf-open)
-  :hook (find-file . recentf-mode)
+  :hook ((find-file . recentf-mode)
+         (vc-find-file . recentf-mode))
   :config
   (setopt recentf-max-saved-items 75)
   (setopt recentf-max-menu-items 15)
@@ -242,27 +243,16 @@
 ;;;; Windows
 (use-package window
   :ensure nil
-  :init
-  (defun mch/split-v-and-follow ()
-    "Split the view vertically and focus on the new split"
-    (interactive)
-    (split-window-right)
-    (balance-windows)
-    (other-window 1))
-  (defun mch/split-h-and-follow ()
-    "Split the view horizontally and focus on the new split"
-    (interactive)
-    (split-window-below)
-    (balance-windows)
-    (other-window 1))
   :config
   ;; prefer horizontal splits with wide windows
   (setopt split-width-threshold 80)
   ;; prefer vertical splits with long or narrow windows
   (setopt split-height-threshold 40)
   ;; better behaviour for manual splits
-  (keymap-global-set "C-x 2" #'mch/split-v-and-follow)
-  (keymap-global-set "C-x 3" #'mch/split-h-and-follow)
+  (setopt help-window-select t)
+  (setopt window-combination-resize t)
+  (defadvice split-window (after split-window-after activate)
+    (select-window (get-lru-window))))
 
 ;;; TODO: Popup management: look into popper.el and shackle.el
 
@@ -307,7 +297,7 @@
                  (recenter))))))
   :config
   ;; keyboard-quit do what I mean
-  (global-set-key [remap keyboard-quit] #'mch/keyboard-quit-dwim))
+  (global-set-key [remap keyboard-quit] #'mch/keyboard-quit-dwim)
   ;; half page scrolling
   (keymap-global-set "<next>" #'mch/scroll-half-page-down)
   (keymap-global-set "<prior>" #'mch/scroll-half-page-up))
@@ -519,7 +509,7 @@
   (with-eval-after-load 'eglot
     (add-to-list 'eglot-server-programs
                  `(fennel-mode . ("fennel-ls"))))
-;; enable fennel in org-mode source blocks
+  ;; enable fennel in org-mode source blocks
   (with-eval-after-load 'org
     (require 'ob-fennel)))
 
@@ -710,7 +700,7 @@
 ;;; Structural regular expressions like Sam or Vis
 (use-package sam
   :vc (:url "https://github.com/hkjels/sam.el"
-       :branch "main")
+            :branch "main")
   :init
   (add-to-list 'project-vc-ignores "~/.config/emacs/elpa/sam")
   :bind ("M-s s" . sam))
