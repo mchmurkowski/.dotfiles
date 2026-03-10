@@ -305,10 +305,10 @@
                                        backward-page forward-page
                                        mch/scroll-half-page-up mch/scroll-half-page-down
                                        recenter-top-bottom other-window
-                                       'windmove-left 'windmove-down
-                                       'windmove-up 'windmove-right
-                                       'windmove-swap-states-left 'windmove-swap-states-down
-                                       'windmove-swap-states-up 'windmove-swap-states-right))
+                                       windmove-left windmove-down
+                                       windmove-up windmove-right
+                                       windmove-swap-states-left windmove-swap-states-down
+                                       windmove-swap-states-up windmove-swap-states-right))
     (advice-add command :after #'mch/pulse-line)))
 
 ;;;; Keyboard
