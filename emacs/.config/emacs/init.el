@@ -80,7 +80,6 @@
   ;; disable some annoyances
   (setopt ring-bell-function 'ignore)
   (blink-cursor-mode -1)
-  (setopt cursor-in-non-selected-windows nil)
   (setopt use-short-answers t)
   (setopt use-dialog-box nil)
   (setopt use-file-dialog nil)
@@ -224,9 +223,6 @@
   :ensure nil
   :hook (after-init . mouse-wheel-mode)
   :config
-  ;; behave like my window manager
-  (setopt mouse-autoselect-window t)
-  (setopt focus-follows-mouse t)
   (setopt mouse-drag-copy-region nil)
   (setopt make-pointer-invisible t)
   (setopt mouse-wheel-progressive-speed nil)
@@ -244,6 +240,10 @@
 (use-package window
   :ensure nil
   :config
+  ;; behave like my window manager
+  (setopt mouse-autoselect-window t)
+  (setopt focus-follows-mouse t)
+  (setopt cursor-in-non-selected-windows nil)
   ;; prefer horizontal splits with wide windows
   (setopt split-width-threshold 80)
   ;; prefer vertical splits with long or narrow windows
@@ -254,7 +254,62 @@
   (defadvice split-window (after split-window-after activate)
     (select-window (get-lru-window))))
 
+(use-package winner
+  :ensure nil
+  :bind
+  (("C-c w u" . winner-undo)
+   ("C-c w U" . winner-redo))
+  (:repeat-map
+   mch/winner-mode-map
+   (("u" . winner-undo)
+    ("U" . winner-redo)))
+  :init
+  (setopt winner-dont-bind-my-keys t)
+  :hook (after-init . winner-mode))
+
+(use-package windmove
+  :ensure nil
+  :bind
+  (:repeat-map
+   mch/windmove-mode-map
+   (("C-h" . 'windmove-left)
+    ("C-j" . 'windmove-down)
+    ("C-k" . 'windmove-up)
+    ("C-l" . 'windmove-right)
+    ("C-S-h" . 'windmove-swap-states-left)
+    ("C-S-j" . 'windmove-swap-states-down)
+    ("C-S-k" . 'windmove-swap-states-up)
+    ("C-S-l" . 'windmove-swap-states-right)))
+  :init
+  (keymap-global-set "C-c w C-h" 'windmove-left)
+  (keymap-global-set "C-c w C-j" 'windmove-down)
+  (keymap-global-set "C-c w C-k" 'windmove-up)
+  (keymap-global-set "C-c w C-l" 'windmove-right)
+  (keymap-global-set "C-c w C-S-h" 'windmove-swap-states-left)
+  (keymap-global-set "C-c w C-S-j" 'windmove-swap-states-down)
+  (keymap-global-set "C-c w C-S-k" 'windmove-swap-states-up)
+  (keymap-global-set "C-c w C-S-l" 'windmove-swap-states-right)
+  :config
+  (setopt windmove-wrap-around t))
+
 ;;; TODO: Popup management: look into popper.el and shackle.el
+
+(use-package pulse
+  ;; lifted from https://karthinks.com/software/batteries-included-with-emacs/
+  :ensure nil
+  :init
+  (defun mch/pulse-line (&rest _)
+    "Pulse the current line."
+    (pulse-momentary-highlight-one-line (point)))
+  (dolist (command '(scroll-up-command scroll-down-command
+                                       backward-page forward-page
+                                       mch/scroll-half-page-up mch/scroll-half-page-down
+                                       recenter-top-bottom other-window
+                                       'windmove-left 'windmove-down
+                                       'windmove-up 'windmove-right
+                                       'windmove-swap-states-left 'windmove-swap-states-down
+                                       'windmove-swap-states-up 'windmove-swap-states-right))
+    (advice-add command :after #'mch/pulse-line)))
 
 ;;;; Keyboard
 (use-package repeat
@@ -304,25 +359,30 @@
 
 
 ;;; Programming
-(defun mch/programming-setup ()
-  "basic setup for programming"
-  ;; set line numbers
-  (setopt display-line-numbers-width 4)
-  (setopt display-line-numbers-widen t)
-  (setopt display-line-numbers-type 'relative)
-  (display-line-numbers-mode 1)
-  ;; use spaces not tabs
-  (setopt indent-tabs-mode nil)
-  (setopt tab-width 4)
-  ;; fill column at 80 characters
-  (setopt fill-column 80)
-  (display-fill-column-indicator-mode t)
-  ;; word-wrapping
-  (setopt word-wrap t)
-  (setopt truncate-lines t)
-  (setopt truncate-partial-width-windows nil))
-(add-hook 'prog-mode-hook #'mch/programming-setup)
-(add-hook 'conf-mode-hook #'mch/programming-setup)
+(use-package prog-mode
+  :ensure nil
+  :no-require t
+  :init
+  (defun mch/programming-setup ()
+    "basic setup for programming"
+    ;; set line numbers
+    (setopt display-line-numbers-width 4)
+    (setopt display-line-numbers-widen t)
+    (setopt display-line-numbers-type 'relative)
+    (display-line-numbers-mode 1)
+    ;; use spaces not tabs
+    (setopt indent-tabs-mode nil)
+    (setopt tab-width 4)
+    ;; fill column at 80 characters
+    (setopt fill-column 80)
+    (display-fill-column-indicator-mode t)
+    ;; word-wrapping
+    (setopt word-wrap t)
+    (setopt truncate-lines t)
+    (setopt truncate-partial-width-windows nil))
+  :config
+  (add-hook 'prog-mode-hook #'mch/programming-setup)
+  (add-hook 'conf-mode-hook #'mch/programming-setup))
 
 ;;;; Syntax highlighting
 (use-package treesit
@@ -537,7 +597,11 @@
 
 ;;; Text editing
 ;; visual line mode in text-mode
-(add-hook 'text-mode-hook #'visual-line-mode)
+(use-package text-mode
+  :ensure nil
+  :no-require t
+  :config
+  (add-hook 'text-mode-hook #'visual-line-mode))
 
 ;;;; Org-mode
 (use-package org
@@ -701,6 +765,4 @@
 (use-package sam
   :vc (:url "https://github.com/hkjels/sam.el"
             :branch "main")
-  :init
-  (add-to-list 'project-vc-ignores "~/.config/emacs/elpa/sam")
   :bind ("M-s s" . sam))
