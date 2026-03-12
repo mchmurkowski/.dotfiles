@@ -443,6 +443,19 @@
   :init
   (editorconfig-mode 1))
 
+(use-package indent
+  :ensure nil
+  :init
+  (defun mch/indent-buffer ()
+    "Indent the entire buffer."
+    (interactive)
+    (indent-region (point-min) (point-max))))
+
+(use-package whitespace
+  :ensure nil
+  :init
+  (add-hook before-save-hook #'whitespace-mode))
+
 ;;;; Shells, terminal & REPLs
 (use-package eshell
   :ensure nil
