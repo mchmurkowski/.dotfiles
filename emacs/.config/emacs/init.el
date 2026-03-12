@@ -462,7 +462,19 @@
   :init
   (add-hook before-save-hook #'whitespace-mode))
 
-;;;; Shells, terminal & REPLs
+;;;; REPLs, shells & terminals
+(use-package compile
+  :ensure nil
+  :config
+  (setopt compilation-scroll-output 'first-error)
+  (setopt compilation-skip-threshold 2)
+  ;; close the window contating the compilition buffer on success
+  ;; lifted from: https://emacsredux.com/blog/2026/03/06/mastering-compilation-mode/
+  (setopt compilation-finish-functions
+          (list (lambda (buf status)
+                  (when (string-match-p "finished" status)
+                    (run-at-time 1 nil #'delete-windows-on buf))))))
+
 (use-package eshell
   :ensure nil
   :hook ((eshell-mode . completion-preview-mode)
