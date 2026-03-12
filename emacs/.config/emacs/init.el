@@ -196,9 +196,9 @@
 (use-package consult
   :ensure t
   :init
-  (keymap-global-set "C-x b" 'ibuffer)
+  (keymap-global-set "C-x C-b" 'ibuffer)
   :bind
-  ("C-x C-b" . consult-buffer)
+  ("C-x b" . consult-buffer)
   ("C-x r b" . consult-bookmark)
   ("C-x p b" . consult-project-buffer)
   ("M-g o" . consult-outline)
