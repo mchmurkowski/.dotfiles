@@ -112,6 +112,12 @@
   (setopt dired-kill-when-opening-new-dired-buffer t)
   (setopt dired-listing-switches "-aGh --group-directories-first"))
 
+(use-package files
+  :ensure nil
+  :config
+  (setopt find-file-visit-truename t)
+  (setopt find-file-suppress-same-file-warnings t))
+
 (use-package recentf
   :ensure nil
   :bind ("C-x C-r" . recentf-open)
@@ -501,9 +507,6 @@
 ;;;; Version control
 (use-package vc
   :ensure nil
-  :init
-  (setopt find-file-visit-truename t)
-  (setopt find-file-suppress-same-file-warnings t)
   :config
   (setopt vc-follow-symlinks t))
 
