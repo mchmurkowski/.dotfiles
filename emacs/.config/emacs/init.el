@@ -1,16 +1,15 @@
 ;;; init.el -*- lexical-binding: t -*-
-
-;;; Keep ~customize~ from polluting my =init.el=
+;;;; Keep `customize' from polluting my config file
 (setopt custom-file (expand-file-name "custom.el" user-emacs-directory))
 (load custom-file :no-error-if-file-missing)
 
 ;;; Package mangement
-;;;; Setup =package.el= & add the melpa archive
+;;;; Setup `package.el' & add the melpa archive
 (require 'package)
 (add-to-list 'package-archives '("melpa" . "https://melpa.org/packages/"))
 (unless package--initialized (package-initialize))
 
-;;;; Setup =use-package.el=
+;;;; Setup `use-package.el'
 (unless (package-installed-p 'use-package)
   (package-refresh-contents)
   (package-install 'use-package))
@@ -30,6 +29,8 @@
       (set-frame-font "IBM Plex Mono-13" nil t))
     (setopt line-spacing 2))
   :config
+  (setopt x-underline-at-descent-line t)
+  (setopt truncate-string-ellipsis "…")
   ;; setup the default font for frames
   (if (daemonp)
       (add-hook 'after-make-frame-functions
@@ -73,38 +74,90 @@
 (use-package emacs
   :ensure nil
   :config
-  ;; setup the initial buffer - move to early-init.el?
-  ;; (setopt initial-buffer-choice t)
-  ;; (setopt initial-scratch-message nil)
-  (setopt initial-major-mode 'fundamental-mode)
-  ;; disable some annoyances
-  (setopt ring-bell-function 'ignore)
+  ;; setup the initial buffer
+  (setopt initial-major-mode 'fundamental-mode
+          initial-scratch-message nil)
+  ;; no beeping and blinking
+  (setopt visible-bell nil
+          ring-bell-function 'ignore)
   (blink-cursor-mode -1)
-  (setopt use-short-answers t)
-  (setopt use-dialog-box nil)
-  (setopt use-file-dialog nil)
+  ;; short answers
+  (setopt read-answer-short t)
+  (if (boundp 'use-short-answers)
+      (setopt use-short-answers t)
+    (advice-add 'yes-or-no-p :override #'y-or-n-p))
+  ;; disable dialog boxes
+  (setopt use-dialog-box nil
+          use-file-dialog nil)
   ;; be modern, be posix
-  (setopt sentence-end-double-space nil)
-  (setopt require-final-newline t)
-  (set-language-environment "UTF-8")
-  ;; more pleasant underlining
-  (setopt x-underline-at-descent-line t)
-  (setopt view-read-only t)
-  ;; backups, lockfiles & autosave
-  (setopt make-backup-files nil)
-  (setopt create-lockfiles nil)
-  (setopt auto-save-include-big-deletions t)
-  (setopt auto-save-no-message t)
-  (defvar mch/tmp-dir (expand-file-name "tmp/" user-emacs-directory))
-  (defvar mch/autosave-dir (expand-file-name "autosaves/" mch/tmp-dir))
-  (dolist (d (list mch/tmp-dir mch/autosave-dir))
-    (unless (file-directory-p d) (make-directory d t)))
-  (setopt auto-save-file-name-transforms `((".*" ,mch/autosave-dir t))))
+  (setopt sentence-end-double-space nil
+          require-final-newline t
+          default-input-method nil)
+  (set-language-environment "UTF-8"))
 
-(use-package uniquify
+(use-package delsel
+  ;; delete selection when entering new text over it
   :ensure nil
+  :hook (after-init . delete-selection-mode))
+
+(use-package files
+  :ensure nil
+  :init
+  (let* ((tmp-dir (expand-file-name "tmp/" user-emacs-directory))
+         (autosave-dir (expand-file-name "autosaves/" tmp-dir)))
+    (dolist (d (list tmp-dir autosave-dir))
+      (unless (file-directory-p d) (make-directory d t)))
+    (setopt auto-save-file-name-transforms `((".*" ,autosave-dir t))))
   :config
-  (setopt uniquify-buffer-name-style 'forward))
+  ;; do not make backup files nor lockfiles ...
+  (setopt make-backup-files nil
+          create-lockfiles nil)
+  ;; ... but do autosave
+  (setopt auto-save-default t
+          auto-save-include-big-deletions t
+          auto-save-interval 300
+          auto-save-timeout 30
+          auto-save-no-message t)
+  (setopt auto-save-visited-interval 5)
+  (auto-save-visited-mode 1)
+  ;; symlinks
+  (setopt find-file-visit-truename t
+          find-file-suppress-same-file-warnings t)
+  ;; read-only files should open in view-mode
+  (setopt view-read-only t))
+
+(use-package autorevert
+  ;; listen to file changes outside emacs
+  :ensure nil
+  :hook (after-init . global-auto-revert-mode)
+  :init
+  (setopt auto-revert-interval 3)
+  (setopt auto-revert-remote-files nil)
+  (setopt auto-revert-use-notify t
+          auto-revert-avoid-polling nil)
+  (setopt auto-revert-verbose t)
+  ;; also autorevert non-file buffers like dired buffers
+  (setopt global-auto-revert-non-file-buffers t))
+
+(use-package recentf
+  :ensure nil
+  :bind ("C-x C-r" . recentf-open)
+  :hook (after-init . recentf-mode)
+  :config
+  (dolist (itm '("^/usr/share/emacs/\.*$" "~/.config/emacs/bookmarks"))
+    (add-to-list 'recentf-exclude itm))
+  (setopt recentf-auto-cleanup
+          (if (or (server-running-p) (daemonp)) 300 'never))
+  (setopt recentf-max-saved-items 75)
+  (setopt recentf-max-menu-items 15)
+  ;; ensure that `recentf-cleanup' runs before `recentf-save-list'
+  (add-hook 'kill-emacs-hook #'recentf-cleanup -90))
+
+(use-package saveplace
+  :ensure nil
+  :hook (after-init . save-place-mode)
+  :init
+  (setopt save-place-limit 400))
 
 (use-package dired
   :ensure nil
@@ -112,55 +165,18 @@
   (setopt dired-kill-when-opening-new-dired-buffer t)
   (setopt dired-listing-switches "-aGh --group-directories-first"))
 
-(use-package files
-  :ensure nil
-  :config
-  (setopt find-file-visit-truename t)
-  (setopt find-file-suppress-same-file-warnings t))
-
-(use-package recentf
-  :ensure nil
-  :bind ("C-x C-r" . recentf-open)
-  :hook ((find-file . recentf-mode)
-         (vc-find-file . recentf-mode))
-  :config
-  (setopt recentf-max-saved-items 75)
-  (setopt recentf-max-menu-items 15)
-  (setopt recentf-auto-cleanup
-          (if (or (server-running-p) (daemonp)) 300 'never))
-  (dolist (itm '("^/usr/share/emacs/\.*$" "~/.config/emacs/bookmarks"))
-    (add-to-list 'recentf-exclude itm)))
-
-(use-package saveplace
-  :ensure nil
-  :hook (after-init . save-place-mode))
-
-(use-package delsel
-  ;; delete selection when entering new text over it
-  :ensure nil
-  :hook (after-init . delete-selection-mode))
-
-(use-package autorevert
-  ;; listen to file changes outside emacs
-  :ensure nil
-  :hook (after-init . global-auto-revert-mode)
-  :config
-  (setopt global-auto-revert-non-file-buffers t) ; for dired buffers
-  (setopt auto-revert-verbose t))
-
 (use-package server
-  ;; run emacs instance as a server
+  ;; run emacs instance as a server ...
   :ensure nil
   :demand t
   :config
   (setopt server-client-instructions nil)
-  ;; but only run when no daemon or server running
+  ;; ... but only run when no daemon or server running
   (unless (or (server-running-p) (daemonp))
     (server-start)))
 
 
 ;;; Minibuffer enhancements
-;; TODO: embark
 (use-package vertico
   ;; vertical minibuffer
   :ensure t
@@ -175,7 +191,10 @@
 (use-package savehist
   ;; remember minibuffer history
   :ensure nil
-  :hook (after-init . savehist-mode))
+  :hook (after-init . savehist-mode)
+  :init
+  (setopt history-length 300)
+  (setopt savehist-autosave-interval 600))
 
 (use-package orderless
   ;; "fuzzy" completion
@@ -195,24 +214,22 @@
 
 (use-package consult
   :ensure t
-  :init
-  (keymap-global-set "C-x C-b" 'ibuffer)
   :bind
-  ("C-x b" . consult-buffer)
-  ("C-x r b" . consult-bookmark)
-  ("C-x p b" . consult-project-buffer)
-  ("M-g o" . consult-outline)
-  ("M-g i" . consult-imenu)
-  ("M-g I" . consult-imenu-multi)
-  ("M-s d" . consult-fd)
-  ("M-s c" . consult-locate)
-  ("M-s g" . consult-grep)
-  ("M-s G" . consult-git-grep)
-  ("M-s r" . consult-ripgrep)
-  ("M-s l" . consult-line)
-  ("M-s L" . consult-line-multi)
-  ("M-s k" . consult-keep-lines)
-  ("M-s u" . consult-focus-lines)
+  (("C-x b" . consult-buffer)
+   ("C-x r b" . consult-bookmark)
+   ("C-x p b" . consult-project-buffer)
+   ("M-g o" . consult-outline)
+   ("M-g i" . consult-imenu)
+   ("M-g I" . consult-imenu-multi)
+   ("M-s d" . consult-fd)
+   ("M-s c" . consult-locate)
+   ("M-s g" . consult-grep)
+   ("M-s G" . consult-git-grep)
+   ("M-s r" . consult-ripgrep)
+   ("M-s l" . consult-line)
+   ("M-s L" . consult-line-multi)
+   ("M-s k" . consult-keep-lines)
+   ("M-s u" . consult-focus-lines))
   :config
   (setopt consult-narrow-key "<"))
 
@@ -220,34 +237,33 @@
   :ensure nil
   :hook (after-init . which-key-mode)
   :config
-  (setopt which-key-idle-delay 0.5))
+  (setopt which-key-idle-delay 1.5
+          which-key-idle-secondary-delay 0.25)
+  (setopt which-key-add-column-padding 1)
+  (setopt which-key-max-description-length 40))
 
 
 ;;; Navigation & behaviour
-;;;; Mouse
-(use-package mouse
-  :ensure nil
-  :hook (after-init . mouse-wheel-mode)
-  :config
-  (setopt mouse-drag-copy-region nil)
-  (setopt make-pointer-invisible t)
-  (setopt mouse-wheel-progressive-speed nil)
-  (setopt mouse-wheel-follow-mouse t)
-  (setopt scroll-preserve-screen-position t)
-  (setopt scroll-conservatively 1)
-  (setopt scroll-margin 6)
-  (setopt hscroll-margin 8)
-  (setopt next-screen-context-lines 6)
-  (setopt mouse-yank-at-point t)
-  (unless (display-graphic-p)
-    (xterm-mouse-mode 1)))
 
-;;;; Windows
+;;;; Buffers, windows & frames
+(use-package uniquify
+  :ensure nil
+  :config
+  (setopt uniquify-buffer-name-style 'reverse)
+  (setopt uniquify-separator "●")
+  (setopt uniquify-after-kill-buffer-p t))
+
+(use-package ibuffer
+  :ensure nil
+  :bind
+  ("C-x C-b" . ibuffer))
+
 (use-package window
   :ensure nil
   :config
   ;; behave like my window manager
-  (setopt mouse-autoselect-window t)
+  (setopt mouse-autoselect-window t
+          mouse-wheel-follow-mouse t)
   (setopt focus-follows-mouse t)
   (setopt cursor-in-non-selected-windows nil)
   ;; prefer horizontal splits with wide windows
@@ -323,7 +339,7 @@
   :hook (after-init . repeat-mode))
 
 ;;; Keybindings
-(use-package bind-key
+(use-package personal-keybindings
   :ensure nil
   :no-require t
   :init
@@ -363,6 +379,23 @@
   (keymap-global-set "<next>" #'mch/scroll-half-page-down)
   (keymap-global-set "<prior>" #'mch/scroll-half-page-up))
 
+;;;; Mouse
+(use-package mouse
+  :ensure nil
+  :hook (after-init . mouse-wheel-mode)
+  :config
+  (setopt mouse-drag-copy-region nil)
+  (setopt make-pointer-invisible t)
+  (setopt mouse-wheel-progressive-speed nil)
+  (setopt scroll-preserve-screen-position t)
+  (setopt scroll-conservatively 1)
+  (setopt scroll-margin 6)
+  (setopt hscroll-margin 8)
+  (setopt next-screen-context-lines 6)
+  (setopt mouse-yank-at-point t)
+  (unless (display-graphic-p)
+    (xterm-mouse-mode 1)))
+
 
 ;;; Programming
 (use-package prog-mode
@@ -370,25 +403,25 @@
   :no-require t
   :init
   (defun mch/programming-setup ()
-    "basic setup for programming"
+    "Basic settings for programming."
     ;; set line numbers
-    (setopt display-line-numbers-width 4)
-    (setopt display-line-numbers-widen t)
-    (setopt display-line-numbers-type 'relative)
+    (setopt display-line-numbers-width 4
+            display-line-numbers-widen t
+            display-line-numbers-type 'relative)
     (display-line-numbers-mode 1)
     ;; use spaces not tabs
-    (setopt indent-tabs-mode nil)
-    (setopt tab-width 4)
+    (setopt indent-tabs-mode nil
+            tab-width 4)
     ;; fill column at 80 characters
     (setopt fill-column 80)
     (display-fill-column-indicator-mode t)
     ;; word-wrapping
     (setopt word-wrap t)
-    (setopt truncate-lines t)
-    (setopt truncate-partial-width-windows nil))
+    (setopt truncate-lines t
+            truncate-partial-width-windows 70))
   :config
-  (add-hook 'prog-mode-hook #'mch/programming-setup)
-  (add-hook 'conf-mode-hook #'mch/programming-setup))
+  (dolist (hooks '(prog-mode-hook conf-mode-hook))
+    (add-hook hooks #'mch/programming-setup)))
 
 ;;;; Syntax highlighting
 (use-package treesit
@@ -444,7 +477,6 @@
 
 ;;;; Code formatting
 (use-package editorconfig
-  ;; read formatting rules from editorconfig file
   :ensure nil
   :init
   (editorconfig-mode 1))
@@ -459,6 +491,7 @@
 
 (use-package whitespace
   :ensure nil
+  :commands whitespace-mode
   :init
   (add-hook before-save-hook #'whitespace-mode))
 
@@ -619,8 +652,17 @@
          (hy-mode . paredit-mode)
          (fennel-mode . paredit-mode))
   :config
+  (keymap-unset paredit-mode-map "RET")
   (keymap-unset paredit-mode-map "M-s")
   (keymap-set paredit-mode-map "M-i" #'paredit-splice-sexp))
+
+;;; Better automatic indentation when typing and editing lisping
+(use-package aggressive-indent
+  :ensure t
+  :hook ((emacs-lisp-mode . aggressive-indent-mode)
+         (lisp-interaction-mode . aggresive-indent-mode)
+         (hy-mode . aggresive-indent-mode)
+         (fennel-mode . aggresive-indent-mode)))
 
 
 ;;; Text editing
@@ -628,8 +670,7 @@
 (use-package text-mode
   :ensure nil
   :no-require t
-  :config
-  (add-hook 'text-mode-hook #'visual-line-mode))
+  :hook (text-mode . visual-line-mode))
 
 ;;;; Org-mode
 (use-package org
@@ -757,7 +798,6 @@
      '("<escape>" . ignore))
     (meow-define-keys
         'insert
-      '("<escape>" . ignore)
       '("<control-bracketleft>" . meow-insert-exit))
     (meow-define-keys
         'normal
