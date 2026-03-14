@@ -1,22 +1,22 @@
 ;;; early-init.el -*- lexical-binding: t -*-
 
 ;; Maximize GC threshold during startup to prevent collections
-(setopt gc-cons-threshold most-positive-fixnum)
-(setopt gc-cons-percentage 0.5)
+(setq gc-cons-threshold most-positive-fixnum)
+(setq gc-cons-percentage 0.5)
 
 ;; Store default file-name-handler-alist and restore after startup
 (defvar default-file-name-handler-alist file-name-handler-alist)
-(setopt file-name-handler-alist nil)
+(setq file-name-handler-alist nil)
 
 ;; Disable automatic file handler during startup
-(setopt auto-mode-case-fold nil)
+(setq auto-mode-case-fold nil)
 
 ;; Disable package.el at startup (handled in init.el)
-(setopt package-enable-at-startup nil)
-(setopt package-quickstart nil)
+(setq package-enable-at-startup nil)
+(setq package-quickstart nil)
 
 ;; Prevent premature loading of packages
-(setopt load-prefer-newer t)
+(setq load-prefer-newer t)
 
 ;; Disable UI elements before they're rendered (faster startup)
 (push '(menu-bar-lines . 0) default-frame-alist)
@@ -31,7 +31,7 @@
 (when (fboundp 'scroll-bar-mode) (scroll-bar-mode -1))
 
 ;; Alternative method for Emacs 27+
-;; (setopt default-frame-alist
+;; (setq default-frame-alist
 ;;         (append (list
 ;;                  '(min-height 1)
 ;;                  '(height . 45)
@@ -42,16 +42,15 @@
   (push '(undecorated . t) default-frame-alist))
 
 ;; Disable startup screens
-(setopt inhibit-startup-screen t)
-(setopt inhibit-startup-message t)
-(setopt inhibit-startup-echo-area-message user-login-name)
-(setopt inhibit-default-init t)
-(setopt initial-scratch-message nil)
+(setq inhibit-startup-screen t)
+(setq inhibit-startup-message t)
+(setq inhibit-startup-echo-area-message user-login-name)
+(setq inhibit-default-init t)
 
 ;; Hairline dividers, theme-colored, no extra padding
-(setopt window-divider-default-right-width 2)
-(setopt window-divider-default-bottom-width 2)
-(setopt window-divider-default-places t)
+(setq window-divider-default-right-width 2)
+(setq window-divider-default-bottom-width 2)
+(setq window-divider-default-places t)
 (window-divider-mode 1)
 
 ;; No frame padding for maximum content area
@@ -61,16 +60,16 @@
 (when (fboundp 'fringe-mode) (fringe-mode '(16 . 8)))
 
 ;; Prevent frame resizing when adjusting fonts
-(setopt frame-resize-pixelwise t)
-(setopt frame-inhibit-implied-resize t)
+(setq frame-resize-pixelwise t)
+(setq frame-inhibit-implied-resize t)
 
 ;; Set frame title
-(setopt frame-title-format '("%b - Emacs"))
-(setopt icon-title-format frame-title-format)
+(setq frame-title-format '("%b - Emacs"))
+(setq icon-title-format frame-title-format)
 
 ;; Disable version control during startup
 (defvar default-vc-handled-backends vc-handled-backends)
-(setopt vc-handled-backends nil)
+(setq vc-handled-backends nil)
 
 ;; Disable site-run-file
 (setq site-run-file nil)
@@ -81,17 +80,17 @@
 
 ;; Native compilation settings (Emacs 28+)
 (when (featurep 'native-compile)
-  (setopt native-comp-speed 2)
-  (setopt native-comp-async-report-warnings-errors nil)
-  (setopt native-comp-deferred-compilation t)
-  (setopt native-comp-async-jobs-number 4))
+  (setq native-comp-speed 2)
+  (setq native-comp-async-report-warnings-errors nil)
+  (setq native-comp-deferred-compilation t)
+  (setq native-comp-async-jobs-number 4))
 
 ;; Increase the amount of data read from processes
-(setopt read-process-output-max (* 1024 1024)) ; 1MB
+(setq read-process-output-max (* 1024 1024)) ; 1MB
 
 ;; Reduce pgtk timeout for better performance on Wayland
 (when (featurep 'pgtk)
-  (setopt pgtk-wait-for-event-timeout 0.001))
+  (setq pgtk-wait-for-event-timeout 0.001))
 
 ;; Disable warnings and reduce noise
 (setq byte-compile-warnings '(not obsolete)
@@ -99,18 +98,18 @@
       native-comp-async-report-warnings-errors 'silent)
 
 ;; Faster font rendering
-(setopt inhibit-compacting-font-caches t)
+(setq inhibit-compacting-font-caches t)
 
 ;; Restore options on startup
 (add-hook 'emacs-startup-hook
           (lambda ()
             ;; Restore GC settings (16MB threshold)
-            (setopt gc-cons-threshold (* 16 1024 1024))
-            (setopt gc-cons-percentage 0.1)
+            (setq gc-cons-threshold (* 16 1024 1024))
+            (setq gc-cons-percentage 0.1)
             ;; Restore file name handler
-            (setopt file-name-handler-alist default-file-name-handler-alist)
+            (setq file-name-handler-alist default-file-name-handler-alist)
             ;; Restore version control backend
-            (setopt vc-handled-backends default-vc-handled-backends)
+            (setq vc-handled-backends default-vc-handled-backends)
             ;; Collect garbage when losing focus
             (add-function :after after-focus-change-function
                           (lambda ()
