@@ -1,8 +1,8 @@
 ;;; early-init.el -*- lexical-binding: t -*-
 
 ;; Maximize GC threshold during startup to prevent collections
-(setq gc-cons-threshold most-positive-fixnum)
-(setq gc-cons-percentage 0.5)
+(setq gc-cons-threshold most-positive-fixnum
+      gc-cons-percentage 0.5)
 
 ;; Store default file-name-handler-alist and restore after startup
 (defvar default-file-name-handler-alist file-name-handler-alist)
@@ -12,8 +12,8 @@
 (setq auto-mode-case-fold nil)
 
 ;; Disable package.el at startup (handled in init.el)
-(setq package-enable-at-startup nil)
-(setq package-quickstart nil)
+(setq package-enable-at-startup nil
+      package-quickstart nil)
 
 ;; Prevent premature loading of packages
 (setq load-prefer-newer t)
@@ -30,27 +30,19 @@
 (when (fboundp 'tool-bar-mode) (tool-bar-mode -1))
 (when (fboundp 'scroll-bar-mode) (scroll-bar-mode -1))
 
-;; Alternative method for Emacs 27+
-;; (setq default-frame-alist
-;;         (append (list
-;;                  '(min-height 1)
-;;                  '(height . 45)
-;;                  '(width . 81)
-;;                  '(fullscreen . maximized))))
-
 (when (not (getenv "WSLENV"))
   (push '(undecorated . t) default-frame-alist))
 
 ;; Disable startup screens
-(setq inhibit-startup-screen t)
-(setq inhibit-startup-message t)
-(setq inhibit-startup-echo-area-message user-login-name)
-(setq inhibit-default-init t)
+(setq inhibit-startup-screen t
+      inhibit-startup-message t
+      inhibit-startup-echo-area-message user-login-name
+      inhibit-default-init t)
 
 ;; Hairline dividers, theme-colored, no extra padding
-(setq window-divider-default-right-width 2)
-(setq window-divider-default-bottom-width 2)
-(setq window-divider-default-places t)
+(setq window-divider-default-right-width 2
+      window-divider-default-bottom-width 2
+      window-divider-default-places t)
 (window-divider-mode 1)
 
 ;; No frame padding for maximum content area
@@ -60,12 +52,12 @@
 (when (fboundp 'fringe-mode) (fringe-mode '(16 . 8)))
 
 ;; Prevent frame resizing when adjusting fonts
-(setq frame-resize-pixelwise t)
-(setq frame-inhibit-implied-resize t)
+(setq frame-resize-pixelwise t
+      frame-inhibit-implied-resize t)
 
 ;; Set frame title
-(setq frame-title-format '("%b - Emacs"))
-(setq icon-title-format frame-title-format)
+(setq frame-title-format '("%b - Emacs")
+      icon-title-format frame-title-format)
 
 ;; Disable version control during startup
 (defvar default-vc-handled-backends vc-handled-backends)
@@ -80,10 +72,10 @@
 
 ;; Native compilation settings (Emacs 28+)
 (when (featurep 'native-compile)
-  (setq native-comp-speed 2)
-  (setq native-comp-async-report-warnings-errors nil)
-  (setq native-comp-deferred-compilation t)
-  (setq native-comp-async-jobs-number 4))
+  (setq native-comp-speed 2
+        native-comp-async-report-warnings-errors nil
+        native-comp-deferred-compilation t
+        native-comp-async-jobs-number 4))
 
 ;; Increase the amount of data read from processes
 (setq read-process-output-max (* 1024 1024)) ; 1MB
@@ -104,8 +96,8 @@
 (add-hook 'emacs-startup-hook
           (lambda ()
             ;; Restore GC settings (16MB threshold)
-            (setq gc-cons-threshold (* 16 1024 1024))
-            (setq gc-cons-percentage 0.1)
+            (setq gc-cons-threshold (* 16 1024 1024)
+                  gc-cons-percentage 0.1)
             ;; Restore file name handler
             (setq file-name-handler-alist default-file-name-handler-alist)
             ;; Restore version control backend

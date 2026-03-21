@@ -1,4 +1,5 @@
 ;;; init.el -*- lexical-binding: t -*-
+
 ;;;; Keep `customize' from polluting my config file
 (setopt custom-file (expand-file-name "custom.el" user-emacs-directory))
 (load custom-file :no-error-if-file-missing)
@@ -15,6 +16,18 @@
   (package-install 'use-package))
 (require 'use-package)
 (setopt use-package-always-defer t)
+;; (setopt use-package-compute-statistics t)
+
+
+;;; Run emacs as server
+(use-package server
+  :ensure nil
+  :demand t
+  :config
+  (setopt server-client-instructions nil)
+  ;; ... but only run when no daemon or server running
+  (unless (or (server-running-p) (daemonp))
+    (server-start)))
 
 
 ;;; Interface
@@ -28,7 +41,6 @@
         (set-frame-font "IBM Plex Mono-15" nil t)
       (set-frame-font "IBM Plex Mono-13" nil t))
     (setopt line-spacing 2))
-  :config
   (setopt x-underline-at-descent-line t)
   (setopt truncate-string-ellipsis "…")
   ;; setup the default font for frames
@@ -82,7 +94,8 @@
           ring-bell-function 'ignore)
   (blink-cursor-mode -1)
   ;; short answers
-  (setopt read-answer-short t)
+  (setopt read-answer-short t
+          confirm-kill-emacs 'y-or-n-p)
   (if (boundp 'use-short-answers)
       (setopt use-short-answers t)
     (advice-add 'yes-or-no-p :override #'y-or-n-p))
@@ -108,18 +121,13 @@
     (dolist (d (list tmp-dir autosave-dir))
       (unless (file-directory-p d) (make-directory d t)))
     (setopt auto-save-file-name-transforms `((".*" ,autosave-dir t))))
-  :config
   ;; do not make backup files nor lockfiles ...
   (setopt make-backup-files nil
           create-lockfiles nil)
-  ;; ... but do autosave
-  (setopt auto-save-default t
+  ;; ... and do not autosave, but provide sane settings
+  (setopt auto-save-default nil
           auto-save-include-big-deletions t
-          auto-save-interval 300
-          auto-save-timeout 30
           auto-save-no-message t)
-  (setopt auto-save-visited-interval 5)
-  (auto-save-visited-mode 1)
   ;; symlinks
   (setopt find-file-visit-truename t
           find-file-suppress-same-file-warnings t)
@@ -164,16 +172,6 @@
   :config
   (setopt dired-kill-when-opening-new-dired-buffer t)
   (setopt dired-listing-switches "-aGh --group-directories-first"))
-
-(use-package server
-  ;; run emacs instance as a server ...
-  :ensure nil
-  :demand t
-  :config
-  (setopt server-client-instructions nil)
-  ;; ... but only run when no daemon or server running
-  (unless (or (server-running-p) (daemonp))
-    (server-start)))
 
 
 ;;; Minibuffer enhancements
@@ -260,7 +258,7 @@
 
 (use-package window
   :ensure nil
-  :config
+  :init
   ;; behave like my window manager
   (setopt mouse-autoselect-window t
           mouse-wheel-follow-mouse t)
@@ -323,14 +321,10 @@
   (defun mch/pulse-line (&rest _)
     "Pulse the current line."
     (pulse-momentary-highlight-one-line (point)))
-  (dolist (command '(scroll-up-command scroll-down-command
-                                       backward-page forward-page
-                                       mch/scroll-half-page-up mch/scroll-half-page-down
-                                       recenter-top-bottom other-window
-                                       windmove-left windmove-down
-                                       windmove-up windmove-right
-                                       windmove-swap-states-left windmove-swap-states-down
-                                       windmove-swap-states-up windmove-swap-states-right))
+  (dolist (command '(backward-page forward-page other-window windmove-left windmove-down
+                                   windmove-up windmove-right windmove-swap-states-left
+                                   windmove-swap-states-down windmove-swap-states-up
+                                   windmove-swap-states-right))
     (advice-add command :after #'mch/pulse-line)))
 
 ;;;; Keyboard
@@ -341,7 +335,10 @@
 ;;; Keybindings
 (use-package personal-keybindings
   :ensure nil
-  :no-require t
+  :bind (([remap kill-buffer] . kill-current-buffer)
+         ([remap capitalize-word] . capitalize-dwim) ; M-c works on regions
+         ([remap upcase-word] . upcase-dwim)         ; M-u works on regions
+         ([remap downcase-word] . downcase-dwim))    ; M-l works on regions
   :init
   ;; lifted from: https://emacsredux.com/blog/2025/06/01/let-s-make-keyboard-quit-smarter/
   (defun mch/keyboard-quit-dwim ()
@@ -372,7 +369,6 @@
             (t (progn
                  (move-to-window-line 0)
                  (recenter))))))
-  :config
   ;; keyboard-quit do what I mean
   (global-set-key [remap keyboard-quit] #'mch/keyboard-quit-dwim)
   ;; half page scrolling
@@ -383,7 +379,7 @@
 (use-package mouse
   :ensure nil
   :hook (after-init . mouse-wheel-mode)
-  :config
+  :init
   (setopt mouse-drag-copy-region nil)
   (setopt make-pointer-invisible t)
   (setopt mouse-wheel-progressive-speed nil)
@@ -395,6 +391,24 @@
   (setopt mouse-yank-at-point t)
   (unless (display-graphic-p)
     (xterm-mouse-mode 1)))
+
+
+;;; Search
+(use-package isearch
+  :ensure nil
+  :init
+  (add-hook 'isearch-mode-end-hook #'recenter))
+
+(use-package xref
+  :ensure nil
+  :config
+  (setopt xref-search-program 'ripgrep))
+
+;;; Structural regular expressions like Sam or Vis
+(use-package sam
+  :vc (:url "https://github.com/hkjels/sam.el"
+            :branch "main")
+  :bind ("M-s s" . sam))
 
 
 ;;; Programming
@@ -450,6 +464,7 @@
   (setopt text-mode-ispell-word-completion nil)
   (setopt read-extended-command-predicate #'command-completion-default-include-p)
   (setopt completion-ignore-case t)
+  :config
   (corfu-history-mode t)
   (corfu-indexed-mode t)
   (corfu-popupinfo-mode t)
@@ -478,8 +493,8 @@
 ;;;; Code formatting
 (use-package editorconfig
   :ensure nil
-  :init
-  (editorconfig-mode 1))
+  :hook ((prog-mode . editorconfig-mode)
+         (conf-mode . editorconfig-mode)))
 
 (use-package indent
   :ensure nil
@@ -491,9 +506,7 @@
 
 (use-package whitespace
   :ensure nil
-  :commands whitespace-mode
-  :init
-  (add-hook before-save-hook #'whitespace-mode))
+  :hook (before-save-hook . whitespace-cleanup))
 
 ;;;; REPLs, shells & terminals
 (use-package compile
@@ -534,7 +547,10 @@
     "Navigate to a previously visited directory."
     (eshell/cd
      (string-trim (shell-command-to-string (concat "zoxide query " dir))))
-    (eshell/ls)))
+    (eshell/ls))
+  (defalias 'ff 'find-file)
+  (defalias 'fo 'find-file-other-window)
+  (defalias 'eshell/clear 'eshell/clear-scrollback))
 
 (use-package eat
   :ensure t
@@ -547,6 +563,7 @@
 
 (use-package vterm
   :ensure t
+  :if window-system
   :commands (vterm vterm-other-window))
 
 ;;;; Version control
@@ -828,9 +845,3 @@
    '("o" . meow-tree-sitter-node))
   :config
   (meow-tree-sitter-register-defaults))
-
-;;; Structural regular expressions like Sam or Vis
-(use-package sam
-  :vc (:url "https://github.com/hkjels/sam.el"
-            :branch "main")
-  :bind ("M-s s" . sam))
