@@ -1,31 +1,25 @@
 ;;; init.el -*- lexical-binding: t -*-
 
-;;;; Keep `customize' from polluting my config file
-(setopt custom-file (expand-file-name "custom.el" user-emacs-directory))
-(load custom-file :no-error-if-file-missing)
-
-;;; Package mangement
+;;; Package management
 ;;;; Setup `package.el' & add the melpa archive
-(require 'package)
-(add-to-list 'package-archives '("melpa" . "https://melpa.org/packages/"))
-(unless package--initialized (package-initialize))
+(progn (require 'package)
+       (add-to-list 'package-archives '("melpa" . "https://melpa.org/packages/"))
+       (unless package--initialized (package-initialize)))
 
 ;;;; Setup `use-package.el'
-(unless (package-installed-p 'use-package)
-  (package-refresh-contents)
-  (package-install 'use-package))
-(require 'use-package)
-(setopt use-package-always-defer t)
-;; (setopt use-package-compute-statistics t)
+(progn (unless (package-installed-p 'use-package)
+         (package-refresh-contents)
+         (package-install 'use-package))
+       (require 'use-package)
+       (setopt use-package-always-defer t))
 
 
-;;; Run emacs as server
+;;; Run Emacs as server
 (use-package server
   :ensure nil
   :demand t
   :config
   (setopt server-client-instructions nil)
-  ;; ... but only run when no daemon or server running
   (unless (or (server-running-p) (daemonp))
     (server-start)))
 
@@ -60,14 +54,14 @@
 
 ;;;; Modeline
 ;; Remove borders from the modeline
-(set-face-attribute 'mode-line nil :box nil)
-(set-face-attribute 'mode-line-inactive nil :box nil)
-;; Setup a minimal modeline
-(setopt mode-line-format '(" [%*] %b"
-                           mode-line-format-right-align
-                           "%l:%C | "
-                           mode-name
-                           "  "))
+(progn (set-face-attribute 'mode-line nil :box nil)
+       (set-face-attribute 'mode-line-inactive nil :box nil)
+       ;; Setup a minimal modeline
+       (setopt mode-line-format '(" [%*] %b"
+                                  mode-line-format-right-align
+                                  "%l:%C | "
+                                  mode-name
+                                  "  ")))
 
 (use-package hide-mode-line
   :ensure t
@@ -85,6 +79,10 @@
 ;;; Some basic settings
 (use-package emacs
   :ensure nil
+  :init
+  ;; keep `customize' from polluting my config file
+  (setopt custom-file (expand-file-name "custom.el" user-emacs-directory))
+  (load custom-file :no-error-if-file-missing)
   :config
   ;; setup the initial buffer
   (setopt initial-major-mode 'fundamental-mode
@@ -135,7 +133,7 @@
   (setopt view-read-only t))
 
 (use-package autorevert
-  ;; listen to file changes outside emacs
+  ;; listen to file changes outside Emacs
   :ensure nil
   :hook (after-init . global-auto-revert-mode)
   :init
@@ -176,10 +174,8 @@
 
 ;;; Minibuffer enhancements
 (use-package vertico
-  ;; vertical minibuffer
   :ensure t
   :init
-  (setopt context-menu-mode t)
   (setopt enable-recursive-minibuffers t)
   (setopt read-extended-command-predicate #'command-completion-default-include-p)
   (setopt minibuffer-prompt-properties
@@ -187,7 +183,6 @@
   :hook (after-init . vertico-mode))
 
 (use-package savehist
-  ;; remember minibuffer history
   :ensure nil
   :hook (after-init . savehist-mode)
   :init
@@ -195,7 +190,6 @@
   (setopt savehist-autosave-interval 600))
 
 (use-package orderless
-  ;; "fuzzy" completion
   :ensure t
   :demand t
   :config
@@ -206,7 +200,6 @@
   (setopt completion-pcm-leading-wildcard t))
 
 (use-package marginalia
-  ;; add annotations to the minibuffer
   :ensure t
   :hook (after-init . marginalia-mode))
 
@@ -350,7 +343,7 @@
           (abort-recursive-edit))
       (keyboard-quit)))
   (defun mch/scroll-half-page-down ()
-    "Scroll down half a page while keeping the cursor centered."
+    "Scroll down half a page while keeping the cursor centred."
     (interactive)
     (let ((ln (line-number-at-pos (point)))
           (lmax (line-number-at-pos (point-max))))
@@ -360,7 +353,7 @@
                  (move-to-window-line -1)
                  (recenter))))))
   (defun mch/scroll-half-page-up ()
-    "Scroll up half a page while keeping the cursor centered."
+    "Scroll up half a page while keeping the cursor centred."
     (interactive)
     (let ((ln (line-number-at-pos (point)))
           (lmax (line-number-at-pos (point-max))))
@@ -389,6 +382,8 @@
   (setopt hscroll-margin 8)
   (setopt next-screen-context-lines 6)
   (setopt mouse-yank-at-point t)
+  (when (display-graphic-p)
+    (setopt context-menu-mode t))
   (unless (display-graphic-p)
     (xterm-mouse-mode 1)))
 
@@ -397,7 +392,10 @@
 (use-package isearch
   :ensure nil
   :init
-  (add-hook 'isearch-mode-end-hook #'recenter))
+  (add-hook 'isearch-mode-end-hook #'recenter)
+  :config
+  (setopt isearch-lazy-count t
+          lazy-count-prefix-format "(%s/%s) "))
 
 (use-package xref
   :ensure nil
@@ -514,7 +512,7 @@
   :config
   (setopt compilation-scroll-output 'first-error)
   (setopt compilation-skip-threshold 2)
-  ;; close the window contating the compilition buffer on success
+  ;; close the window containing the compilation buffer on success
   ;; lifted from: https://emacsredux.com/blog/2026/03/06/mastering-compilation-mode/
   (setopt compilation-finish-functions
           (list (lambda (buf status)
@@ -548,8 +546,12 @@
     (eshell/cd
      (string-trim (shell-command-to-string (concat "zoxide query " dir))))
     (eshell/ls))
-  (defalias 'ff 'find-file)
-  (defalias 'fo 'find-file-other-window)
+  (defun eshell/e (file)
+    (find-file file))
+  (defun eshell/ff (file)
+    (find-file file))
+  (defun eshell/fo (file)
+    (find-file-other-window file))
   (defalias 'eshell/clear 'eshell/clear-scrollback))
 
 (use-package eat
@@ -573,7 +575,7 @@
   (setopt vc-follow-symlinks t))
 
 (use-package magit
-  ;; a git porcelain inside emacs
+  ;; a git porcelain inside Emacs
   :ensure t
   :commands (magit-status magit-log)
   :bind (("C-x g" . magit-status)
@@ -651,18 +653,25 @@
   (with-eval-after-load 'org
     (require 'ob-fennel)))
 
-;;;; Outline minor mode when editing emacs lisp
+;;;; Outline minor mode when editing Emacs lisp
 (use-package outline
   ;; NOTE: look into hs-minor-mode
   :ensure nil
-  :hook (emacs-lisp-mode . outline-minor-mode)
+  :hook ((emacs-lisp-mode . outline-minor-mode)
+         ;; lifted from: https://github.com/jamescherti/minimal-emacs.d?tab=readme-ov-file#outline-minor-mode-and-hs-minor-mode
+         (outline-minor-mode . (lambda ()
+                                 (let* ((display-table (or buffer-display-table (make-display-table)))
+                                        (face-offset (* (face-id 'shadow) (ash 1 22)))
+                                        (value (vconcat (mapcar (lambda (c) (+ face-offset c)) " ⏷"))))
+                                   (set-display-table-slot display-table 'selective-display value)
+                                   (setopt buffer-display-table display-table)))))
   :bind (:map outline-minor-mode-map
               ("C-<tab>" . outline-cycle)
               ("<backtab>" . outline-cycle-buffer)))
 
 ;;;; Structural editing for lisps
 (use-package paredit
-  ;; parantheses, slurping & barfing
+  ;; parentheses, slurping & barfing
   :ensure t
   :hook ((emacs-lisp-mode . paredit-mode)
          (lisp-interaction-mode . paredit-mode)
@@ -671,7 +680,8 @@
   :config
   (keymap-unset paredit-mode-map "RET")
   (keymap-unset paredit-mode-map "M-s")
-  (keymap-set paredit-mode-map "M-i" #'paredit-splice-sexp))
+  (keymap-set paredit-mode-map "M-i" #'paredit-splice-sexp)
+  (keymap-unset paredit-mode-map "M-?"))
 
 ;;; Better automatic indentation when typing and editing lisping
 (use-package aggressive-indent
@@ -689,6 +699,28 @@
   :no-require t
   :hook (text-mode . visual-line-mode))
 
+;;;; Spell-checking
+(use-package ispell
+  :ensure nil
+  :init
+  (defun mch/ispell-change-dictionary-pl ()
+    "Use Polish dictionary for this buffer."
+    (interactive)
+    (setopt ispell-local-dictionary "pl"))
+  (defun mch/ispell-change-dictionary-en ()
+    "Use British English dictionary for this buffer"
+    (interactive)
+    (setopt ispell-local-dictionary "en_GB"))
+  (setopt ispell-program-name "aspell")
+  (setopt ispell-dictionary "en_GB")
+  :config
+  (ispell-set-spellchecker-params))
+
+(use-package flyspell
+  :ensure nil
+  :hook ((text-mode . flyspell-mode)
+         (prog-mode . flyspell-prog-mode)))
+
 ;;;; Org-mode
 (use-package org
   :ensure nil
@@ -704,7 +736,7 @@
   (setopt org-startup-indented t)
   (setopt org-indent-mode-turn-on-hiding-stars nil)
   (setopt org-hide-emphasis-markers t)
-  (setopt org-ellipsis " ▾"))
+  (setopt org-ellipsis " ⏷"))
 
 (use-package ox-typst
   :ensure t
@@ -712,7 +744,7 @@
 
 ;;;; Markdown
 (use-package markdown-mode
-  ;; github flavored markdown for README.md files
+  ;; GitHub flavoured markdown for README.md files
   :ensure t
   :mode ("README\\.md\\'" . gfm-mode))
 
