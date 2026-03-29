@@ -29,11 +29,13 @@
 (use-package faces
   :ensure nil
   :init
-  (defun mch/default-font-setup ()
+  (defun mch/setup-frame-font ()
     "Setup the default font and line spacing"
     (if (getenv "WSLENV")
         (set-frame-font "IBM Plex Mono-15" nil t)
       (set-frame-font "IBM Plex Mono-13" nil t))
+    (set-face-attribute 'variable-pitch nil :family "IBM Plex Serif")
+    (set-face-attribute 'fixed-pitch nil :family "IBM Plex Mono")
     (setopt line-spacing 2))
   (setopt x-underline-at-descent-line t)
   (setopt truncate-string-ellipsis "…")
@@ -42,8 +44,8 @@
       (add-hook 'after-make-frame-functions
                 (lambda (frame)
                   (with-selected-frame frame
-                    (mch/default-font-setup))))
-    (mch/default-font-setup)))
+                    (mch/setup-frame-font))))
+    (mch/setup-frame-font)))
 
 ;;;; Theme
 (cond ((and (display-graphic-p) (getenv "WSLENV"))
@@ -377,7 +379,7 @@
   (setopt make-pointer-invisible t)
   (setopt mouse-wheel-progressive-speed nil)
   (setopt scroll-preserve-screen-position t)
-  (setopt scroll-conservatively 1)
+  (setopt scroll-conservatively 101)
   (setopt scroll-margin 6)
   (setopt hscroll-margin 8)
   (setopt next-screen-context-lines 6)
@@ -698,6 +700,19 @@
   :ensure nil
   :no-require t
   :hook (text-mode . visual-line-mode))
+
+(use-package mixed-pitch
+  :ensure t
+  :hook ((org-mode . mixed-pitch-mode)
+         (markdown-mode . mixed-pitch-mode)))
+
+(use-package olivetti
+  :ensure t
+  :hook ((org-mode . olivetti-mode)
+         (markdown-mode . olivetti-mode))
+  :init
+  (setq olivetti-minimum-body-width 80)
+  (setq olivetti-body-width 96))
 
 ;;;; Spell-checking
 (use-package ispell
