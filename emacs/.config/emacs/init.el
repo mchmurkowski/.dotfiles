@@ -643,6 +643,13 @@
                  `(lua-ts-mode . ("lua-language-server"))))
   :mode ("\\.lua\\'" . lua-ts-mode))
 
+;;;; Common Lisp
+(use-package sly
+  :ensure t
+  :hook (sly-mrepl-mode . electric-pair-local-mode)
+  :config
+  (setopt inferior-lisp-program "sbcl"))
+
 ;;;; Fennel
 (use-package fennel-mode
   :ensure t
@@ -676,6 +683,7 @@
   ;; parentheses, slurping & barfing
   :ensure t
   :hook ((emacs-lisp-mode . paredit-mode)
+         (lisp-mode . paredit-mode)
          (lisp-interaction-mode . paredit-mode)
          (hy-mode . paredit-mode)
          (fennel-mode . paredit-mode))
