@@ -776,6 +776,7 @@
 (use-package meow
   :ensure t
   :demand t
+  :hook (after-save . meow-insert-exit)
   :init
   ;; unshackle C-[ from the escape key
   (let ((frame (framep (selected-frame))))
