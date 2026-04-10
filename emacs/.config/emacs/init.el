@@ -104,9 +104,9 @@
           use-file-dialog nil)
   ;; be modern, be posix
   (setopt sentence-end-double-space nil
-          require-final-newline t
-          default-input-method nil)
-  (set-language-environment "UTF-8"))
+          require-final-newline t)
+  (set-language-environment "UTF-8")
+  (setopt default-input-method nil))
 
 (use-package delsel
   ;; delete selection when entering new text over it
@@ -133,6 +133,12 @@
           find-file-suppress-same-file-warnings t)
   ;; read-only files should open in view-mode
   (setopt view-read-only t))
+
+;; `ffap' stand for find-file-at-point
+(use-package ffap
+  :ensure nil
+  :init
+  (setopt ffap-machine-p-known 'reject))
 
 (use-package autorevert
   ;; listen to file changes outside Emacs
@@ -214,15 +220,15 @@
    ("M-g o" . consult-outline)
    ("M-g i" . consult-imenu)
    ("M-g I" . consult-imenu-multi)
-   ("M-s d" . consult-fd)
-   ("M-s c" . consult-locate)
-   ("M-s g" . consult-grep)
-   ("M-s G" . consult-git-grep)
-   ("M-s r" . consult-ripgrep)
-   ("M-s l" . consult-line)
-   ("M-s L" . consult-line-multi)
-   ("M-s k" . consult-keep-lines)
-   ("M-s u" . consult-focus-lines))
+   ("C-c s d" . consult-fd)
+   ("C-c s c" . consult-locate)
+   ("C-c s g" . consult-grep)
+   ("C-c s G" . consult-git-grep)
+   ("C-c s r" . consult-ripgrep)
+   ("C-c s l" . consult-line)
+   ("C-c s L" . consult-line-multi)
+   ("C-c s k" . consult-keep-lines)
+   ("C-c s u" . consult-focus-lines))
   :config
   (setopt consult-narrow-key "<"))
 
@@ -233,7 +239,8 @@
   (setopt which-key-idle-delay 1.5
           which-key-idle-secondary-delay 0.25)
   (setopt which-key-add-column-padding 1)
-  (setopt which-key-max-description-length 40))
+  (setopt which-key-max-description-length 40)
+  (setopt which-key-side-window-location '(right bottom)))
 
 
 ;;; Navigation & behaviour
@@ -242,8 +249,7 @@
 (use-package uniquify
   :ensure nil
   :config
-  (setopt uniquify-buffer-name-style 'reverse)
-  (setopt uniquify-separator "●")
+  (setopt uniquify-buffer-name-style 'forward)
   (setopt uniquify-after-kill-buffer-p t))
 
 (use-package ibuffer
@@ -258,7 +264,8 @@
   (setopt mouse-autoselect-window t
           mouse-wheel-follow-mouse t)
   (setopt focus-follows-mouse t)
-  (setopt cursor-in-non-selected-windows nil)
+  (setopt cursor-in-non-selected-windows nil
+          highlight-nonselected-windows nil)
   ;; prefer horizontal splits with wide windows
   (setopt split-width-threshold 80)
   ;; prefer vertical splits with long or narrow windows
@@ -271,41 +278,27 @@
 
 (use-package winner
   :ensure nil
-  :bind
-  (("C-c w u" . winner-undo)
-   ("C-c w U" . winner-redo))
+  :preface
+  (defun toggle-delete-other-windows ()
+    "Delete other windows in frame if any, or restore previous window config."
+    (interactive)
+    (if (and winner-mode
+             (equal (selected-window) (next-window)))
+        (winner-undo)
+      (delete-other-windows)))
+  :bind (("C-x 1" . #'toggle-delete-other-windows)
+         (:map mch/winner-mode-map
+               ("C-w u" . winner-undo)
+               ("C-w U" . winner-redo)))
+  ;; rework this one `winner.el' binds u and U to C-w keymap
   (:repeat-map
    mch/winner-mode-map
    (("u" . winner-undo)
     ("U" . winner-redo)))
   :init
+  (keymap-global-set "C-w" 'mch/winner-mode-map)
   (setopt winner-dont-bind-my-keys t)
   :hook (after-init . winner-mode))
-
-(use-package windmove
-  :ensure nil
-  :bind
-  (:repeat-map
-   mch/windmove-mode-map
-   (("C-h" . 'windmove-left)
-    ("C-j" . 'windmove-down)
-    ("C-k" . 'windmove-up)
-    ("C-l" . 'windmove-right)
-    ("C-S-h" . 'windmove-swap-states-left)
-    ("C-S-j" . 'windmove-swap-states-down)
-    ("C-S-k" . 'windmove-swap-states-up)
-    ("C-S-l" . 'windmove-swap-states-right)))
-  :init
-  (keymap-global-set "C-c w C-h" 'windmove-left)
-  (keymap-global-set "C-c w C-j" 'windmove-down)
-  (keymap-global-set "C-c w C-k" 'windmove-up)
-  (keymap-global-set "C-c w C-l" 'windmove-right)
-  (keymap-global-set "C-c w C-S-h" 'windmove-swap-states-left)
-  (keymap-global-set "C-c w C-S-j" 'windmove-swap-states-down)
-  (keymap-global-set "C-c w C-S-k" 'windmove-swap-states-up)
-  (keymap-global-set "C-c w C-S-l" 'windmove-swap-states-right)
-  :config
-  (setopt windmove-wrap-around t))
 
 ;;; TODO: Popup management: look into popper.el and shackle.el
 
@@ -316,10 +309,7 @@
   (defun mch/pulse-line (&rest _)
     "Pulse the current line."
     (pulse-momentary-highlight-one-line (point)))
-  (dolist (command '(backward-page forward-page other-window windmove-left windmove-down
-                                   windmove-up windmove-right windmove-swap-states-left
-                                   windmove-swap-states-down windmove-swap-states-up
-                                   windmove-swap-states-right))
+  (dolist (command '(backward-page forward-page))
     (advice-add command :after #'mch/pulse-line)))
 
 ;;;; Keyboard
@@ -399,6 +389,12 @@
   (setopt isearch-lazy-count t
           lazy-count-prefix-format "(%s/%s) "))
 
+(use-package re-builder
+  :ensure nil
+  :hook (after-init . (lambda () (minibuffer-regexp-mode 1)))
+  :config
+  (setopt reb-re-syntax 'string))
+
 (use-package xref
   :ensure nil
   :config
@@ -408,7 +404,7 @@
 (use-package sam
   :vc (:url "https://github.com/hkjels/sam.el"
             :branch "main")
-  :bind ("M-s s" . sam))
+  :bind ("C-c s s" . sam))
 
 
 ;;; Programming
@@ -440,6 +436,8 @@
 ;;;; Syntax highlighting
 (use-package treesit
   :ensure nil
+  :init
+  (setopt redisplay-skip-fontification-on-input t)
   :config
   (setopt treesit-language-source-alist
           `((lua "https://github.com/tree-sitter-grammars/tree-sitter-lua.git")))
@@ -711,11 +709,13 @@
 
 (use-package mixed-pitch
   :ensure t
+  :if window-system
   :hook ((org-mode . mixed-pitch-mode)
          (markdown-mode . mixed-pitch-mode)))
 
 (use-package olivetti
   :ensure t
+  :if window-system
   :hook ((org-mode . olivetti-mode)
          (markdown-mode . olivetti-mode))
   :init
@@ -773,11 +773,17 @@
 
 
 ;;; Modal editing
-(use-package meow
+(use-package hel
   :ensure t
+  :if window-system ; currently, quitting insert mode in terminal does not work
+  :bind ("C-c C-s" . isearch-forward)
   :demand t
-  :hook (after-save . meow-insert-exit)
+  :vc (:url "https://github.com/anuvyklack/hel.git" :rev "main")
+  :hook (after-init . hel-mode)
   :init
+  (use-package dash :ensure t)
+  (use-package avy :ensure t)
+  (use-package pcre2el :ensure t)
   ;; unshackle C-[ from the escape key
   (let ((frame (framep (selected-frame))))
     (or (eq t frame)
@@ -785,119 +791,16 @@
         (define-key input-decode-map
                     (kbd "C-[")
                     [control-bracketleft])))
-  (defun meow-setup ()
-    (setq meow-cheatsheet-layout meow-cheatsheet-layout-qwerty)
-    (meow-motion-overwrite-define-key
-     '("h" . meow-left)
-     '("j" . meow-next)
-     '("k" . meow-prev)
-     '("l" . meow-right)
-     '("<escape>" . ignore))
-    (meow-leader-define-key
-     ;; Use SPC (0-9) for digit arguments.
-     '("1" . meow-digit-argument)
-     '("2" . meow-digit-argument)
-     '("3" . meow-digit-argument)
-     '("4" . meow-digit-argument)
-     '("5" . meow-digit-argument)
-     '("6" . meow-digit-argument)
-     '("7" . meow-digit-argument)
-     '("8" . meow-digit-argument)
-     '("9" . meow-digit-argument)
-     '("0" . meow-digit-argument)
-     '("/" . meow-keypad-describe-key)
-     '("?" . meow-cheatsheet))
-    (meow-normal-define-key
-     '("0" . meow-expand-0)
-     '("9" . meow-expand-9)
-     '("8" . meow-expand-8)
-     '("7" . meow-expand-7)
-     '("6" . meow-expand-6)
-     '("5" . meow-expand-5)
-     '("4" . meow-expand-4)
-     '("3" . meow-expand-3)
-     '("2" . meow-expand-2)
-     '("1" . meow-expand-1)
-     '("-" . negative-argument)
-     '(";" . meow-reverse)
-     '("," . meow-inner-of-thing)
-     '("." . meow-bounds-of-thing)
-     '("[" . meow-beginning-of-thing)
-     '("]" . meow-end-of-thing)
-     '("a" . meow-append)
-     '("A" . meow-open-below)
-     '("b" . meow-back-word)
-     '("B" . meow-back-symbol)
-     '("c" . meow-change)
-     '("d" . meow-delete)
-     '("D" . meow-backward-delete)
-     '("e" . meow-next-word)
-     '("E" . meow-next-symbol)
-     '("f" . meow-find)
-     '("g" . meow-cancel-selection)
-     '("G" . meow-grab)
-     '("h" . meow-left)
-     '("H" . meow-left-expand)
-     '("i" . meow-insert)
-     '("I" . meow-open-above)
-     '("j" . meow-next)
-     '("J" . meow-next-expand)
-     '("k" . meow-prev)
-     '("K" . meow-prev-expand)
-     '("l" . meow-right)
-     '("L" . meow-right-expand)
-     '("m" . meow-join)
-     '("n" . meow-search)
-     '("o" . meow-block)
-     '("O" . meow-to-block)
-     '("p" . meow-yank)
-     '("q" . meow-quit)
-     '("Q" . meow-goto-line)
-     '("r" . meow-replace)
-     '("R" . meow-swap-grab)
-     '("s" . meow-kill)
-     '("t" . meow-till)
-     '("u" . meow-undo)
-     '("U" . meow-undo-in-selection)
-     '("v" . meow-visit)
-     '("w" . meow-mark-word)
-     '("W" . meow-mark-symbol)
-     '("x" . meow-line)
-     '("X" . meow-goto-line)
-     '("y" . meow-save)
-     '("Y" . meow-sync-grab)
-     '("z" . meow-pop-selection)
-     '("'" . repeat)
-     '("<escape>" . ignore))
-    (meow-define-keys
-        'insert
-      '("<control-bracketleft>" . meow-insert-exit))
-    (meow-define-keys
-        'normal
-      '("/" . consult-line)
-      ;; ignore round braces and double-quote
-      '("(" . ignore)
-      '(")" . ignore)
-      '("\"" . ignore)
-      '("<control-bracketleft>" . ignore)))
   :config
-  (setopt meow-goto-line-function 'consult-goto-line)
-  (setopt meow-expand-hint-remove-delay 0.0)
-  (setopt meow-use-clipboard t)
-  (add-to-list 'meow-mode-state-list '(shell-mode . insert))
-  (add-to-list 'meow-mode-state-list '(eshell-mode . insert))
-  (add-to-list 'meow-mode-state-list '(eat-mode . insert))
-  (add-to-list 'meow-mode-state-list '(vterm-mode . insert))
-  (add-to-list 'meow-mode-state-list '(comint-mode . insert))
-  (add-to-list 'meow-mode-state-list '(vc-git-log-edit-mode . insert))
-  (meow-setup)
-  (meow-global-mode))
-
-(use-package meow-tree-sitter
-  :ensure t
-  :requires meow
-  :init
-  (meow-normal-define-key
-   '("o" . meow-tree-sitter-node))
-  :config
-  (meow-tree-sitter-register-defaults))
+  (hel-keymap-global-set :state 'insert
+    "<control-bracketleft>" 'hel-normal-state
+    "C-u" 'universal-argument)
+  (keymap-unset hel-normal-state-map "C-w" 'remove)
+  (keymap-unset hel-motion-state-map "C-w" 'remove)
+  (hel-keymap-global-set :state 'normal
+    "<control-bracketleft>" 'ignore
+    "C-u" 'universal-argument
+    "C-d" 'delete-char
+    "C-f" 'forward-char
+    "C-b" 'backward-char
+    "z z" 'recenter))
