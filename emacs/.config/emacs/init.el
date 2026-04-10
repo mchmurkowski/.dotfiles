@@ -779,7 +779,8 @@
   :bind ("C-c C-s" . isearch-forward)
   :demand t
   :vc (:url "https://github.com/anuvyklack/hel.git" :rev "main")
-  :hook (after-init . hel-mode)
+  :hook ((after-init . hel-mode)
+         (after-save . hel-normal-state))
   :init
   (use-package dash :ensure t)
   (use-package avy :ensure t)
@@ -791,6 +792,7 @@
         (define-key input-decode-map
                     (kbd "C-[")
                     [control-bracketleft])))
+  (setopt hel-want-C-hjkl-keys nil)
   :config
   (hel-keymap-global-set :state 'insert
     "<control-bracketleft>" 'hel-normal-state
@@ -803,4 +805,6 @@
     "C-d" 'delete-char
     "C-f" 'forward-char
     "C-b" 'backward-char
-    "z z" 'recenter))
+    "z z" 'recenter)
+  (dolist (mode '(shell-mode eshell-mode eat-mode vterm-mode comint-mode vc-git-log-edit-mode))
+    (hel-set-initial-state mode 'insert)))
