@@ -644,7 +644,8 @@
 ;;;; Common Lisp
 (use-package sly
   :ensure t
-  :hook (sly-mrepl-mode . electric-pair-local-mode)
+  :hook ((sly-mrepl-mode . paredit-mode)
+         (sly-mrepl-mode . corfu-mode))
   :config
   (setopt inferior-lisp-program "sbcl"))
 
