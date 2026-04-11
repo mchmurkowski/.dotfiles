@@ -220,15 +220,15 @@
    ("M-g o" . consult-outline)
    ("M-g i" . consult-imenu)
    ("M-g I" . consult-imenu-multi)
-   ("C-c s d" . consult-fd)
-   ("C-c s c" . consult-locate)
-   ("C-c s g" . consult-grep)
-   ("C-c s G" . consult-git-grep)
-   ("C-c s r" . consult-ripgrep)
-   ("C-c s l" . consult-line)
-   ("C-c s L" . consult-line-multi)
-   ("C-c s k" . consult-keep-lines)
-   ("C-c s u" . consult-focus-lines))
+   ("M-s d" . consult-fd)
+   ("M-s c" . consult-locate)
+   ("M-s g" . consult-grep)
+   ("M-s G" . consult-git-grep)
+   ("M-s r" . consult-ripgrep)
+   ("M-s l" . consult-line)
+   ("M-s L" . consult-line-multi)
+   ("M-s k" . consult-keep-lines)
+   ("M-s u" . consult-focus-lines))
   :config
   (setopt consult-narrow-key "<"))
 
@@ -404,7 +404,7 @@
 (use-package sam
   :vc (:url "https://github.com/hkjels/sam.el"
             :branch "main")
-  :bind ("C-c s s" . sam))
+  :bind ("M-s s" . sam))
 
 
 ;;; Programming
@@ -777,7 +777,6 @@
 (use-package hel
   :ensure t
   :if window-system ; currently, quitting insert mode in terminal does not work
-  :bind ("C-c C-s" . isearch-forward)
   :demand t
   :vc (:url "https://github.com/anuvyklack/hel.git" :rev "main")
   :hook ((after-init . hel-mode)
@@ -794,18 +793,25 @@
                     (kbd "C-[")
                     [control-bracketleft])))
   (setopt hel-want-C-hjkl-keys nil)
+  (keymap-global-unset "C-s")
   :config
   (hel-keymap-global-set :state 'insert
     "<control-bracketleft>" 'hel-normal-state
-    "C-u" 'universal-argument)
+    "C-u" 'universal-argument
+    "C-f" 'isearch-forward
+    "C-b" 'isearch-forward)
   (keymap-unset hel-normal-state-map "C-w" 'remove)
   (keymap-unset hel-motion-state-map "C-w" 'remove)
   (hel-keymap-global-set :state 'normal
-    "<control-bracketleft>" 'ignore
+    "<control-bracketleft>" 'hel-normal-state-escape
     "C-u" 'universal-argument
     "C-d" 'delete-char
-    "C-f" 'forward-char
-    "C-b" 'backward-char
+    "M-s" nil
+    "C-s" 'hel-split-region-on-newline
+    "C-f" 'isearch-forward
+    "C-b" 'isearch-backward
     "z z" 'recenter)
+  (keymap-set isearch-mode-map "C-f" 'isearch-repeat-forward)
+  (keymap-set isearch-mode-map "C-b" 'isearch-repeat-backward)
   (dolist (mode '(shell-mode eshell-mode eat-mode vterm-mode comint-mode vc-git-log-edit-mode))
     (hel-set-initial-state mode 'insert)))
