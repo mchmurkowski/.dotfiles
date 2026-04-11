@@ -689,7 +689,7 @@
   :config
   (keymap-unset paredit-mode-map "RET")
   (keymap-unset paredit-mode-map "M-s")
-  (keymap-set paredit-mode-map "M-i" #'paredit-splice-sexp)
+  (keymap-set paredit-mode-map "M-D" #'paredit-splice-sexp)
   (keymap-unset paredit-mode-map "M-?"))
 
 ;;; Better automatic indentation when typing and editing lisping
@@ -810,6 +810,7 @@
     "C-s" 'hel-split-region-on-newline
     "C-f" 'isearch-forward
     "C-b" 'isearch-backward
+    "/" 'consult-line
     "z z" 'recenter)
   (keymap-set isearch-mode-map "C-f" 'isearch-repeat-forward)
   (keymap-set isearch-mode-map "C-b" 'isearch-repeat-backward)
