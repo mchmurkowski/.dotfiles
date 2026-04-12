@@ -32,7 +32,7 @@
   (defun mch/setup-frame-font ()
     "Setup the default font and line spacing"
     (if (getenv "WSLENV")
-        (set-frame-font "IBM Plex Mono-15" nil t)
+        (set-frame-font "IBM Plex Mono-14" nil t)
       (set-frame-font "IBM Plex Mono-13" nil t))
     (set-face-attribute 'variable-pitch nil :family "IBM Plex Serif")
     (set-face-attribute 'fixed-pitch nil :family "IBM Plex Mono")
