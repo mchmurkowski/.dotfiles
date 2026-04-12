@@ -278,6 +278,11 @@
 
 (use-package winner
   :ensure nil
+  :hook (after-init . winner-mode)
+  :bind (("C-x 1" . #'toggle-delete-other-windows)
+         (:repeat-map winner-repeat-map
+                      ("u" . winner-undo)
+                      ("U" . winner-redo)))
   :preface
   (defun toggle-delete-other-windows ()
     "Delete other windows in frame if any, or restore previous window config."
@@ -286,19 +291,8 @@
              (equal (selected-window) (next-window)))
         (winner-undo)
       (delete-other-windows)))
-  :bind (("C-x 1" . #'toggle-delete-other-windows)
-         (:map mch/winner-mode-map
-               ("C-w u" . winner-undo)
-               ("C-w U" . winner-redo)))
-  ;; rework this one `winner.el' binds u and U to C-w keymap
-  (:repeat-map
-   mch/winner-mode-map
-   (("u" . winner-undo)
-    ("U" . winner-redo)))
   :init
-  (keymap-global-set "C-w" 'mch/winner-mode-map)
-  (setopt winner-dont-bind-my-keys t)
-  :hook (after-init . winner-mode))
+  (setopt winner-dont-bind-my-keys t))
 
 ;;; TODO: Popup management: look into popper.el and shackle.el
 
