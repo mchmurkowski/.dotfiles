@@ -303,7 +303,7 @@
   (defun mch/pulse-line (&rest _)
     "Pulse the current line."
     (pulse-momentary-highlight-one-line (point)))
-  (dolist (command '(backward-page forward-page))
+  (dolist (command '(backward-page forward-page other-window))
     (advice-add command :after #'mch/pulse-line)))
 
 ;;;; Keyboard
@@ -362,6 +362,7 @@
   (setopt mouse-drag-copy-region nil)
   (setopt make-pointer-invisible t)
   (setopt mouse-wheel-progressive-speed nil)
+  (setopt fast-but-imprecise-scrolling t)
   (setopt scroll-preserve-screen-position t)
   (setopt scroll-conservatively 101)
   (setopt scroll-margin 6)
