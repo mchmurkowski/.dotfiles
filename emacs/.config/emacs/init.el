@@ -69,7 +69,8 @@
   :ensure t
   :hook ((eshell-mode . hide-mode-line-mode)
          (eat-mode . hide-mode-line-mode)
-         (vterm-mode . hide-mode-line-mode)))
+         (vterm-mode . hide-mode-line-mode)
+         (comint-mode . hide-mode-line-mode)))
 
 ;;;; Spacious padding
 (use-package spacious-padding
@@ -239,8 +240,7 @@
   (setopt which-key-idle-delay 1.5
           which-key-idle-secondary-delay 0.25)
   (setopt which-key-add-column-padding 1)
-  (setopt which-key-max-description-length 40)
-  (setopt which-key-side-window-location '(right bottom)))
+  (setopt which-key-max-description-length 40))
 
 
 ;;; Navigation & behaviour
