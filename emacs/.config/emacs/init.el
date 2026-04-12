@@ -280,7 +280,9 @@
   :ensure nil
   :hook (after-init . winner-mode)
   :bind (("C-x 1" . #'toggle-delete-other-windows)
-         (:repeat-map winner-repeat-map
+         ("C-c w u" . winner-undo)
+         ("C-c w U" . winner-redo)
+         (:repeat-map mch/winner-repeat-map
                       ("u" . winner-undo)
                       ("U" . winner-redo)))
   :preface
@@ -293,6 +295,28 @@
       (delete-other-windows)))
   :init
   (setopt winner-dont-bind-my-keys t))
+
+(use-package windmove
+  :ensure nil
+  :bind (("C-c w h" . windmove-left)
+         ("C-c w j" . windmove-down)
+         ("C-c w k" . windmove-up)
+         ("C-c w l" . windmove-right)
+         ("C-c w H" . windmove-swap-states-left)
+         ("C-c w J" . windmove-swap-states-down)
+         ("C-c w K" . windmove-swap-states-up)
+         ("C-c w L" . windmove-swap-states-right)
+         (:repeat-map mch/windmove-repeat-map
+                      ("h" . windmove-left)
+                      ("j" . windmove-down)
+                      ("k" . windmove-up)
+                      ("l" . windmove-right)
+                      ("H" . windmove-swap-states-left)
+                      ("J" . windmove-swap-states-down)
+                      ("K" . windmove-swap-states-up)
+                      ("L" . windmove-swap-states-right)))
+  :config
+  (setopt windmove-wrap-around t))
 
 ;;; TODO: Popup management: look into popper.el and shackle.el
 
