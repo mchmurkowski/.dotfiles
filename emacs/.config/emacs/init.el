@@ -491,7 +491,6 @@
   (setopt completion-ignore-case t)
   :config
   (corfu-history-mode t)
-  (corfu-indexed-mode t)
   (corfu-popupinfo-mode t)
   (setopt corfu-auto-delay 0.0)
   (setopt corfu-auto-prefix 2)
