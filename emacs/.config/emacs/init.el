@@ -825,24 +825,30 @@
   (setopt hel-want-C-hjkl-keys nil)
   (keymap-global-unset "C-s")
   :config
+  (dolist (state '(normal insert motion))
+    (hel-keymap-global-set :state state
+      ;; restore ESC to its rightful place
+      "<escape>" nil
+      ;; restore the universal argument to its rightful place
+      "C-u" 'universal-argument
+      "M-u" 'upcase-dwim
+      ;; restore delete-char
+      "C-d" 'delete-char
+      ;; use isearch for search
+      "C-f" 'isearch-forward
+      "C-b" 'isearch-backward)
+    ;; make isearch repeat with new bindings
+    (keymap-set isearch-mode-map "C-f" 'isearch-repeat-forward)
+    (keymap-set isearch-mode-map "C-b" 'isearch-repeat-backward))
   (hel-keymap-global-set :state 'insert
-    "<control-bracketleft>" 'hel-normal-state
-    "C-u" 'universal-argument
-    "C-f" 'isearch-forward
-    "C-b" 'isearch-forward)
+    "<control-bracketleft>" 'hel-normal-state)
   (keymap-unset hel-normal-state-map "C-w" 'remove)
   (keymap-unset hel-motion-state-map "C-w" 'remove)
   (hel-keymap-global-set :state 'normal
     "<control-bracketleft>" 'hel-normal-state-escape
-    "C-u" 'universal-argument
-    "C-d" 'delete-char
     "M-s" nil
     "C-s" 'hel-split-region-on-newline
-    "C-f" 'isearch-forward
-    "C-b" 'isearch-backward
     "/" 'consult-line
     "z z" 'recenter)
-  (keymap-set isearch-mode-map "C-f" 'isearch-repeat-forward)
-  (keymap-set isearch-mode-map "C-b" 'isearch-repeat-backward)
-  (dolist (mode '(shell-mode eshell-mode eat-mode vterm-mode comint-mode vc-git-log-edit-mode))
+  (dolist (mode '(text-mode shell-mode eshell-mode eat-mode vterm-mode comint-mode vc-git-log-edit-mode))
     (hel-set-initial-state mode 'insert)))
