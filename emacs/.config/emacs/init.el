@@ -743,6 +743,16 @@
   (setq olivetti-minimum-body-width 80)
   (setq olivetti-body-width 96))
 
+;;;; Expanding text selection
+(use-package expreg
+  :ensure t
+  :bind (:map hel-normal-state-map
+              ("C-=" . expreg-expand)   ; Alt-o in Helix
+              ("C--" . expreg-contract) ; Alt-i in Helix
+              (:repeat-map mch/expreg-repeat-map
+                           ("=" . expreg-expand)
+                           ("-" . expreg-contract))))
+
 ;;;; Spell-checking
 (use-package ispell
   :ensure nil
