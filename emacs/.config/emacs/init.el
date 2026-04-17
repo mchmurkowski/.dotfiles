@@ -47,6 +47,12 @@
                     (mch/setup-frame-font))))
     (mch/setup-frame-font)))
 
+(use-package mixed-pitch
+  :ensure t
+  :if window-system
+  :hook ((org-mode . mixed-pitch-mode)
+         (markdown-mode . mixed-pitch-mode)))
+
 ;;;; Theme
 (cond ((and (display-graphic-p) (getenv "WSLENV"))
        (load-theme 'modus-operandi nil nil))
@@ -109,6 +115,8 @@
   (set-language-environment "UTF-8")
   (setopt default-input-method nil))
 
+
+;;; Backups, saves, history & undoing
 (use-package files
   :ensure nil
   :init
@@ -134,7 +142,7 @@
 (use-package ffap
   :ensure nil
   :init
-  (setopt ffap-machine-p-known 'reject))
+  (setopt ffap-machine-p-known 'reject)) ; disable pinging things that look like urls
 
 (use-package autorevert
   ;; listen to file changes outside Emacs
@@ -178,6 +186,8 @@
   :ensure t
   :commands (vundo vundo-mode))
 
+
+;;; Dired
 (use-package dired
   :ensure nil
   :config
@@ -246,6 +256,75 @@
           which-key-idle-secondary-delay 0.25)
   (setopt which-key-add-column-padding 1)
   (setopt which-key-max-description-length 40))
+
+;;; Inputs
+;;;; Keyboard
+(use-package repeat
+  :ensure nil
+  :hook (after-init . repeat-mode))
+
+;;;; Keybindings
+(use-package personal-keybindings
+  :ensure nil
+  :bind (([remap kill-buffer] . kill-current-buffer)
+         ([remap capitalize-word] . capitalize-dwim) ; M-c works on regions
+         ([remap upcase-word] . upcase-dwim)         ; M-u works on regions
+         ([remap downcase-word] . downcase-dwim))    ; M-l works on regions
+  :init
+  ;; lifted from: https://emacsredux.com/blog/2025/06/01/let-s-make-keyboard-quit-smarter/
+  (defun mch/keyboard-quit-dwim ()
+    "Smarter version of the built-in `keyboard-quit'"
+    (interactive)
+    (if (active-minibuffer-window)
+        (if (minibufferp)
+            (minibuffer-keyboard-quit)
+          (abort-recursive-edit))
+      (keyboard-quit)))
+  (defun mch/scroll-half-page-down ()
+    "Scroll down half a page while keeping the cursor centred."
+    (interactive)
+    (let ((ln (line-number-at-pos (point)))
+          (lmax (line-number-at-pos (point-max))))
+      (cond ((= ln 1) (move-to-window-line nil))
+            ((= ln lmax) (recenter (window-end)))
+            (t (progn
+                 (move-to-window-line -1)
+                 (recenter))))))
+  (defun mch/scroll-half-page-up ()
+    "Scroll up half a page while keeping the cursor centred."
+    (interactive)
+    (let ((ln (line-number-at-pos (point)))
+          (lmax (line-number-at-pos (point-max))))
+      (cond ((= ln 1) nil)
+            ((= ln lmax) (move-to-window-line nil))
+            (t (progn
+                 (move-to-window-line 0)
+                 (recenter))))))
+  ;; keyboard-quit do what I mean
+  (global-set-key [remap keyboard-quit] #'mch/keyboard-quit-dwim)
+  ;; half page scrolling
+  (keymap-global-set "<next>" #'mch/scroll-half-page-down)
+  (keymap-global-set "<prior>" #'mch/scroll-half-page-up))
+
+;;;; Mouse
+(use-package mouse
+  :ensure nil
+  :hook (after-init . mouse-wheel-mode)
+  :init
+  (setopt mouse-drag-copy-region nil)
+  (setopt make-pointer-invisible t)
+  (setopt mouse-wheel-progressive-speed nil)
+  (setopt fast-but-imprecise-scrolling t)
+  (setopt scroll-preserve-screen-position t)
+  (setopt scroll-conservatively 101)
+  (setopt scroll-margin 6)
+  (setopt hscroll-margin 8)
+  (setopt next-screen-context-lines 6)
+  (setopt mouse-yank-at-point t)
+  (when (display-graphic-p)
+    (setopt context-menu-mode t))
+  (unless (display-graphic-p)
+    (xterm-mouse-mode 1)))
 
 
 ;;; Navigation & behaviour
@@ -331,7 +410,7 @@
   :config
   (setopt windmove-wrap-around t))
 
-;;; TODO: Popup management: look into popper.el and shackle.el
+;;;; TODO: Popup management: look into popper.el and shackle.el
 
 (use-package pulse
   ;; lifted from https://karthinks.com/software/batteries-included-with-emacs/
@@ -343,76 +422,27 @@
   (dolist (command '(backward-page forward-page other-window))
     (advice-add command :after #'mch/pulse-line)))
 
-;;;; Keyboard
-(use-package repeat
-  :ensure nil
-  :hook (after-init . repeat-mode))
-
-;;; Keybindings
-(use-package personal-keybindings
-  :ensure nil
-  :bind (([remap kill-buffer] . kill-current-buffer)
-         ([remap capitalize-word] . capitalize-dwim) ; M-c works on regions
-         ([remap upcase-word] . upcase-dwim)         ; M-u works on regions
-         ([remap downcase-word] . downcase-dwim))    ; M-l works on regions
-  :init
-  ;; lifted from: https://emacsredux.com/blog/2025/06/01/let-s-make-keyboard-quit-smarter/
-  (defun mch/keyboard-quit-dwim ()
-    "Smarter version of the built-in `keyboard-quit'"
-    (interactive)
-    (if (active-minibuffer-window)
-        (if (minibufferp)
-            (minibuffer-keyboard-quit)
-          (abort-recursive-edit))
-      (keyboard-quit)))
-  (defun mch/scroll-half-page-down ()
-    "Scroll down half a page while keeping the cursor centred."
-    (interactive)
-    (let ((ln (line-number-at-pos (point)))
-          (lmax (line-number-at-pos (point-max))))
-      (cond ((= ln 1) (move-to-window-line nil))
-            ((= ln lmax) (recenter (window-end)))
-            (t (progn
-                 (move-to-window-line -1)
-                 (recenter))))))
-  (defun mch/scroll-half-page-up ()
-    "Scroll up half a page while keeping the cursor centred."
-    (interactive)
-    (let ((ln (line-number-at-pos (point)))
-          (lmax (line-number-at-pos (point-max))))
-      (cond ((= ln 1) nil)
-            ((= ln lmax) (move-to-window-line nil))
-            (t (progn
-                 (move-to-window-line 0)
-                 (recenter))))))
-  ;; keyboard-quit do what I mean
-  (global-set-key [remap keyboard-quit] #'mch/keyboard-quit-dwim)
-  ;; half page scrolling
-  (keymap-global-set "<next>" #'mch/scroll-half-page-down)
-  (keymap-global-set "<prior>" #'mch/scroll-half-page-up))
-
-;;;; Mouse
-(use-package mouse
-  :ensure nil
-  :hook (after-init . mouse-wheel-mode)
-  :init
-  (setopt mouse-drag-copy-region nil)
-  (setopt make-pointer-invisible t)
-  (setopt mouse-wheel-progressive-speed nil)
-  (setopt fast-but-imprecise-scrolling t)
-  (setopt scroll-preserve-screen-position t)
-  (setopt scroll-conservatively 101)
-  (setopt scroll-margin 6)
-  (setopt hscroll-margin 8)
-  (setopt next-screen-context-lines 6)
-  (setopt mouse-yank-at-point t)
-  (when (display-graphic-p)
-    (setopt context-menu-mode t))
-  (unless (display-graphic-p)
-    (xterm-mouse-mode 1)))
-
 
-;;; Search
+;;; Text navigation & manipulation
+;;;; Delete selection when entering new text over it
+(use-package delsel
+  :ensure nil
+  :hook (after-init . delete-selection-mode))
+
+;;;; Expanding text selection
+(use-package expreg
+  :ensure t
+  :after (hel)
+  :bind (:map hel-normal-state-map
+              ("C-=" . expreg-expand)   ; Alt-o in Helix
+              ("C--" . expreg-contract) ; Alt-i in Helix
+              (:repeat-map mch/expreg-repeat-map
+                           ("=" . expreg-expand)
+                           ("-" . expreg-contract)
+                           :exit
+                           ("<control-bracketleft>" . ignore))))
+
+;;;; Search
 (use-package isearch
   :ensure nil
   :init
@@ -430,7 +460,59 @@
 (use-package xref
   :ensure nil
   :config
-  (setopt xref-search-program 'ripgrep))
+  (setopt xref-search-program 'ripgrep)
+  (setopt xref-show-xrefs-function #'consult-xref)
+  (setopt xref-show-definitions-function #'consult-xref))
+
+;;;; Modal editing
+(use-package hel
+  :ensure t
+  :if window-system ; currently, quitting insert mode in terminal does not work
+  :demand t
+  :vc (:url "https://github.com/anuvyklack/hel.git" :rev "main")
+  :hook ((after-init . hel-mode)
+         (after-save . hel-normal-state))
+  :init
+  (use-package dash :ensure t)
+  (use-package avy :ensure t)
+  (use-package pcre2el :ensure t)
+  ;; unshackle C-[ from the escape key
+  (let ((frame (framep (selected-frame))))
+    (or (eq t frame)
+        (eq 'pc frame)
+        (define-key input-decode-map
+                    (kbd "C-[")
+                    [control-bracketleft])))
+  (setopt hel-want-C-hjkl-keys nil)
+  (keymap-global-unset "C-s")
+  :config
+  (dolist (state '(normal insert motion))
+    (hel-keymap-global-set :state state
+      ;; restore ESC to its rightful place
+      "<escape>" nil
+      ;; restore the universal argument to its rightful place
+      "C-u" 'universal-argument
+      "M-u" 'upcase-dwim
+      ;; restore delete-char
+      "C-d" 'delete-char
+      ;; use isearch for search
+      "C-f" 'isearch-forward
+      "C-b" 'isearch-backward)
+    ;; make isearch repeat with new bindings
+    (keymap-set isearch-mode-map "C-f" 'isearch-repeat-forward)
+    (keymap-set isearch-mode-map "C-b" 'isearch-repeat-backward))
+  (hel-keymap-global-set :state 'insert
+    "<control-bracketleft>" 'hel-normal-state)
+  (keymap-unset hel-normal-state-map "C-w" 'remove)
+  (keymap-unset hel-motion-state-map "C-w" 'remove)
+  (hel-keymap-global-set :state 'normal
+    "<control-bracketleft>" 'hel-normal-state-escape
+    "M-s" nil
+    "C-s" 'hel-split-region-on-newline
+    "/" 'consult-line
+    "z z" 'recenter)
+  (dolist (mode '(text-mode shell-mode eshell-mode eat-mode vterm-mode comint-mode vc-git-log-edit-mode))
+    (hel-set-initial-state mode 'insert)))
 
 
 ;;; Programming
@@ -616,9 +698,6 @@
   :hook ((python-ts-mode . eglot-ensure)
          (lua-ts-mode . eglot-ensure)
          (fennel-mode . eglot-ensure))
-  :init
-  (setopt xref-show-xrefs-function #'consult-xref)
-  (setopt xref-show-definitions-function #'consult-xref)
   :config
   (setopt eglot-sync-connect 0)
   (setopt eglot-autoshutdown t)
@@ -717,7 +796,7 @@
   (keymap-set paredit-mode-map "M-D" #'paredit-splice-sexp)
   (keymap-unset paredit-mode-map "M-?"))
 
-;;; Better automatic indentation when typing and editing lisping
+;;;; Better automatic indentation when typing and editing lisping
 (use-package aggressive-indent
   :ensure t
   :hook ((emacs-lisp-mode . aggressive-indent-mode)
@@ -726,23 +805,12 @@
          (fennel-mode . aggresive-indent-mode)))
 
 
-;;; Text editing
+;;; Writing
 ;; visual line mode in text-mode
 (use-package text-mode
   :ensure nil
   :no-require t
   :hook (text-mode . visual-line-mode))
-
-(use-package delsel
-  ;; delete selection when entering new text over it
-  :ensure nil
-  :hook (after-init . delete-selection-mode))
-
-(use-package mixed-pitch
-  :ensure t
-  :if window-system
-  :hook ((org-mode . mixed-pitch-mode)
-         (markdown-mode . mixed-pitch-mode)))
 
 (use-package olivetti
   :ensure t
@@ -752,19 +820,6 @@
   :init
   (setq olivetti-minimum-body-width 40)
   (setq olivetti-body-width 66))
-
-;;;; Expanding text selection
-(use-package expreg
-  :ensure t
-  :after (hel)
-  :bind (:map hel-normal-state-map
-              ("C-=" . expreg-expand)   ; Alt-o in Helix
-              ("C--" . expreg-contract) ; Alt-i in Helix
-              (:repeat-map mch/expreg-repeat-map
-                           ("=" . expreg-expand)
-                           ("-" . expreg-contract)
-                           :exit
-                           ("<control-bracketleft>" . ignore))))
 
 ;;;; Spell-checking
 (use-package ispell
@@ -814,54 +869,3 @@
   ;; GitHub flavoured markdown for README.md files
   :ensure t
   :mode ("README\\.md\\'" . gfm-mode))
-
-
-;;; Modal editing
-(use-package hel
-  :ensure t
-  :if window-system ; currently, quitting insert mode in terminal does not work
-  :demand t
-  :vc (:url "https://github.com/anuvyklack/hel.git" :rev "main")
-  :hook ((after-init . hel-mode)
-         (after-save . hel-normal-state))
-  :init
-  (use-package dash :ensure t)
-  (use-package avy :ensure t)
-  (use-package pcre2el :ensure t)
-  ;; unshackle C-[ from the escape key
-  (let ((frame (framep (selected-frame))))
-    (or (eq t frame)
-        (eq 'pc frame)
-        (define-key input-decode-map
-                    (kbd "C-[")
-                    [control-bracketleft])))
-  (setopt hel-want-C-hjkl-keys nil)
-  (keymap-global-unset "C-s")
-  :config
-  (dolist (state '(normal insert motion))
-    (hel-keymap-global-set :state state
-      ;; restore ESC to its rightful place
-      "<escape>" nil
-      ;; restore the universal argument to its rightful place
-      "C-u" 'universal-argument
-      "M-u" 'upcase-dwim
-      ;; restore delete-char
-      "C-d" 'delete-char
-      ;; use isearch for search
-      "C-f" 'isearch-forward
-      "C-b" 'isearch-backward)
-    ;; make isearch repeat with new bindings
-    (keymap-set isearch-mode-map "C-f" 'isearch-repeat-forward)
-    (keymap-set isearch-mode-map "C-b" 'isearch-repeat-backward))
-  (hel-keymap-global-set :state 'insert
-    "<control-bracketleft>" 'hel-normal-state)
-  (keymap-unset hel-normal-state-map "C-w" 'remove)
-  (keymap-unset hel-motion-state-map "C-w" 'remove)
-  (hel-keymap-global-set :state 'normal
-    "<control-bracketleft>" 'hel-normal-state-escape
-    "M-s" nil
-    "C-s" 'hel-split-region-on-newline
-    "/" 'consult-line
-    "z z" 'recenter)
-  (dolist (mode '(text-mode shell-mode eshell-mode eat-mode vterm-mode comint-mode vc-git-log-edit-mode))
-    (hel-set-initial-state mode 'insert)))
