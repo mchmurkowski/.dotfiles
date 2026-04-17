@@ -109,11 +109,6 @@
   (set-language-environment "UTF-8")
   (setopt default-input-method nil))
 
-(use-package delsel
-  ;; delete selection when entering new text over it
-  :ensure nil
-  :hook (after-init . delete-selection-mode))
-
 (use-package files
   :ensure nil
   :init
@@ -727,6 +722,11 @@
   :ensure nil
   :no-require t
   :hook (text-mode . visual-line-mode))
+
+(use-package delsel
+  ;; delete selection when entering new text over it
+  :ensure nil
+  :hook (after-init . delete-selection-mode))
 
 (use-package mixed-pitch
   :ensure t
