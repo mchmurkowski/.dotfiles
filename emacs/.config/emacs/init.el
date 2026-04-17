@@ -151,7 +151,6 @@
 
 (use-package recentf
   :ensure nil
-  :bind ("C-x C-r" . recentf-open)
   :hook (after-init . recentf-mode)
   :config
   (dolist (itm '("^/usr/share/emacs/\.*$" "~/.config/emacs/bookmarks"))
@@ -213,6 +212,7 @@
   (("C-x b" . consult-buffer)
    ("C-x r b" . consult-bookmark)
    ("C-x p b" . consult-project-buffer)
+   ("C-x C-r" . consult-recent-file)
    ("M-g o" . consult-outline)
    ("M-g i" . consult-imenu)
    ("M-g I" . consult-imenu-multi)
