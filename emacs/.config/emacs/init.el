@@ -750,8 +750,8 @@
   :hook ((org-mode . olivetti-mode)
          (markdown-mode . olivetti-mode))
   :init
-  (setq olivetti-minimum-body-width 80)
-  (setq olivetti-body-width 96))
+  (setq olivetti-minimum-body-width 40)
+  (setq olivetti-body-width 66))
 
 ;;;; Expanding text selection
 (use-package expreg
