@@ -427,12 +427,6 @@
   :config
   (setopt xref-search-program 'ripgrep))
 
-;;; Structural regular expressions like Sam or Vis
-(use-package sam
-  :vc (:url "https://github.com/hkjels/sam.el"
-            :branch "main")
-  :bind ("M-s s" . sam))
-
 
 ;;; Programming
 (use-package prog-mode
