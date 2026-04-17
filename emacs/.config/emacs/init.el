@@ -306,6 +306,10 @@
          ("C-c w J" . windmove-swap-states-down)
          ("C-c w K" . windmove-swap-states-up)
          ("C-c w L" . windmove-swap-states-right)
+         ("C-c w M-h" . windmove-delete-left)
+         ("C-c w M-j" . windmove-delete-down)
+         ("C-c w M-k" . windmove-delete-up)
+         ("C-c w M-l" . windmove-delete-right)
          (:repeat-map mch/windmove-repeat-map
                       ("h" . windmove-left)
                       ("j" . windmove-down)
@@ -314,7 +318,11 @@
                       ("H" . windmove-swap-states-left)
                       ("J" . windmove-swap-states-down)
                       ("K" . windmove-swap-states-up)
-                      ("L" . windmove-swap-states-right)))
+                      ("L" . windmove-swap-states-right)
+                      ("M-h" . windmove-delete-left)
+                      ("M-j" . windmove-delete-down)
+                      ("M-k" . windmove-delete-up)
+                      ("M-l" . windmove-delete-right)))
   :config
   (setopt windmove-wrap-around t))
 
