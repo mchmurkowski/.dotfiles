@@ -168,6 +168,16 @@
   :init
   (setopt save-place-limit 400))
 
+(use-package undo-fu-session
+  :ensure t
+  :hook (after-init . undo-fu-session-global-mode)
+  :config
+  (setq undo-fu-session-incompatible-files '("/COMMIT_EDITMSG\\'")))
+
+(use-package vundo
+  :ensure t
+  :commands (vundo vundo-mode))
+
 (use-package dired
   :ensure nil
   :config
