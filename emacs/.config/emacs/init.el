@@ -34,7 +34,7 @@
     (if (getenv "WSLENV")
         (set-frame-font "IBM Plex Mono-14" nil t)
       (set-frame-font "IBM Plex Mono-13" nil t))
-    (set-face-attribute 'variable-pitch nil :family "IBM Plex Serif")
+    (set-face-attribute 'variable-pitch nil :family "IBM Plex Serif" :height 1.1)
     (set-face-attribute 'fixed-pitch nil :family "IBM Plex Mono")
     (setopt line-spacing 2))
   (setopt x-underline-at-descent-line t)
