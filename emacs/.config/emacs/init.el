@@ -605,30 +605,32 @@
 
 
 ;;; Programming
+(define-minor-mode mch/prog-mode
+  "Minor mode that holds my preferred settings for working with code."
+  :init-value nil
+  :global nil
+  :interactive nil
+  ;; set line numbers
+  (setopt display-line-numbers-width 4
+          display-line-numbers-widen t
+          display-line-numbers-type 'relative)
+  (display-line-numbers-mode 1)
+  ;; use spaces not tabs
+  (setopt indent-tabs-mode nil
+          tab-width 4)
+  ;; fill column at 80 characters
+  (setopt fill-column 80)
+  (display-fill-column-indicator-mode t)
+  ;; word-wrapping
+  (setopt word-wrap t)
+  (setopt truncate-lines t
+          truncate-partial-width-windows 70))
+
 (use-package prog-mode
   :ensure nil
-  :no-require t
-  :init
-  (defun mch/programming-setup ()
-    "Basic settings for programming."
-    ;; set line numbers
-    (setopt display-line-numbers-width 4
-            display-line-numbers-widen t
-            display-line-numbers-type 'relative)
-    (display-line-numbers-mode 1)
-    ;; use spaces not tabs
-    (setopt indent-tabs-mode nil
-            tab-width 4)
-    ;; fill column at 80 characters
-    (setopt fill-column 80)
-    (display-fill-column-indicator-mode t)
-    ;; word-wrapping
-    (setopt word-wrap t)
-    (setopt truncate-lines t
-            truncate-partial-width-windows 70))
   :config
   (dolist (hooks '(prog-mode-hook conf-mode-hook))
-    (add-hook hooks #'mch/programming-setup)))
+    (add-hook hooks (lambda () (mch/prog-mode)))))
 
 ;;;; Syntax highlighting
 (use-package treesit
