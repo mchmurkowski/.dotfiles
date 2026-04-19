@@ -106,6 +106,8 @@
          ([remap capitalize-word] . capitalize-dwim) ; M-c works on regions
          ([remap upcase-word] . upcase-dwim)         ; M-u works on regions
          ([remap downcase-word] . downcase-dwim)     ; M-l works on regions
+         ("M-g g" . beginning-of-buffer)
+         ("M-g e" . end-of-buffer)
          ("M-z" . zap-up-to-char)
          ("M-Z" . zap-to-char))
   :init
@@ -182,6 +184,7 @@
          ("M-g o" . consult-outline)
          ("M-g i" . consult-imenu)
          ("M-g I" . consult-imenu-multi)
+         ("M-g G" . consult-goto-line)
          ("M-s d" . consult-fd)
          ("M-s c" . consult-locate)
          ("M-s g" . consult-grep)
@@ -387,7 +390,7 @@
          ("C-f" . isearch-forward)
          ("C-b" . isearch-backward)
          :map isearch-mode-map
-         ("<return>" . mch/isearch-mark-and-exit))
+         ("RET" . mch/isearch-mark-and-exit))
   :bind-keymap (("C-f" . isearch-repeat-forward)
                 ("C-b" . isearch-repeat-backward))
   :init
@@ -455,12 +458,16 @@
   (hel-keymap-global-set :state 'normal
     "<control-bracketleft>" 'hel-normal-state-escape
     "M-s" nil
-    "C-s" 'hel-split-region-on-newline
+    "G" 'hel-split-region-on-newline
+    "g G" 'consult-goto-line
     "/" 'consult-line
     "z z" 'recenter
+    "g e" 'hel-end-of-buffer
     "g o" 'consult-outline
     "g i" 'consult-imenu
     "g I" 'consult-imenu-multi)
+  (dolist (mode '(occur-edit-mode))
+    (hel-set-initial-state mode 'normal))
   (dolist (mode '(text-mode shell-mode eshell-mode eat-mode
                             vterm-mode comint-mode vc-git-log-edit-mode))
     (hel-set-initial-state mode 'insert)))
