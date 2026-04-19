@@ -363,7 +363,7 @@
                       ("=" . expreg-expand)
                       ("-" . expreg-contract)
                       :exit
-                      ("<control-bracketleft>" . ignore)))
+                      ("<return>" . ignore)))
   :config
   (with-eval-after-load 'hel
     (hel-keymap-global-set :state 'normal
@@ -374,13 +374,25 @@
 ;;;; Search
 (use-package isearch
   :ensure nil
+  :preface
+  (defun mch/isearch-mark-and-exit ()
+    "Mark what you landed on in `isearch'.
+
+     Lifted from: https://www.reddit.com/r/emacs/comments/gf64oq/how_can_i_exit_isearch_and_mark_the_found_text_as/"
+    (interactive)
+    (isearch-done)
+    (push-mark isearch-other-end 'no-message 'activate))
   :bind (("C-s" . nil)
          ("C-r" . nil)
          ("C-f" . isearch-forward)
-         ("C-b" . isearch-backward))
+         ("C-b" . isearch-backward)
+         :map isearch-mode-map
+         ("<return>" . mch/isearch-mark-and-exit))
   :bind-keymap (("C-f" . isearch-repeat-forward)
                 ("C-b" . isearch-repeat-backward))
   :init
+  (add-hook 'isearch-mode-hook (lambda () (transient-mark-mode -1)))
+  (add-hook 'isearch-mode-end-hook (lambda () (transient-mark-mode)))
   (add-hook 'isearch-mode-end-hook #'recenter)
   :config
   (setopt isearch-lazy-count t
