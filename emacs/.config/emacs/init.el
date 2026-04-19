@@ -457,7 +457,10 @@
     "M-s" nil
     "C-s" 'hel-split-region-on-newline
     "/" 'consult-line
-    "z z" 'recenter)
+    "z z" 'recenter
+    "g o" 'consult-outline
+    "g i" 'consult-imenu
+    "g I" 'consult-imenu-multi)
   (dolist (mode '(text-mode shell-mode eshell-mode eat-mode
                             vterm-mode comint-mode vc-git-log-edit-mode))
     (hel-set-initial-state mode 'insert)))
