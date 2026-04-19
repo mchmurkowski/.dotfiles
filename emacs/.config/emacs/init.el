@@ -513,16 +513,22 @@
 
 (use-package undo-fu-session
   :ensure t
+  :bind (("C-/" . undo-only)
+         ("C-?" . undo-redo))
   :hook (after-init . undo-fu-session-global-mode)
+  :init
+  (setopt undo-limit 256000
+          undo-strong-limit 2000000
+          undo-outer-limit 36000000)
   :config
-  (setq undo-fu-session-incompatible-files '("/COMMIT_EDITMSG\\'")))
+  (when (executable-find "zstd")
+    (setopt undo-fu-session-compression 'zst))
+  (setopt undo-fu-session-incompatible-files '("/COMMIT_EDITMSG\\'")))
 
 (use-package vundo
   :ensure t
-  :commands (vundo vundo-mode)
-  :init
-  (set-face-attribute 'vundo-default nil :font "Symbols Nerd Font Mono"
-                      :family "Symbols Nerd Font Mono")
+  :commands (vundo-popup-mode)
+  :bind ("C-x u" . vundo)
   :config
   (setopt vundo-glyph-alist vundo-unicode-symbols))
 
