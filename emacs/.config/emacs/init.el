@@ -263,7 +263,7 @@
 (use-package window
   :ensure nil
   :preface
-  (defun toggle-delete-other-windows ()
+  (defun mch/toggle-delete-other-windows ()
     "Delete other windows in frame if any, or restore previous window config.
 
      Lifted from: https://github.com/purcell/emacs.d."
@@ -272,7 +272,7 @@
              (equal (selected-window) (next-window)))
         (winner-undo)
       (delete-other-windows)))
-  :bind ([remap delete-other-windows] . toggle-delete-other-windows)
+  :bind ([remap delete-other-windows] . mch/toggle-delete-other-windows)
   :init
   ;; behave like my window manager
   (setopt mouse-autoselect-window t
