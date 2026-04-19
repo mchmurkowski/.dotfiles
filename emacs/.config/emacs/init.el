@@ -366,7 +366,7 @@
                       ("<control-bracketleft>" . ignore)))
   :config
   (with-eval-after-load 'hel
-    (hel-keymap-global-set :state normal
+    (hel-keymap-global-set :state 'normal
       ;; in Helix those are bound to "Alt-o" and "Alt-i":
       "C-=" 'expreg-expand
       "C--" 'expreg-contract)))
