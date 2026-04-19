@@ -509,11 +509,7 @@
   :ensure nil
   :hook (after-init . save-place-mode)
   :init
-  (setopt save-place-limit 400)
-  :config
-  (advice-add 'save-place-after-find-file-hook :after
-              (lambda (&rest _)
-                (when buffer-file-name (ignore-errors (recenter))))))
+  (setopt save-place-limit 400))
 
 (use-package undo-fu-session
   :ensure t
