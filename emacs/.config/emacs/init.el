@@ -849,9 +849,10 @@
   :if window-system
   :hook ((org-mode . olivetti-mode)
          (markdown-mode . olivetti-mode))
-  :init
-  (setq olivetti-minimum-body-width 40)
-  (setq olivetti-body-width 66))
+  :config
+  (setopt olivetti-body-width 0.65)
+  (setopt olivetti-minimum-body-width 72)
+  (setopt olivetti-recall-visual-line-mode-entry-state t))
 
 ;;;; Spell-checking
 (use-package ispell
