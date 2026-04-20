@@ -206,7 +206,8 @@
   (setopt which-key-idle-delay 1.5
           which-key-idle-secondary-delay 0.25)
   (setopt which-key-add-column-padding 1)
-  (setopt which-key-max-description-length 40))
+  (setopt which-key-max-description-length 40
+          which-key-ellipsis "…"))
 
 
 ;;; Inputs & navigation
