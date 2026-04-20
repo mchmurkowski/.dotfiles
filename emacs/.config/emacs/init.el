@@ -122,6 +122,8 @@
   (setopt visible-bell nil
           ring-bell-function 'ignore)
   (blink-cursor-mode -1)
+  (setopt blink-cursor-delay 0.3
+          blink-cursor-interval 0.7)
   ;; short answers
   (setopt read-answer-short t
           confirm-kill-emacs 'y-or-n-p)
@@ -442,6 +444,19 @@
                     [control-bracketleft])))
   (setopt hel-want-C-hjkl-keys nil)
   :config
+  (defun mch/hel-swap-cursors-and-blink-maybe (_)
+    "Swap the default cursors for modes using variable pitch. Blink cursors in swapped cursor state."
+    (cond ((or (bound-and-true-p buffer-face-mode) (bound-and-true-p mixed-pitch-mode))
+           (setopt hel-insert-state-cursor-type 'bar)
+           (setopt hel-normal-state-cursor-type 'hollow)
+           (hel-update-cursor)
+           (blink-cursor-mode 1))
+          (t
+           (blink-cursor-mode -1)
+           (setopt hel-insert-state-cursor-type 'box)
+           (setopt hel-normal-state-cursor-type 'bar)
+           (hel-update-cursor))))
+  (add-to-list 'window-state-change-functions #'mch/hel-swap-cursors-and-blink-maybe)
   (dolist (state '(normal insert motion))
     (hel-keymap-global-set :state state
       ;; restore ESC to its rightful place
