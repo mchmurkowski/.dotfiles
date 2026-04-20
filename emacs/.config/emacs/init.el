@@ -614,10 +614,10 @@
                       (new-path (eshell/pwd)))
                   (when (and old-path new-path (not (string= old-path new-path)))
                     (shell-command-to-string (concat "zoxide add " new-path))))))
-  (defun eshell/z (dir)
+  (defun eshell/z (&rest queries)
     "Navigate to a previously visited directory."
     (eshell/cd
-     (string-trim (shell-command-to-string (concat "zoxide query " dir))))
+     (string-trim (shell-command-to-string (concat "zoxide query " (string-join queries " ")))))
     (eshell/ls))
   (defun eshell/e (file)
     (find-file file))
