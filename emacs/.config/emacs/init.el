@@ -688,7 +688,8 @@ https://www.reddit.com/r/emacs/comments/gf64oq/how_can_i_exit_isearch_and_mark_t
   ;; simple completion framework
   :ensure t
   :hook ((prog-mode . corfu-mode)
-         (conf-mode . corfu-mode))
+         (conf-mode . corfu-mode)
+         (comint-mode . corfu-mode))
   :bind (:map corfu-map
               ("C-n" . corfu-next)
               ("C-p" . corfu-previous)
@@ -814,8 +815,7 @@ https://www.reddit.com/r/emacs/comments/gf64oq/how_can_i_exit_isearch_and_mark_t
 ;;;;; Common Lisp
 (use-package sly
   :ensure t
-  :hook ((sly-mrepl-mode . paredit-mode)
-         (sly-mrepl-mode . corfu-mode))
+  :hook ((sly-mrepl-mode . paredit-mode))
   :config
   (setopt inferior-lisp-program "sbcl"))
 
@@ -858,6 +858,7 @@ https://www.reddit.com/r/emacs/comments/gf64oq/how_can_i_exit_isearch_and_mark_t
   ;; parentheses, slurping & barfing
   :ensure t
   :hook ((emacs-lisp-mode . paredit-mode)
+         (inferior-emacs-lisp-mode . paredit-mode)
          (lisp-mode . paredit-mode)
          (lisp-interaction-mode . paredit-mode)
          (hy-mode . paredit-mode)
