@@ -1,5 +1,10 @@
 ;;; init.el -*- lexical-binding: t -*-
 
+;;; Motto
+;; "One does not simply share his Emacs configuration. This is all
+;; personalised to my quirks and misdemeanours." ~ Emerald McS. et al.,
+;; PhD - Emacs User @ University of Texas Instruments
+
 ;;; Package management
 ;;;; Setup `package.el' & add the melpa archive
 (progn (require 'package)
@@ -92,9 +97,8 @@
   :ensure nil
   :preface
   (defun mch/keyboard-quit-dwim ()
-    "Smarter version of the built-in `keyboard-quit'.
-
-     Lifted from: https://emacsredux.com/blog/2025/06/01/let-s-make-keyboard-quit-smarter/."
+    "Smarter version of the built-in `keyboard-quit'. Lifted from:
+https://emacsredux.com/blog/2025/06/01/let-s-make-keyboard-quit-smarter/."
     (interactive)
     (if (active-minibuffer-window)
         (if (minibufferp)
@@ -270,9 +274,8 @@
   :ensure nil
   :preface
   (defun mch/toggle-delete-other-windows ()
-    "Delete other windows in frame if any, or restore previous window config.
-
-     Lifted from: https://github.com/purcell/emacs.d."
+    "Delete other windows in frame if any, or restore previous window
+config. Lifted from: https://github.com/purcell/emacs.d."
     (interactive)
     (if (and winner-mode
              (equal (selected-window) (next-window)))
@@ -341,11 +344,11 @@
 ;;;; TODO: Popup management: look into popper.el and shackle.el
 
 (use-package pulse
-  ;; lifted from https://karthinks.com/software/batteries-included-with-emacs/
   :ensure nil
   :init
   (defun mch/pulse-line (&rest _)
-    "Pulse the current line."
+    "Pulse the current line. Lifted from:
+https://karthinks.com/software/batteries-included-with-emacs/"
     (pulse-momentary-highlight-one-line (point)))
   (dolist (command '(backward-page forward-page other-window
                                    windmove-left windmove-down windmove-up windmove-right
@@ -382,9 +385,8 @@
   :ensure nil
   :preface
   (defun mch/isearch-mark-and-exit ()
-    "Mark what you landed on in `isearch'.
-
-     Lifted from: https://www.reddit.com/r/emacs/comments/gf64oq/how_can_i_exit_isearch_and_mark_the_found_text_as/"
+    "Mark what you landed on in `isearch'. Lifted from:
+https://www.reddit.com/r/emacs/comments/gf64oq/how_can_i_exit_isearch_and_mark_the_found_text_as/"
     (interactive)
     (isearch-done)
     (push-mark isearch-other-end 'no-message 'activate))
@@ -940,3 +942,5 @@
   ;; GitHub flavoured markdown for README.md files
   :ensure t
   :mode ("README\\.md\\'" . gfm-mode))
+
+;;; init.el ends here
