@@ -484,7 +484,7 @@ https://www.reddit.com/r/emacs/comments/gf64oq/how_can_i_exit_isearch_and_mark_t
     "g o" 'consult-outline
     "g i" 'consult-imenu
     "g I" 'consult-imenu-multi)
-  (dolist (mode '(occur-edit-mode))
+  (dolist (mode '(occur-mode))
     (hel-set-initial-state mode 'normal))
   (dolist (mode '(text-mode shell-mode eshell-mode eat-mode
                             vterm-mode comint-mode vc-git-log-edit-mode))
