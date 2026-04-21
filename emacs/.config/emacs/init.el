@@ -649,28 +649,31 @@ https://www.reddit.com/r/emacs/comments/gf64oq/how_can_i_exit_isearch_and_mark_t
   "Minor mode that holds my preferred settings for working with code."
   :init-value nil
   :global nil
-  :interactive nil
-  ;; set line numbers
-  (setopt display-line-numbers-width 4
-          display-line-numbers-widen t
-          display-line-numbers-type 'relative)
-  (display-line-numbers-mode 1)
-  ;; use spaces not tabs
-  (setopt indent-tabs-mode nil
-          tab-width 4)
-  ;; fill column at 80 characters
-  (setopt fill-column 80)
-  (display-fill-column-indicator-mode t)
-  ;; word-wrapping
-  (setopt word-wrap t)
-  (setopt truncate-lines t
-          truncate-partial-width-windows 70))
+  (if mch/prog-mode
+      (progn
+        (setq-local display-line-numbers-width 4
+                    display-line-numbers-widen t
+                    display-line-numbers-type 'relative)
+        (display-line-numbers-mode 1)
+        ;; use spaces not tabs
+        (setq-local indent-tabs-mode nil
+                    tab-width 4)
+        ;; fill column at 80 characters
+        (setq-local fill-column 80)
+        (display-fill-column-indicator-mode 1)
+        ;; word-wrapping
+        (setq-local word-wrap t)
+        (setq-local truncate-lines t
+                    truncate-partial-width-windows 70))
+    (dolist (var `(display-line-numbers-width display-line-numbers-widen display-line-numbers-type
+                                              indent-tabs-mode tab-width fill-column
+                                              word-wrap truncate-lines truncate-partial-width-windows))
+      (kill-local-variable var))
+    (display-line-numbers-mode -1)
+    (display-fill-column-indicator-mode -1)))
 
-(use-package prog-mode
-  :ensure nil
-  :config
-  (dolist (hooks '(prog-mode-hook conf-mode-hook))
-    (add-hook hooks (lambda () (mch/prog-mode)))))
+(dolist (hooks '(prog-mode-hook conf-mode-hook))
+  (add-hook hooks (lambda () (mch/prog-mode 1))))
 
 ;;;; Syntax highlighting
 (use-package treesit
