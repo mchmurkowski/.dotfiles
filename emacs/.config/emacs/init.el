@@ -816,6 +816,11 @@ cursors in swapped cursor state."
   :mode ("\\.lua\\'" . lua-ts-mode))
 
 ;;;; Lisps
+;;;;; Emacs Lisp
+(use-package ielm
+  :ensure nil
+  :hook ((inferior-emacs-lisp-mode . paredit-mode)))
+
 ;;;;; Common Lisp
 (use-package sly
   :ensure t
@@ -856,9 +861,7 @@ cursors in swapped cursor state."
   ;; parentheses, slurping & barfing
   :ensure t
   :hook ((emacs-lisp-mode . paredit-mode)
-         (inferior-emacs-lisp-mode . paredit-mode)
          (lisp-mode . paredit-mode)
-         (lisp-interaction-mode . paredit-mode)
          (fennel-mode . paredit-mode))
   :config
   (keymap-unset paredit-mode-map "RET")
@@ -870,7 +873,7 @@ cursors in swapped cursor state."
 (use-package aggressive-indent
   :ensure t
   :hook ((emacs-lisp-mode . aggressive-indent-mode)
-         (lisp-interaction-mode . aggressive-indent-mode)
+         (lisp-mode . aggressive-indent-mode)
          (fennel-mode . aggressive-indent-mode)))
 
 
