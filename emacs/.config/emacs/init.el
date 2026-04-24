@@ -834,12 +834,6 @@ https://www.reddit.com/r/emacs/comments/gf64oq/how_can_i_exit_isearch_and_mark_t
   (with-eval-after-load 'org
     (require 'ob-fennel)))
 
-;;;;; Hy
-(use-package hy-mode
-  :ensure t
-  :hook (hy-mode . uv-mode-auto-activate-hook)
-  :mode ("\\.hy\\'" . hy-mode))
-
 ;;;;; Outline minor mode when editing Emacs lisp
 (use-package outline
   ;; NOTE: look into hs-minor-mode
@@ -864,7 +858,6 @@ https://www.reddit.com/r/emacs/comments/gf64oq/how_can_i_exit_isearch_and_mark_t
          (inferior-emacs-lisp-mode . paredit-mode)
          (lisp-mode . paredit-mode)
          (lisp-interaction-mode . paredit-mode)
-         (hy-mode . paredit-mode)
          (fennel-mode . paredit-mode))
   :config
   (keymap-unset paredit-mode-map "RET")
@@ -877,7 +870,6 @@ https://www.reddit.com/r/emacs/comments/gf64oq/how_can_i_exit_isearch_and_mark_t
   :ensure t
   :hook ((emacs-lisp-mode . aggressive-indent-mode)
          (lisp-interaction-mode . aggresive-indent-mode)
-         (hy-mode . aggresive-indent-mode)
          (fennel-mode . aggresive-indent-mode)))
 
 
