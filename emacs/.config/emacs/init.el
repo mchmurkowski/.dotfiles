@@ -870,8 +870,8 @@ cursors in swapped cursor state."
 (use-package aggressive-indent
   :ensure t
   :hook ((emacs-lisp-mode . aggressive-indent-mode)
-         (lisp-interaction-mode . aggresive-indent-mode)
-         (fennel-mode . aggresive-indent-mode)))
+         (lisp-interaction-mode . aggressive-indent-mode)
+         (fennel-mode . aggressive-indent-mode)))
 
 
 ;;; Writing
