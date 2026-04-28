@@ -380,6 +380,11 @@ https://karthinks.com/software/batteries-included-with-emacs/"
       "C-=" 'expreg-expand
       "C--" 'expreg-contract)))
 
+;;;; Text navigation
+(use-package avy
+  :ensure t
+  :bind ("C-:" . avy-goto-char-2))
+
 ;;;; Search
 (use-package isearch
   :ensure nil
@@ -435,8 +440,8 @@ https://www.reddit.com/r/emacs/comments/gf64oq/how_can_i_exit_isearch_and_mark_t
   :hook ((after-init . hel-mode)
          (after-save . hel-normal-state))
   :init
+  (require 'avy)
   (use-package dash :ensure t)
-  (use-package avy :ensure t)
   (use-package pcre2el :ensure t)
   ;; unshackle C-[ from the escape key
   (let ((frame (framep (selected-frame))))
