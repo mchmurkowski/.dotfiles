@@ -154,12 +154,12 @@ https://emacsredux.com/blog/2025/06/01/let-s-make-keyboard-quit-smarter/."
 ;;; Minibuffer enhancements
 (use-package vertico
   :ensure t
+  :hook (after-init . vertico-mode)
   :init
   (setopt enable-recursive-minibuffers t)
   (setopt read-extended-command-predicate #'command-completion-default-include-p)
   (setopt minibuffer-prompt-properties
-          '(read-only t cursor-intangible t face minibuffer-prompt))
-  :hook (after-init . vertico-mode))
+          '(read-only t cursor-intangible t face minibuffer-prompt)))
 
 (use-package savehist
   :ensure nil
