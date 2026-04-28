@@ -14,19 +14,21 @@ indent_size = 4
 indent_style = space
 indent_size = 2
 
-[*.fnl]
+[*.{lisp,cl,el,fnl]
 indent_style = space
-indent_size = 2
-
-[*.{scss,js,css,html}]
-indent_style = space
-indent_size = 2
 
 [*.{c,h}]
 indent_style = tab
 
+[*.{v,mod}]
+indent_style = tab
+
 [Makefile]
 indent_style = tab
+
+[*.{scss,js,css,html}]
+indent_style = space
+indent_size = 2
 
 [*.md]
 insert_final_newline = false
