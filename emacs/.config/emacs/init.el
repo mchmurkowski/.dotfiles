@@ -687,8 +687,6 @@ cursors in swapped cursor state."
   :init
   (setopt redisplay-skip-fontification-on-input t)
   :config
-  (setopt treesit-language-source-alist
-          `((lua "https://github.com/tree-sitter-grammars/tree-sitter-lua.git")))
   ;; less syntax highlighting in ts-modes
   (setopt treesit-font-lock-level 2))
 
@@ -777,8 +775,8 @@ cursors in swapped cursor state."
 (use-package eglot
   :ensure nil
   :defer t
-  :hook ((python-ts-mode . eglot-ensure)
-         (lua-ts-mode . eglot-ensure)
+  :hook ((python-mode . eglot-ensure)
+         (lua-mode . eglot-ensure)
          (fennel-mode . eglot-ensure))
   :config
   (setopt eglot-sync-connect 0)
@@ -800,28 +798,26 @@ cursors in swapped cursor state."
 ;;;;; Python
 (use-package python
   :ensure nil
-  :mode ("\\.py\\'" . python-ts-mode)
   :config
   (with-eval-after-load 'eglot
     (add-to-list 'eglot-server-programs
-                 `(python-ts-mode
+                 `(python-mode
                    . ,(eglot-alternatives `(("basedpyright-langserver" "--stdio")
                                             ("ruff" "server"))))))
   :init
-  (add-hook 'python-ts-mode-hook (lambda () (set-fill-column 88))))
+  (add-hook 'python-mode-hook (lambda () (set-fill-column 88))))
 
 (use-package uv-mode
   :ensure t
-  :hook (python-ts-mode . uv-mode-auto-activate-hook))
+  :hook (python-mode . uv-mode-auto-activate-hook))
 
 ;;;;; Lua
-(use-package lua-ts-mode
-  :ensure nil
+(use-package lua-mode
+  :ensure t
   :config
   (with-eval-after-load 'eglot
     (add-to-list 'eglot-server-programs
-                 `(lua-ts-mode . ("lua-language-server"))))
-  :mode ("\\.lua\\'" . lua-ts-mode))
+                 `(lua-mode . ("lua-language-server")))))
 
 ;;;; Lisps
 ;;;;; Emacs Lisp
