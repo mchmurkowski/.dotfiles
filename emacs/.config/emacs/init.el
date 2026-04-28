@@ -703,29 +703,32 @@ cursors in swapped cursor state."
               ("C-n" . corfu-next)
               ("C-p" . corfu-previous)
               ("<escape>" . corfu-quit)
-              ("<return>" . corfu-insert)
-              ("M-d" . corfu-show-documentation)
-              ("M-l" . corfu-show-location))
+              ("<return>" . corfu-insert))
   :init
   (setopt tab-always-indent 'complete)
   (setopt text-mode-ispell-word-completion nil)
   (setopt read-extended-command-predicate #'command-completion-default-include-p)
   (setopt completion-ignore-case t)
+  (corfu-history-mode 1)
+  (corfu-popupinfo-mode 1)
   :config
-  (corfu-history-mode t)
-  (corfu-popupinfo-mode t)
-  (setopt corfu-auto-delay 0.0)
-  (setopt corfu-auto-prefix 2)
-  (setopt corfu-quit-no-match 'separator)
-  :custom
-  (corfu-cycle t)
-  (corfu-auto t)
-  (corfu-separator ?\s)
-  (corfu-quit-at-boundry nil)
-  (corfu-preview-current nil)
-  (corfu-preselect 'prompt)
-  (corfu-scroll-margin 5)
-  (completion-styles '(orderless basic)))
+  (setopt corfu-auto t
+          corfu-auto-delay 0.1
+          corfu-auto-prefix 2
+          corfu-quit-no-match 'separator)
+  (setopt corfu-count 9
+          corfu-scroll-margin 2
+          corfu-cycle t)
+  (setopt corfu-preview-current nil)
+  (setopt corfu-preselect 'prompt)
+  (setopt completion-styles '(orderless basic)))
+
+(use-package corfu-terminal
+  :ensure t
+  :after (corfu)
+  :if (and (not (display-graphic-p)) (< emacs-major-version 31))
+  :init
+  (corfu-terminal-mode 1))
 
 (use-package cape
   ;; completion at point
