@@ -1,26 +1,26 @@
 -- base16-vis (https://github.com/pshevtsov/base16-vis)
 -- by Petr Shevtsov
--- Grayscale Dark scheme by Alexandre Gavioli (https://github.com/Alexx2/)
+-- Tomorrow scheme by Chris Kempson (http://chriskempson.com)
 
 local lexers = vis.lexers
 
 local colors = {
-	['base00'] = '#101010',
-	['base01'] = '#252525',
-	['base02'] = '#464646',
-	['base03'] = '#525252',
-	['base04'] = '#ababab',
-	['base05'] = '#b9b9b9',
-	['base06'] = '#e3e3e3',
-	['base07'] = '#f7f7f7',
-	['base08'] = '#7c7c7c',
-	['base09'] = '#999999',
-	['base0A'] = '#a0a0a0',
-	['base0B'] = '#8e8e8e',
-	['base0C'] = '#868686',
-	['base0D'] = '#686868',
-	['base0E'] = '#747474',
-	['base0F'] = '#5e5e5e',
+	['base00'] = '#ffffff',
+	['base01'] = '#e0e0e0',
+	['base02'] = '#d6d6d6',
+	['base03'] = '#8e908c',
+	['base04'] = '#969896',
+	['base05'] = '#4d4d4c',
+	['base06'] = '#282a2e',
+	['base07'] = '#1d1f21',
+	['base08'] = '#c82829',
+	['base09'] = '#f5871f',
+	['base0A'] = '#eab700',
+	['base0B'] = '#718c00',
+	['base0C'] = '#3e999f',
+	['base0D'] = '#4271ae',
+	['base0E'] = '#8959a8',
+	['base0F'] = '#a3685a',
 }
 
 lexers.colors = colors

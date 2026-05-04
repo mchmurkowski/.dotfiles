@@ -14,8 +14,8 @@
 (vsubscribe :init
             (fn []
               (if (os.getenv :WSLENV)
-                  (vset {:theme :base16-grayscale-dark})
-                  (vset {:theme :base16-grayscale-light}))))
+                  (vset {:theme :base16-tomorrow-night})
+                  (vset {:theme :base16-tomorrow}))))
 
 (vsubscribe :win-open (fn [win]
                         (vset {:relativenumber :on})
