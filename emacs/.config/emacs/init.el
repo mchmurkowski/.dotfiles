@@ -367,12 +367,7 @@ https://karthinks.com/software/batteries-included-with-emacs/"
 (use-package expreg
   :ensure t
   :bind (("C-=" . expreg-expand)
-         ("C--" . expreg-contract)
-         (:repeat-map mch/expreg-repeat-map
-                      ("=" . expreg-expand)
-                      ("-" . expreg-contract)
-                      :exit
-                      ("<return>" . ignore)))
+         ("C--" . expreg-contract))
   :config
   (with-eval-after-load 'hel
     (hel-keymap-global-set :state 'normal
