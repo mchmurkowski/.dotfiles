@@ -400,7 +400,7 @@ https://www.reddit.com/r/emacs/comments/gf64oq/how_can_i_exit_isearch_and_mark_t
                 ("C-b" . isearch-repeat-backward))
   :init
   (add-hook 'isearch-mode-hook (lambda () (transient-mark-mode -1)))
-  (add-hook 'isearch-mode-end-hook (lambda () (transient-mark-mode)))
+  (add-hook 'isearch-mode-end-hook (lambda () (transient-mark-mode 1)))
   (add-hook 'isearch-mode-end-hook #'recenter)
   :config
   (setopt isearch-lazy-count t
