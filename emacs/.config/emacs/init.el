@@ -843,21 +843,28 @@ cursors in swapped cursor state."
   (with-eval-after-load 'org
     (require 'ob-fennel)))
 
-;;;;; Outline minor mode when editing Emacs lisp
+;;;;; Code folding
 (use-package outline
-  ;; NOTE: look into hs-minor-mode
   :ensure nil
-  :hook ((emacs-lisp-mode . outline-minor-mode)
-         ;; lifted from: https://github.com/jamescherti/minimal-emacs.d?tab=readme-ov-file#outline-minor-mode-and-hs-minor-mode
+  ;; lifted from: https://github.com/jamescherti/minimal-emacs.d?tab=readme-ov-file#outline-minor-mode-and-hs-minor-mode
+  :hook ((prog-mode . outline-minor-mode)
          (outline-minor-mode . (lambda ()
                                  (let* ((display-table (or buffer-display-table (make-display-table)))
                                         (face-offset (* (face-id 'shadow) (ash 1 22)))
                                         (value (vconcat (mapcar (lambda (c) (+ face-offset c)) " ⏷"))))
                                    (set-display-table-slot display-table 'selective-display value)
-                                   (setopt buffer-display-table display-table)))))
+                                   (setopt buffer-display-table display-table))))))
+
+(use-package hideshow
+  :ensure nil
+  :hook (prog-mode . hs-minor-mode))
+
+(use-package bicycle
+  :ensure t
+  :after outline
   :bind (:map outline-minor-mode-map
-              ("C-<tab>" . outline-cycle)
-              ("<backtab>" . outline-cycle-buffer)))
+              ("C-<tab>" . bicycle-cycle)
+              ("<backtab>" . bicycle-cycle-global)))
 
 ;;;;; Structural editing for lisps
 (use-package paredit
