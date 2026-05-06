@@ -474,6 +474,9 @@ cursors in swapped cursor state."
     "<control-bracketleft>" 'hel-normal-state)
   (keymap-unset hel-normal-state-map "C-w" 'remove)
   (keymap-unset hel-motion-state-map "C-w" 'remove)
+  (hel-keymap-overriding-set :state 'normal
+    "DEL" 'ignore
+    "<delete>" 'ignore)
   (hel-keymap-global-set :state 'normal
     "<control-bracketleft>" 'hel-normal-state-escape
     "M-s" nil
@@ -866,7 +869,11 @@ cursors in swapped cursor state."
   (keymap-unset paredit-mode-map "RET")
   (keymap-unset paredit-mode-map "M-s")
   (keymap-set paredit-mode-map "M-D" #'paredit-splice-sexp)
-  (keymap-unset paredit-mode-map "M-?"))
+  (keymap-unset paredit-mode-map "M-?")
+  (with-eval-after-load 'hel
+    (hel-keymap-overriding-set :state 'normal
+      "DEL" 'ignore
+      "<delete>" 'ignore)))
 
 ;;;;; Better automatic indentation when editing lisps
 (use-package aggressive-indent
