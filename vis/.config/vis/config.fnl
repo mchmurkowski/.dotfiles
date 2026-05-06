@@ -1,3 +1,4 @@
+;; config.fnl
 ;; (set vis.ftdetect.filetypes.fennel.cmd ["set tw 2"
 ;;                                        "set et on"])
 
@@ -25,3 +26,5 @@
                         (vset {:ignorecase :on})
                         (vset {:showeof :off})
                         (vset {:colorcolumn :88})))
+
+;;; config.fnl ends here
