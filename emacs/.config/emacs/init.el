@@ -731,7 +731,6 @@ cursors in swapped cursor state."
 (use-package cape
   ;; completion at point
   :ensure t
-  :defer t
   :init
   (add-to-list 'completion-at-point-functions #'cape-dabbrev)
   (add-to-list 'completion-at-point-functions #'cape-file)
@@ -823,12 +822,12 @@ cursors in swapped cursor state."
 ;;;;; Emacs Lisp
 (use-package ielm
   :ensure nil
-  :hook ((inferior-emacs-lisp-mode . paredit-mode)))
+  :hook (inferior-emacs-lisp-mode . paredit-mode))
 
 ;;;;; Common Lisp
 (use-package sly
   :ensure t
-  :hook ((sly-mrepl-mode . paredit-mode))
+  :hook (sly-mrepl-mode . paredit-mode)
   :config
   (setopt inferior-lisp-program "sbcl"))
 
