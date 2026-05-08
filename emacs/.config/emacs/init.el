@@ -22,6 +22,7 @@
 ;;; Run Emacs as server
 (use-package server
   :ensure nil
+  :if window-system
   :demand t
   :config
   (setopt server-client-instructions nil)
