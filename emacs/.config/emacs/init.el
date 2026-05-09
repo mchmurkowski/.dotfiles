@@ -67,21 +67,7 @@
       (t (load-theme 'modus-operandi-tinted nil nil)))
 
 ;;;; Modeline
-;; Setup a minimal modeline
-(setopt mode-line-format '(" [%*] %b"
-                           mode-line-format-right-align
-                           "%l:%C | "
-                           mode-name
-                           "  "))
-
-(use-package hide-mode-line
-  :ensure t
-  :hook ((eshell-mode . hide-mode-line-mode)
-         (eat-mode . hide-mode-line-mode)
-         (vterm-mode . hide-mode-line-mode)
-         (comint-mode . hide-mode-line-mode)))
-
-;;;; Spacious padding
+;; Spacious padding
 (use-package spacious-padding
   :ensure t
   :if window-system
@@ -91,6 +77,21 @@
 (unless (display-graphic-p)
   (progn (set-face-attribute 'mode-line nil :box nil)
          (set-face-attribute 'mode-line-inactive nil :box nil)))
+
+;;;; Setup a minimal modeline
+(setopt mode-line-format '(" [%*] %b"
+                           mode-line-format-right-align
+                           "%l:%C | "
+                           mode-name
+                           "  "))
+
+;; hide the modeline in selected modes
+(use-package hide-mode-line
+  :ensure t
+  :hook ((eshell-mode . hide-mode-line-mode)
+         (eat-mode . hide-mode-line-mode)
+         (vterm-mode . hide-mode-line-mode)
+         (comint-mode . hide-mode-line-mode)))
 
 
 ;;; Some basic settings
