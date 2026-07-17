@@ -15,7 +15,6 @@ Contains configuration for:
 - river
 - starship
 - tmux
-- vis
 
 * Usage
 
