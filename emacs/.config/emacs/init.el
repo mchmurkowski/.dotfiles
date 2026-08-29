@@ -5,29 +5,18 @@
 ;; personalised to my quirks and misdemeanours." ~ Emerald McS. et al.,
 ;; PhD - Emacs User @ University of Texas Instruments
 
+
 ;;; Package management
-;;;; Setup `package.el' & add the melpa archive
+;;;; Setup `package.el', add melpa & setup `use-package.el'
 (progn (require 'package)
-       (add-to-list 'package-archives '("melpa" . "https://melpa.org/packages/"))
-       (unless package--initialized (package-initialize)))
-
-;;;; Setup `use-package.el'
-(progn (unless (package-installed-p 'use-package)
+       (add-to-list 'package-archives
+                    '("melpa" . "https://releases.melpa.org/packages/") t)
+       (unless package--initialized (package-initialize))
+       (unless (package-installed-p 'use-package)
          (package-refresh-contents)
          (package-install 'use-package))
        (require 'use-package)
-       (setopt use-package-always-defer t))
-
-
-;;; Run Emacs as server
-(use-package server
-  :ensure nil
-  :if window-system
-  :demand t
-  :config
-  (setopt server-client-instructions nil)
-  (unless (or (server-running-p) (daemonp))
-    (server-start)))
+       (setq use-package-always-defer t))
 
 
 ;;; Interface
@@ -42,9 +31,9 @@
       (set-frame-font "IBM Plex Mono-13" nil t))
     (set-face-attribute 'variable-pitch nil :family "IBM Plex Serif" :height 1.1)
     (set-face-attribute 'fixed-pitch nil :family "IBM Plex Mono")
-    (setopt line-spacing 2))
-  (setopt x-underline-at-descent-line t)
-  (setopt truncate-string-ellipsis "…")
+    (setq line-spacing 2))
+  (setq x-underline-at-descent-line t)
+  (setq truncate-string-ellipsis "…")
   ;; setup the default font for frames
   (if (daemonp)
       (add-hook 'after-make-frame-functions
@@ -53,104 +42,194 @@
                     (mch/setup-frame-font))))
     (mch/setup-frame-font)))
 
-(use-package mixed-pitch
-  :ensure t
-  :if window-system
-  :hook ((org-mode . mixed-pitch-mode)
-         (markdown-mode . mixed-pitch-mode)))
-
 ;;;; Theme
-(cond ((and (display-graphic-p) (getenv "WSLENV"))
-       (load-theme 'modus-operandi nil nil))
-      ((and (not (display-graphic-p)) (getenv "WSLENV"))
-       (load-theme 'modus-vivendi nil nil))
-      (t (load-theme 'modus-operandi-tinted nil nil)))
+(use-package modus-themes
+  :ensure nil ; use the built-in version
+  :demand t
+  :init
+  (require-theme 'modus-themes)
+  :config
+  (cond ((and (display-graphic-p) (getenv "WSLENV"))
+         (modus-themes-load-theme 'modus-operandi))
+        ((and (not (display-graphic-p)) (getenv "WSLENV"))
+         (modus-themes-load-theme 'modus-vivendi-tinted))
+        (t (modus-themes-load-theme 'modus-operandi))))
 
 ;;;; Modeline
-;; Spacious padding
 (use-package spacious-padding
   :ensure t
   :if window-system
   :hook (after-init . spacious-padding-mode))
 
-;; Remove borders from the modeline in the terminal
-(unless (display-graphic-p)
-  (progn (set-face-attribute 'mode-line nil :box nil)
-         (set-face-attribute 'mode-line-inactive nil :box nil)))
-
-;;;; Setup a minimal modeline
-(setopt mode-line-format '(" [%*] %b"
-                           mode-line-format-right-align
-                           "%l:%C | "
-                           mode-name
-                           "  "))
-
-;; hide the modeline in selected modes
-(use-package hide-mode-line
-  :ensure t
-  :hook ((eshell-mode . hide-mode-line-mode)
-         (eat-mode . hide-mode-line-mode)
-         (vterm-mode . hide-mode-line-mode)
-         (comint-mode . hide-mode-line-mode)))
-
 
-;;; Some basic settings
+;;; Basic `emacs' settings
 (use-package emacs
   :ensure nil
   :preface
   (defun mch/keyboard-quit-dwim ()
-    "Smarter version of the built-in `keyboard-quit'. Lifted from:
-https://emacsredux.com/blog/2025/06/01/let-s-make-keyboard-quit-smarter/."
+    "Smarter version of the built-in `keyboard-quit'.
+
+Lifted from: https://emacsredux.com/blog/2025/06/01/let-s-make-keyboard-quit-smarter/."
     (interactive)
     (if (active-minibuffer-window)
         (if (minibufferp)
             (minibuffer-keyboard-quit)
           (abort-recursive-edit))
       (keyboard-quit)))
+  (defun mch/narrow-or-widen-dwim (p)
+    "Widen if buffer is narrowed, narrow-dwim otherwise.
+Dwim means: region, org-src-block, org-subtree, or
+defun, whichever applies first. Narrowing to
+org-src-block actually calls `org-edit-src-code'.
+
+With prefix P, don't widen, just narrow even if buffer
+is already narrowed. Lifted from: https://endlessparentheses.com/emacs-narrow-or-widen-dwim.html"
+    (interactive "P")
+    (declare (interactive-only))
+    (cond ((and (buffer-narrowed-p) (not p)) (widen))
+          ((region-active-p)
+           (narrow-to-region (region-beginning)
+                             (region-end)))
+          ((derived-mode-p 'org-mode)
+           (cond ((ignore-errors (org-edit-src-code) t)
+                  (delete-other-windows))
+                 ((ignore-errors (org-narrow-to-block) t))
+                 (t (org-narrow-to-subtree))))
+          ((derived-mode-p 'latex-mode)
+           (LaTeX-narrow-to-environment))
+          (t (narrow-to-defun))))
   :bind (([remap keyboard-quit] . mch/keyboard-quit-dwim)
          ([remap kill-buffer] . kill-current-buffer)
          ([remap capitalize-word] . capitalize-dwim) ; M-c works on regions
          ([remap upcase-word] . upcase-dwim)         ; M-u works on regions
          ([remap downcase-word] . downcase-dwim)     ; M-l works on regions
-         ("M-g g" . beginning-of-buffer)
-         ("M-g e" . end-of-buffer)
-         ("M-z" . zap-up-to-char)
-         ("M-Z" . zap-to-char))
+         ([remap list-buffers] . ibuffer)
+         ("M-o" . other-window)
+         ([remap zap-to-char] . zap-up-to-char)
+         ("M-Z" . zap-to-char)
+         ("C-x n" . mch/narrow-or-widen-dwim))
   :init
   ;; keep `customize' from polluting my config file
-  (setopt custom-file (expand-file-name "custom.el" user-emacs-directory))
+  (setq custom-file (expand-file-name "custom.el" user-emacs-directory))
   (load custom-file :no-error-if-file-missing)
   :config
   ;; setup the initial buffer
-  (setopt initial-major-mode 'fundamental-mode
-          initial-scratch-message nil)
+  (setq initial-major-mode 'fundamental-mode
+        initial-scratch-message nil)
   ;; no beeping and blinking
-  (setopt visible-bell nil
-          ring-bell-function 'ignore)
+  (setq visible-bell nil
+        ring-bell-function 'ignore)
   (blink-cursor-mode -1)
-  (setopt blink-cursor-delay 0.3
-          blink-cursor-interval 0.7)
+  (setq blink-cursor-delay 0.3
+        blink-cursor-interval 0.7)
+  (setq-default cursor-type 'bar)
+  ;; don't display the cursor or show highlighted text in non-active windows
+  (setq cursor-in-non-selected-windows nil
+        highlight-nonselected-windows nil)
   ;; short answers
-  (setopt read-answer-short t
-          confirm-kill-emacs 'y-or-n-p)
+  (setq read-answer-short t
+        confirm-kill-emacs 'y-or-n-p)
   (if (boundp 'use-short-answers)
-      (setopt use-short-answers t)
+      (setq use-short-answers t)
     (advice-add 'yes-or-no-p :override #'y-or-n-p))
   ;; disable dialog boxes
-  (setopt use-dialog-box nil
-          use-file-dialog nil)
+  (setq use-dialog-box nil
+        use-file-dialog nil)
   ;; be modern, be posix
-  (setopt sentence-end-double-space nil
-          require-final-newline t)
+  (setq sentence-end-double-space nil
+        require-final-newline t)
   (set-language-environment "UTF-8")
-  (setopt default-input-method nil))
+  (setq default-input-method nil)
+  ;; disable pinging things that look like urls
+  (setq ffap-machine-p-known 'reject)
+  ;; do not create backup files, lockfiles and auto-saves
+  (setq make-backup-files nil
+        create-lockfiles nil)
+  (setq auto-save-default nil)
+  ;; do not ask, just follow symlinks
+  (setq vc-follow-symlinks t)
+  (setq find-file-visit-truname t
+        find-file-supress-same-file-warnings t)
+  ;; read-only files should should open in view-mode
+  (setq view-read-only t)
+  ;; uniquify buffer name
+  (setq uniquify-buffer-name-style 'forward
+        uniquify-after-kill-buffer-p t)
+  ;; enable delete-selection-mode
+  (delete-selection-mode 1)
+  ;; save clipboard before replacing
+  (setq save-interprogram-paste-before-kill t)
+  ;; better split and window behaviour
+  (setq split-width-threshold 88
+        split-height-threshold nil)
+  (setq window-combination-resize t)
+  (setq help-window-select t)
+  (defadvice split-window (after split-window-after activate)
+    (select-window (get-lru-window)))
+  ;; scroll and mouse settings
+  (setq mouse-drag-copy-region nil)
+  (setq make-pointer-invisible t)
+  (setq mouse-wheel-progressive-speed nil)
+  (setq fast-but-imprecise-scrolling t)
+  (setq scroll-preserve-screen-position t)
+  (setq scroll-conservatively 101)
+  (setq scroll-margin 4)
+  (setq hscroll-margin 6)
+  (setq next-screen-context-lines 4)
+  (setq mouse-yank-at-point t)
+  (if (not (display-graphic-p))
+      (xterm-mouse-mode 1)
+    (setq context-menu-mode t))
+  (dolist (cmd '(narrow-to-region narrow-to-page
+                                  upcase-region downcase-region))
+    (put cmd 'disabled nil)))
 
-;;;; Enable repeat-mode
+;;;; Setup nice-to-have built-ins
 (use-package repeat
   :ensure nil
   :hook (after-init . repeat-mode)
-  :init
-  (setopt set-mark-command-repeat-pop t))
+  :config
+  (setq set-mark-command-repeat-pop t))
+
+(use-package savehist
+  :ensure nil
+  :hook (after-init . savehist-mode)
+  :config
+  (setq history-length 300)
+  (setq savehist-autosave-interval 600))
+
+(use-package recentf
+  :ensure nil
+  :hook (after-init . recentf-mode)
+  :bind (([remap find-file-read-only] . recentf-open))
+  :config
+  (setq recentf-auto-cleanup (if (daemonp) 300 'never))
+  (setq recentf-exclude
+        (list "\\.tar$" "\\.tbz2$" "\\.tbz$" "\\.tgz$" "\\.bz2$"
+              "\\.bz$" "\\.gz$" "\\.gzip$" "\\.xz$" "\\.zip$"
+              "\\.7z$" "\\.rar$"
+              "COMMIT_EDITMSG\\'"
+              "\\.\\(?:gz\\|gif\\|svg\\|png\\|jpe?g\\|bmp\\|xpm\\)$"
+              "-autoloads\\.el$" "autoload\\.el$"))
+  (setq recentf-max-saved-items 50
+        recentf-max-menu-items 15)
+  (add-hook 'kill-emacs-hook #'recentf-cleanup -90))
+
+(use-package saveplace
+  :ensure nil
+  :hook (after-init . save-place-mode)
+  :config
+  (setq save-place-limit 300))
+
+(use-package autorevert
+  :ensure nil
+  :hook (after-init . global-auto-revert-mode)
+  :config
+  (setq auto-revert-interval 3)
+  (setq auto-revert-remote-files nil)
+  (setq auto-revert-use-notify t
+        auto-revert-avoid-polling nil)
+  (setq auto-revert-verbose t))
 
 
 ;;; Minibuffer enhancements
@@ -158,26 +237,10 @@ https://emacsredux.com/blog/2025/06/01/let-s-make-keyboard-quit-smarter/."
   :ensure t
   :hook (after-init . vertico-mode)
   :init
-  (setopt enable-recursive-minibuffers t)
-  (setopt read-extended-command-predicate #'command-completion-default-include-p)
-  (setopt minibuffer-prompt-properties
-          '(read-only t cursor-intangible t face minibuffer-prompt)))
-
-(use-package savehist
-  :ensure nil
-  :hook (after-init . savehist-mode)
-  :init
-  (setopt history-length 300)
-  (setopt savehist-autosave-interval 600))
-
-(use-package orderless
-  :ensure t
-  :demand t
-  :config
-  (setopt completion-styles '(orderless basic))
-  (setopt completion-category-defaults nil)
-  (setopt completion-category-overrides '((file (styles partial-completion))))
-  (setopt completion-pcm-leading-wildcard t))
+  (setq enable-recursive-minibuffers t)
+  (setq read-extended-command-predicate #'command-completion-default-include-p)
+  (setq minibuffer-prompt-properties
+        '(read-only t cursor-intangible t face minibuffer-prompt)))
 
 (use-package marginalia
   :ensure t
@@ -185,470 +248,135 @@ https://emacsredux.com/blog/2025/06/01/let-s-make-keyboard-quit-smarter/."
 
 (use-package consult
   :ensure t
-  :bind (("C-x b" . consult-buffer)
-         ("C-x r b" . consult-bookmark)
-         ("C-x p b" . consult-project-buffer)
-         ("C-x C-r" . consult-recent-file)
-         ("M-g o" . consult-outline)
-         ("M-g i" . consult-imenu)
+  :bind (("C-c h" . consult-history)
+         ("C-c m" . consult-man)
+         ("C-c i" . consult-info)
+         ([remap Info-search] . consult-info)
+         ([remap switch-to-buffer] . consult-buffer)
+         ([remap project-switch-to-buffer] . consult-project-buffer)
+         ([remap switch-buffer-other-window] . consult-buffer-other-window)
+         ([remap switch-to-buffer-other-frame] . consult-buffer-other-frame)
+         ([remap bookmark-jump] . consult-bookmark)
+         ([remap yank-pop] . consult-yank-pop)
+         ([remap imenu] . consult-imenu)
          ("M-g I" . consult-imenu-multi)
-         ("M-g G" . consult-goto-line)
-         ("M-s d" . consult-fd)
-         ("M-s c" . consult-locate)
-         ("M-s g" . consult-grep)
+         ([remap goto-line] . consult-goto-line)
+         ("M-g o" . consult-outline-dwim)
+         ;; search-map
+         ("M-s f" . consult-fd)
+         ("M-s g" . consult-ripgrep)
          ("M-s G" . consult-git-grep)
-         ("M-s r" . consult-ripgrep)
          ("M-s l" . consult-line)
          ("M-s L" . consult-line-multi)
-         ("M-s k" . consult-keep-lines)
-         ("M-s u" . consult-focus-lines))
-  :config
-  (setopt consult-narrow-key "<"))
-
-(use-package which-key
-  :ensure nil
-  :hook (after-init . which-key-mode)
-  :config
-  (setopt which-key-idle-delay 1.5
-          which-key-idle-secondary-delay 0.25)
-  (setopt which-key-add-column-padding 1)
-  (setopt which-key-max-description-length 40
-          which-key-ellipsis "…"))
-
-
-;;; Inputs & navigation
-;;;; Mouse & scrolling
-(use-package mouse
-  :ensure nil
-  :preface
-  (defun mch/scroll-half-page-down ()
-    "Scroll down half a page while keeping the cursor centred."
-    (interactive)
-    (let ((ln (line-number-at-pos (point)))
-          (lmax (line-number-at-pos (point-max))))
-      (cond ((= ln 1) (move-to-window-line nil))
-            ((= ln lmax) (recenter (window-end)))
-            (t (progn
-                 (move-to-window-line -1)
-                 (recenter))))))
-  (defun mch/scroll-half-page-up ()
-    "Scroll up half a page while keeping the cursor centred."
-    (interactive)
-    (let ((ln (line-number-at-pos (point)))
-          (lmax (line-number-at-pos (point-max))))
-      (cond ((= ln 1) nil)
-            ((= ln lmax) (move-to-window-line nil))
-            (t (progn
-                 (move-to-window-line 0)
-                 (recenter))))))
-  :bind (("<next>" . mch/scroll-half-page-up)
-         ("<prior>" . mch/scroll-half-page-down))
-  :hook (after-init . mouse-wheel-mode)
-  :init
-  (setopt mouse-drag-copy-region nil)
-  (setopt make-pointer-invisible t)
-  (setopt mouse-wheel-progressive-speed nil)
-  (setopt fast-but-imprecise-scrolling t)
-  (setopt scroll-preserve-screen-position t)
-  (setopt scroll-conservatively 101)
-  (setopt scroll-margin 4)
-  (setopt hscroll-margin 6)
-  (setopt next-screen-context-lines 4)
-  (setopt mouse-yank-at-point t)
-  (when (display-graphic-p)
-    (setopt context-menu-mode t))
-  (unless (display-graphic-p)
-    (xterm-mouse-mode 1)))
-
-
-;;;; Buffers, windows & frames
-(use-package uniquify
-  :ensure nil
-  :config
-  (setopt uniquify-buffer-name-style 'forward)
-  (setopt uniquify-after-kill-buffer-p t))
-
-(use-package ibuffer
-  :ensure nil
-  :bind ("C-x C-b" . ibuffer))
-
-(use-package window
-  :ensure nil
-  :preface
-  (defun mch/toggle-delete-other-windows ()
-    "Delete other windows in frame if any, or restore previous window
-config. Lifted from: https://github.com/purcell/emacs.d."
-    (interactive)
-    (if (and winner-mode
-             (equal (selected-window) (next-window)))
-        (winner-undo)
-      (delete-other-windows)))
-  :bind ([remap delete-other-windows] . mch/toggle-delete-other-windows)
-  :init
-  ;; behave like my window manager
-  (setopt mouse-autoselect-window t
-          mouse-wheel-follow-mouse t)
-  (unless (getenv "WSLENV")
-    (setopt focus-follows-mouse t))
-  (setopt help-window-select t)
-  (setopt cursor-in-non-selected-windows nil
-          highlight-nonselected-windows nil)
-  ;; prefer horizontal splits with wide windows
-  (setopt split-width-threshold 80)
-  ;; prefer vertical splits with long or narrow windows
-  (setopt split-height-threshold 40)
-  ;; better behaviour for manual splits
-  (setopt window-combination-resize t)
-  (defadvice split-window (after split-window-after activate)
-    (select-window (get-lru-window))))
-
-(use-package winner
-  :ensure nil
-  :bind (("C-c w u" . winner-undo)
-         ("C-c w U" . winner-redo)
-         (:repeat-map mch/winner-repeat-map
-                      ("u" . winner-undo)
-                      ("U" . winner-redo)))
-  :hook (after-init . winner-mode)
-  :init
-  (setopt winner-dont-bind-my-keys t))
-
-(use-package windmove
-  :ensure nil
-  :bind (("C-c w h" . windmove-left)
-         ("C-c w j" . windmove-down)
-         ("C-c w k" . windmove-up)
-         ("C-c w l" . windmove-right)
-         ("C-c w H" . windmove-swap-states-left)
-         ("C-c w J" . windmove-swap-states-down)
-         ("C-c w K" . windmove-swap-states-up)
-         ("C-c w L" . windmove-swap-states-right)
-         ("C-c w M-h" . windmove-delete-left)
-         ("C-c w M-j" . windmove-delete-down)
-         ("C-c w M-k" . windmove-delete-up)
-         ("C-c w M-l" . windmove-delete-right)
-         (:repeat-map mch/windmove-repeat-map
-                      ("h" . windmove-left)
-                      ("j" . windmove-down)
-                      ("k" . windmove-up)
-                      ("l" . windmove-right)
-                      ("H" . windmove-swap-states-left)
-                      ("J" . windmove-swap-states-down)
-                      ("K" . windmove-swap-states-up)
-                      ("L" . windmove-swap-states-right)
-                      ("M-h" . windmove-delete-left)
-                      ("M-j" . windmove-delete-down)
-                      ("M-k" . windmove-delete-up)
-                      ("M-l" . windmove-delete-right)))
-  :config
-  (setopt windmove-wrap-around t))
-
-;;;; TODO: Popup management: look into popper.el and shackle.el
-
-(use-package pulse
-  :ensure nil
-  :init
-  (defun mch/pulse-line (&rest _)
-    "Pulse the current line. Lifted from:
-https://karthinks.com/software/batteries-included-with-emacs/"
-    (pulse-momentary-highlight-one-line (point)))
-  (dolist (command '(backward-page forward-page other-window
-                                   windmove-left windmove-down windmove-up windmove-right
-                                   windmove-swap-states-left windmove-swap-states-down
-                                   windmove-swap-states-up windmove-swap-states-right))
-    (advice-add command :after #'mch/pulse-line)))
-
-
-;;; Editing & navigating text
-;;;; Delete selection when entering new text over it
-(use-package delsel
-  :ensure nil
-  :hook (after-init . delete-selection-mode))
-
-;;;; Expanding text selection
-(use-package expreg
-  :ensure t
-  :bind (("C-=" . expreg-expand)
-         ("C--" . expreg-contract))
-  :config
-  (with-eval-after-load 'hel
-    (hel-keymap-global-set :state 'normal
-      ;; in Helix those are bound to "Alt-o" and "Alt-i":
-      "C-=" 'expreg-expand
-      "C--" 'expreg-contract)))
-
-;;;; Text navigation
-(use-package avy
-  :ensure t
-  :bind ("C-:" . avy-goto-char-2))
-
-;;;; Search
-(use-package isearch
-  :ensure nil
-  :preface
-  (defun mch/isearch-mark-and-exit ()
-    "Mark what you landed on in `isearch'. Lifted from:
-https://www.reddit.com/r/emacs/comments/gf64oq/how_can_i_exit_isearch_and_mark_the_found_text_as/"
-    (interactive)
-    (isearch-done)
-    (push-mark isearch-other-end 'no-message 'activate))
-  :bind (("C-s" . nil)
-         ("C-r" . nil)
-         ("C-f" . isearch-forward)
-         ("C-b" . isearch-backward)
+         ;; isearch integration
+         ("M-s e" . consult-isearch-history)
          :map isearch-mode-map
-         ("RET" . mch/isearch-mark-and-exit))
-  :bind-keymap (("C-f" . isearch-repeat-forward)
-                ("C-b" . isearch-repeat-backward))
+         ("M-e" . consult-isearch-history)
+         ("M-s e" . consult-isearch-history)
+         ("M-s l" . consult-line)
+         ("M-s L" . consult-line-multi))
   :init
-  (add-hook 'isearch-mode-hook (lambda () (transient-mark-mode -1)))
-  (add-hook 'isearch-mode-end-hook (lambda () (transient-mark-mode 1)))
-  (add-hook 'isearch-mode-end-hook #'recenter)
+  (advice-add #'register-preview :override #'consult-register-window)
+  (setq register-preview-delay 0.5)
+  (setq xref-show-xrefs-function #'consult-xref
+        xref-show-definitions-function #'consult-xref)
   :config
-  (setopt isearch-lazy-count t
-          lazy-count-prefix-format "(%s/%s) ")
-  (with-eval-after-load 'hel
-    (dolist (state '(normal insert motion))
-      (hel-keymap-global-set :state state
-        "C-f" 'isearch-forward
-        "C-b" 'isearch-backward))
-    (keymap-set isearch-mode-map "C-f" 'isearch-repeat-forward)
-    (keymap-set isearch-mode-map "C-b" 'isearch-repeat-backward)))
-
-(use-package re-builder
-  :ensure nil
-  :hook (after-init . minibuffer-regexp-mode)
-  :config
-  (setopt reb-re-syntax 'string))
-
-(use-package xref
-  :ensure nil
-  :config
-  (setopt xref-search-program 'ripgrep)
-  (setopt xref-show-xrefs-function #'consult-xref)
-  (setopt xref-show-definitions-function #'consult-xref))
-
-;;;; Modal editing
-(use-package hel
-  :ensure t
-  :if window-system ; currently, quitting insert mode in terminal does not work
-  :demand t
-  :vc (:url "https://github.com/anuvyklack/hel.git" :rev "main")
-  :hook ((after-init . hel-mode)
-         (after-save . hel-normal-state))
-  :init
-  (require 'avy)
-  (use-package dash :ensure t)
-  (use-package pcre2el :ensure t)
-  ;; unshackle C-[ from the escape key
-  (let ((frame (framep (selected-frame))))
-    (or (eq t frame)
-        (eq 'pc frame)
-        (define-key input-decode-map
-                    (kbd "C-[")
-                    [control-bracketleft])))
-  (setopt hel-want-C-hjkl-keys nil)
-  :config
-  (when (display-graphic-p)
-    (defun mch/hel-swap-cursors-and-blink-maybe (_)
-      "Swap the default cursors for modes using variable pitch. Blink
-cursors in swapped cursor state."
-      (cond ((or (bound-and-true-p buffer-face-mode) (bound-and-true-p mixed-pitch-mode))
-             (setopt hel-insert-state-cursor-type 'bar)
-             (setopt hel-normal-state-cursor-type 'hollow)
-             (hel-update-cursor)
-             (blink-cursor-mode 1))
-            (t
-             (blink-cursor-mode -1)
-             (setopt hel-insert-state-cursor-type 'box)
-             (setopt hel-normal-state-cursor-type 'bar)
-             (hel-update-cursor))))
-    (add-to-list 'window-state-change-functions #'mch/hel-swap-cursors-and-blink-maybe))
-  (dolist (state '(normal insert motion))
-    (hel-keymap-global-set :state state
-      ;; restore ESC to its rightful place
-      "<escape>" nil
-      ;; restore the universal argument to its rightful place
-      "C-u" 'universal-argument
-      "M-u" 'upcase-dwim
-      ;; restore delete-char
-      "C-d" 'delete-char))
-  (hel-keymap-global-set :state 'insert
-    "<control-bracketleft>" 'hel-normal-state)
-  (keymap-unset hel-normal-state-map "C-w" 'remove)
-  (keymap-unset hel-motion-state-map "C-w" 'remove)
-  (hel-keymap-overriding-set :state 'normal
-    "DEL" 'ignore
-    "<delete>" 'ignore)
-  (hel-keymap-global-set :state 'normal
-    "<control-bracketleft>" 'hel-normal-state-escape
-    "M-s" nil
-    "G" 'hel-split-region-on-newline
-    "g G" 'consult-goto-line
-    "/" 'consult-line
-    "z z" 'recenter
-    "g e" 'hel-end-of-buffer
-    "g o" 'consult-outline
-    "g i" 'consult-imenu
-    "g I" 'consult-imenu-multi)
-  (dolist (mode '(occur-mode))
-    (hel-set-initial-state mode 'normal))
-  (dolist (mode '(text-mode shell-mode eshell-mode eat-mode
-                            vterm-mode comint-mode vc-git-log-edit-mode))
-    (hel-set-initial-state mode 'insert)))
-
-
-;;; Backups, saves, history & undoing
-(use-package files
-  :ensure nil
-  :init
-  (let* ((tmp-dir (expand-file-name "tmp/" user-emacs-directory))
-         (autosave-dir (expand-file-name "autosaves/" tmp-dir)))
-    (dolist (d (list tmp-dir autosave-dir))
-      (unless (file-directory-p d) (make-directory d t)))
-    (setopt auto-save-file-name-transforms `((".*" ,autosave-dir t))))
-  ;; do not make backup files nor lockfiles ...
-  (setopt make-backup-files nil
-          create-lockfiles nil)
-  ;; ... and do not autosave, but provide sane settings
-  (setopt auto-save-default nil
-          auto-save-include-big-deletions t
-          auto-save-no-message t)
-  ;; symlinks
-  (setopt find-file-visit-truename t
-          find-file-suppress-same-file-warnings t)
-  ;; read-only files should open in view-mode
-  (setopt view-read-only t))
-
-;; `ffap' stand for find-file-at-point
-(use-package ffap
-  :ensure nil
-  :init
-  (setopt ffap-machine-p-known 'reject)) ; disable pinging things that look like urls
-
-(use-package autorevert
-  ;; listen to file changes outside Emacs
-  :ensure nil
-  :hook (after-init . global-auto-revert-mode)
-  :init
-  (setopt auto-revert-interval 3)
-  (setopt auto-revert-remote-files nil)
-  (setopt auto-revert-use-notify t
-          auto-revert-avoid-polling nil)
-  (setopt auto-revert-verbose t)
-  ;; also autorevert non-file buffers like dired buffers
-  (setopt global-auto-revert-non-file-buffers t))
-
-(use-package recentf
-  :ensure nil
-  :hook (after-init . recentf-mode)
-  :config
-  (dolist (pattern '("^/usr/share/emacs/\.*$" "~/.config/emacs/bookmarks"))
-    (add-to-list 'recentf-exclude pattern))
-  (setopt recentf-auto-cleanup
-          (if (or (server-running-p) (daemonp)) 300 'never))
-  (setopt recentf-max-saved-items 75)
-  (setopt recentf-max-menu-items 15)
-  ;; ensure that `recentf-cleanup' runs before `recentf-save-list'
-  (add-hook 'kill-emacs-hook #'recentf-cleanup -90))
-
-(use-package saveplace
-  :ensure nil
-  :hook (after-init . save-place-mode)
-  :init
-  (setopt save-place-limit 400))
-
-(use-package undo-fu-session
-  :ensure t
-  :bind (("C-/" . undo-only)
-         ("C-?" . undo-redo))
-  :hook (after-init . undo-fu-session-global-mode)
-  :init
-  (setopt undo-limit 256000
-          undo-strong-limit 2000000
-          undo-outer-limit 36000000)
-  :config
-  (when (executable-find "zstd")
-    (setopt undo-fu-session-compression 'zst))
-  (setopt undo-fu-session-incompatible-files '("/COMMIT_EDITMSG\\'")))
-
-(use-package vundo
-  :ensure t
-  :commands (vundo-popup-mode)
-  :bind ("C-x u" . vundo)
-  :config
-  (setopt vundo-glyph-alist vundo-unicode-symbols))
+  (defun consult-outline-dwim (arg)
+    (interactive "P")
+    (if arg
+        (consult-outline)
+      (if (derived-mode-p 'org-mode)
+          (consult-org-heading)
+        (consult-outline))))
+  (setq consult-narrow-key "<"))
 
 
 ;;; Dired
 (use-package dired
   :ensure nil
+  :init
+  (setq global-auto-revert-non-file-buffers t)
   :config
-  (setopt dired-kill-when-opening-new-dired-buffer t)
-  (setopt dired-listing-switches "-aGh --group-directories-first"))
+  (setq dired-kill-when-opening-new-dired-buffer t)
+  (setq dired-listing-switches "-aGh --group-directories-first"))
 
 
-;;; REPLs, shells & terminals
-(use-package compile
-  :ensure nil
-  :config
-  (setopt compilation-scroll-output 'first-error)
-  (setopt compilation-skip-threshold 2)
-  ;; close the window containing the compilation buffer on success
-  ;; lifted from: https://emacsredux.com/blog/2026/03/06/mastering-compilation-mode/
-  (setopt compilation-finish-functions
-          (list (lambda (buf status)
-                  (when (string-match-p "finished" status)
-                    (run-at-time 1 nil #'delete-windows-on buf))))))
-
-(use-package eshell
-  :ensure nil
-  :hook ((eshell-mode . completion-preview-mode)
-         (eshell-mode . visual-line-mode))
-  :init
-  (setopt eshell-banner-message "")
-  (setopt eshell-prompt-function
-          (lambda ()
-            (concat "\n" (abbreviate-file-name (eshell/pwd))
-                    (unless (eshell-exit-success-p)
-                      (format "[%d]" eshell-last-command-status))
-                    (if (= (file-user-uid) 0) " # " " λ "))))
-  :config
-  ;; lifted from https://tony-zorman.com/posts/emacs-potpourri.html#integrating-zoxide-with-eshell
-  (advice-add 'eshell/cd :around
-              (lambda (cd &rest args)
-                "On directory change, add the path to zoxide's database."
-                (let ((old-path (eshell/pwd))
-                      (_ (apply cd args))
-                      (new-path (eshell/pwd)))
-                  (when (and old-path new-path (not (string= old-path new-path)))
-                    (shell-command-to-string (concat "zoxide add " new-path))))))
-  (defun eshell/z (&rest queries)
-    "Navigate to a previously visited directory."
-    (eshell/cd
-     (string-trim (shell-command-to-string (concat "zoxide query " (string-join queries " ")))))
-    (eshell/ls))
-  (defun eshell/e (file)
-    (find-file file))
-  (defun eshell/ff (file)
-    (find-file file))
-  (defun eshell/fo (file)
-    (find-file-other-window file))
-  (defalias 'eshell/clear 'eshell/clear-scrollback))
-
+;;; Shells, terminals & REPLs
 (use-package eat
   :ensure t
-  :hook ((eat-mode . completion-preview-mode)
-         (eshell-load . eat-eshell-mode))
+  :hook (eshell-load . eat-eshell-mode)
   :init
-  (setopt eshell-visual-commands nil)
+  (setq eshell-visual-commands nil)
   :config
-  (setopt eat-kill-buffer-on-exit t))
+  (setq eat-kill-buffer-on-exit t))
 
-(use-package vterm
+
+;;; Text search, navigation & selection
+(use-package isearch
+  :ensure nil
+  :hook (isearch-mode-end . recenter)
+  :config
+  (setq isearch-lazy-count t
+        lazy-count-prefix-format "(%s/%s) "))
+
+(use-package avy
   :ensure t
-  :if window-system
-  :commands (vterm vterm-other-window))
+  :bind ("C-'" . avy-goto-char-2)
+  :config
+  (eval-after-load "isearch"
+    '(define-key isearch-mode-map (kbd "C-'") 'avy-isearch))
+  (global-set-key (kbd "C-c C-j") 'avy-resume))
+
+(use-package expreg
+  :ensure t
+  :bind (("C-=" . expreg-expand)
+         ("C--" . expreg-contract)
+         (:repeat-map mch/expreg-repeat-map
+                      ("=" . expreg-expand)
+                      ("-" . expreg-contract))))
+
+(use-package iedit
+  :ensure t
+  :demand t
+  :preface
+  (defun mch/iedit-dwim (arg)
+    "Starts iedit but uses narrow-to-defun to limit its scope.
+
+Lifted from: https://www.masteringemacs.org/article/iedit-interactive-multi-occurrence-editing-in-your-buffer"
+    (interactive "P")
+    (if arg
+        (iedit-mode)
+      (save-excursion
+        (save-restriction
+          (widen)
+          (if iedit-mode
+              (iedit-done)
+            (narrow-to-defun)
+            (iedit-start (current-word) (point-min) (point-max)))))))
+  :bind (("C-;" . mch/iedit-dwim)
+         ("M-s i" . iedit-mode-from-isearch)))
+
+;;;; Undoing
+(use-package undo-fu-session
+  :ensure t
+  :bind (("C-/" . undo-only)
+         ("C-?" . redo-only))
+  :hook (after-init . undo-fu-session-global-mode)
+  :init
+  (setq undo-limit 256000
+        undo-strong-limit 2000000
+        undo-outer-limit 36000000)
+  :config
+  (when (executable-find "zstd")
+    (setq undo-fu-session-compression 'zst))
+  (setopt undo-fu-session-incompatible-files '("/COMMIT_EDITMSG\\'")))
+
+(use-package vundo
+  :ensure t
+  :commands (vudo-popup-mode)
+  :bind ("C-x u" . vundo)
+  :config
+  (setopt vundu-glyph-alist vundo-unicode-symbols))
 
 
 ;;; Programming
@@ -665,6 +393,8 @@ cursors in swapped cursor state."
         ;; use spaces not tabs
         (setq-local indent-tabs-mode nil
                     tab-width 4)
+        ;; tab completes
+        (setq-local tab-always-indent 'complete)
         ;; fill column at 80 characters
         (setq-local fill-column 80)
         (display-fill-column-indicator-mode 1)
@@ -673,7 +403,7 @@ cursors in swapped cursor state."
         (setq-local truncate-lines t
                     truncate-partial-width-windows 70))
     (dolist (var `(display-line-numbers-width display-line-numbers-widen display-line-numbers-type
-                                              indent-tabs-mode tab-width fill-column
+                                              indent-tabs-mode tab-width tab-always-indent fill-column
                                               word-wrap truncate-lines truncate-partial-width-windows))
       (kill-local-variable var))
     (display-line-numbers-mode -1)
@@ -682,60 +412,48 @@ cursors in swapped cursor state."
 (dolist (hooks '(prog-mode-hook conf-mode-hook))
   (add-hook hooks (lambda () (mch/prog-mode 1))))
 
-;;;; Syntax highlighting
-(use-package treesit
-  :ensure nil
-  :init
-  (setopt redisplay-skip-fontification-on-input t)
+;;;; Completions
+(use-package orderless
+  :ensure t
+  :demand t
   :config
-  ;; less syntax highlighting in ts-modes
-  (setopt treesit-font-lock-level 2))
+  (setq completion-styles '(orderless basic))
+  (setq completion-category-defaults nil)
+  (setq completion-category-overrides '((file (styles partial-completion))))
+  (setq completion-pcm-leading-wildcard t))
 
-;;;; Completion
 (use-package corfu
-  ;; simple completion framework
   :ensure t
   :hook ((prog-mode . corfu-mode)
-         (conf-mode . corfu-mode)
-         (comint-mode . corfu-mode))
-  :bind (:map corfu-map
-              ("C-n" . corfu-next)
-              ("C-p" . corfu-previous)
-              ("<escape>" . corfu-quit)
-              ("<return>" . corfu-insert))
+         (conf-mode . corfu-mode))
   :init
-  (setopt tab-always-indent 'complete)
-  (setopt text-mode-ispell-word-completion nil)
-  (setopt read-extended-command-predicate #'command-completion-default-include-p)
-  (setopt completion-ignore-case t)
-  (corfu-history-mode 1)
-  (corfu-popupinfo-mode 1)
+  (setq tab-always-indent 'complete)
+  (setq completion-ignore-case t)
   :config
-  (setopt corfu-auto t
-          corfu-auto-delay 0.1
-          corfu-auto-prefix 2
-          corfu-quit-no-match 'separator)
-  (setopt corfu-count 9
-          corfu-scroll-margin 2
-          corfu-cycle t)
-  (setopt corfu-preview-current nil)
-  (setopt corfu-preselect 'prompt)
-  (setopt completion-styles '(orderless basic)))
-
-(use-package corfu-terminal
-  :ensure t
-  :after (corfu)
-  :if (and (not (display-graphic-p)) (< emacs-major-version 31))
-  :init
-  (corfu-terminal-mode 1))
+  (setq corfu-preview-current nil)
+  (setq corfu-min-width 20)
+  (setq corfu-popupinfo-delay '(1.25 . 0.5))
+  (corfu-popupinfo-mode 1)
+  (setq corfu-auto t
+        corfu-auto-delay 0.5
+        corfu-auto-prefix 3)
+  (keymap-unset corfu-map "RET")
+  (setq corfu-count 9
+        corfu-scroll-margin 2
+        corfu-cycle t)
+  (define-key corfu-map (kbd "<tab>") #'corfu-complete)
+  (with-eval-after-load 'savehist
+    (corfu-history-mode 1)
+    (add-to-list 'savehist-additional-variables 'corfu-history)))
 
 (use-package cape
-  ;; completion at point
   :ensure t
+  :commands (cape-dabbrev cape-file cape-elisp-block)
+  :bind ("C-c p" . cape-prefix-mode)
   :init
-  (add-to-list 'completion-at-point-functions #'cape-dabbrev)
-  (add-to-list 'completion-at-point-functions #'cape-file)
-  (add-to-list 'completion-at-point-functions #'cape-elisp-block))
+  (add-hook 'completion-at-point-functions #'cape-dabbrev)
+  (add-hook 'completion-at-point-functions #'cape-file)
+  (add-hook 'completion-at-point-functions #'cape-elisp-block))
 
 ;;;; Code formatting
 (use-package editorconfig
@@ -743,122 +461,43 @@ cursors in swapped cursor state."
   :hook ((prog-mode . editorconfig-mode)
          (conf-mode . editorconfig-mode)))
 
-(use-package indent
-  :ensure nil
-  :init
-  (defun mch/indent-buffer ()
-    "Indent the entire buffer."
-    (interactive)
-    (indent-region (point-min) (point-max))))
-
 (use-package whitespace
   :ensure nil
-  :hook (before-save-hook . whitespace-cleanup))
+  :hook (before-save . whitespace-cleanup))
 
-;;;; Version control
-(use-package vc
+(define-minor-mode mch/consult-completion-in-region
+  "Minor mode enabling consult as completion in region function."
+  :init-value nil
+  :global nil
+  (if mch/consult-completion-in-region
+      (setq-local completion-in-region-function #'consult-completion-in-region)
+    (kill-local-variable completion-in-region-function)))
+
+;;;; Use completion-preview-mode in REPLs
+(use-package comint
+  :ensure nil
+  :hook (comint-mode . mch/consult-completion-in-region)
+  :config
+  (setq ansi-color-for-comint-mode t
+        comint-prompt-read-only t
+        comint-buffer-maximum-size 4096))
+
+(use-package compile
   :ensure nil
   :config
-  (setopt vc-follow-symlinks t))
+  (setq compilation-ask-about-save nil
+        compilation-always-kill t
+        compilation-max-output-line-length 2048
+        compilation-scroll-output 'first-error))
 
-(use-package magit
-  ;; a git porcelain inside Emacs
-  :ensure t
-  :commands (magit-status magit-log)
-  :bind (("C-x g" . magit-status)
-         ("C-x M-g" . magit-dispatch))
-  :config
-  (setopt git-commit-summary-max-length 50)
-  (setopt git-commit-fill-column 72))
-
-;;;; LSP
-(use-package eglot
-  :ensure nil
-  :defer t
-  :hook ((python-mode . eglot-ensure)
-         (lua-mode . eglot-ensure)
-         (fennel-mode . eglot-ensure))
-  :config
-  (setopt eglot-sync-connect 0)
-  (setopt eglot-autoshutdown t)
-  (setopt eglot-extend-to-xref t)
-  (setopt jsonrpc-event-hook nil)
-  (setopt eglot-events-buffer-config '(:size 0 :format short))
-  :custom
-  (eglot-ignored-server-capabilities
-   '(:documentHighlightProvider
-     :documentFormattingProvider
-     :documentRangeFormattingProvider
-     :documentOnTypeFormattingProvider
-     :colorProvider
-     :foldingRangeProvider
-     :inlayHintProvider)))
-
-;;;; Programming languages
-;;;;; Python
-(use-package python
-  :ensure nil
-  :config
-  (with-eval-after-load 'eglot
-    (add-to-list 'eglot-server-programs
-                 `(python-mode
-                   . ,(eglot-alternatives `(("basedpyright-langserver" "--stdio")
-                                            ("ruff" "server"))))))
-  :init
-  (add-hook 'python-mode-hook (lambda () (set-fill-column 88))))
-
-(use-package uv-mode
-  :ensure t
-  :hook (python-mode . uv-mode-auto-activate-hook))
-
-;;;;; Lua
-(use-package lua-mode
-  :ensure t
-  :config
-  (with-eval-after-load 'eglot
-    (add-to-list 'eglot-server-programs
-                 `(lua-mode . ("lua-language-server")))))
-
-;;;; Lisps
-;;;;; Emacs Lisp
-(use-package ielm
-  :ensure nil
-  :hook (inferior-emacs-lisp-mode . paredit-mode))
-
-;;;;; Common Lisp
-(use-package sly
-  :ensure t
-  :hook (sly-mrepl-mode . paredit-mode)
-  :config
-  (setopt inferior-lisp-program "sbcl"))
-
-;;;;; Fennel
-(use-package fennel-mode
-  :ensure t
-  :mode ("\\.fnl\\'" . fennel-mode)
-  :config
-  (with-eval-after-load 'eglot
-    (add-to-list 'eglot-server-programs
-                 `(fennel-mode . ("fennel-ls"))))
-  ;; enable fennel in org-mode source blocks
-  (with-eval-after-load 'org
-    (require 'ob-fennel)))
-
-;;;;; Code folding
+;;;; Code folding
 (use-package outline
   :ensure nil
-  ;; lifted from: https://github.com/jamescherti/minimal-emacs.d?tab=readme-ov-file#outline-minor-mode-and-hs-minor-mode
-  :hook ((prog-mode . outline-minor-mode)
-         (outline-minor-mode . (lambda ()
-                                 (let* ((display-table (or buffer-display-table (make-display-table)))
-                                        (face-offset (* (face-id 'shadow) (ash 1 22)))
-                                        (value (vconcat (mapcar (lambda (c) (+ face-offset c)) " ⏷"))))
-                                   (set-display-table-slot display-table 'selective-display value)
-                                   (setopt buffer-display-table display-table))))))
+  :hook (prog-mode . outline-minor-mode))
 
 (use-package hideshow
   :ensure nil
-  :hook (prog-mode . hs-minor-mode))
+  :hook (prog-mode . outline-minor-mode))
 
 (use-package bicycle
   :ensure t
@@ -867,95 +506,93 @@ cursors in swapped cursor state."
               ("C-<tab>" . bicycle-cycle)
               ("<backtab>" . bicycle-cycle-global)))
 
-;;;;; Structural editing for lisps
+;;;; Lisps
+;;;;; Structural editing
 (use-package paredit
-  ;; parentheses, slurping & barfing
   :ensure t
-  :hook ((emacs-lisp-mode . paredit-mode)
-         (lisp-mode . paredit-mode)
+  :hook ((lisp-mode . paredit-mode)
+         (emacs-lisp-mode . paredit-mode)
+         (scheme-mode . paredit-mode)
          (fennel-mode . paredit-mode))
   :config
   (keymap-unset paredit-mode-map "RET")
   (keymap-unset paredit-mode-map "M-s")
   (keymap-set paredit-mode-map "M-D" #'paredit-splice-sexp)
-  (keymap-unset paredit-mode-map "M-?")
-  (with-eval-after-load 'hel
-    (hel-keymap-overriding-set :state 'normal
-      "DEL" 'ignore
-      "<delete>" 'ignore)))
+  (keymap-unset paredit-mode-map "M-?"))
 
-;;;;; Better automatic indentation when editing lisps
+;;;;; Better `electric-indent-mode' when editing structurally
 (use-package aggressive-indent
   :ensure t
-  :hook ((emacs-lisp-mode . aggressive-indent-mode)
-         (lisp-mode . aggressive-indent-mode)
+  :hook ((lisp-mode . aggressive-indent-mode)
+         (emacs-lisp-mode . aggressive-indent-mode)
+         (scheme-mode . aggressive-indent-mode)
          (fennel-mode . aggressive-indent-mode)))
+
+;;;;; Emacs Lisp
+(use-package ielm
+  :ensure nil
+  :hook (ielm-mode . electric-pair-local-mode))
+
+;;;;; Scheme
+(use-package geiser
+  :ensure t
+  :hook (scheme-mode . geiser-mode)
+  :init
+  (with-eval-after-load 'org
+    (org-babel-do-load-languages
+     'org-babel-load-languages
+     '((scheme . t)))))
+
+(use-package geiser-racket
+  :after geiser
+  :ensure t)
+
+;;;;; Fennel
+(use-package fennel-mode
+  :ensure t
+  :mode ("\\.fnl\\'" . fennel-mode)
+  :config
+  (with-eval-after-load 'org
+    (require 'ob-fennel)))
 
 
 ;;; Writing
-;; visual line mode in text-mode
+;;;; Visual line mode
 (use-package text-mode
   :ensure nil
   :no-require t
   :hook (text-mode . visual-line-mode))
 
-(use-package olivetti
-  :ensure t
-  :if window-system
-  :hook ((org-mode . olivetti-mode)
-         (markdown-mode . olivetti-mode))
-  :config
-  (setopt olivetti-body-width 0.65)
-  (setopt olivetti-minimum-body-width 72)
-  (setopt olivetti-recall-visual-line-mode-entry-state t))
-
-;;;; Spell-checking
-(use-package ispell
-  :ensure nil
-  :init
-  (defun mch/ispell-change-dictionary-pl ()
-    "Use Polish dictionary for this buffer."
-    (interactive)
-    (setopt ispell-local-dictionary "pl"))
-  (defun mch/ispell-change-dictionary-en ()
-    "Use British English dictionary for this buffer"
-    (interactive)
-    (setopt ispell-local-dictionary "en_GB"))
-  (setopt ispell-program-name "aspell")
-  (setopt ispell-dictionary "en_GB")
-  :config
-  (ispell-set-spellchecker-params))
-
-(use-package flyspell
-  :ensure nil
-  :hook ((text-mode . flyspell-mode)
-         (prog-mode . flyspell-prog-mode)))
-
 ;;;; Org-mode
 (use-package org
   :ensure nil
-  :init
-  (keymap-global-set "C-c l" #'org-store-link)
-  (keymap-global-set "C-c a" #'org-agenda)
-  (keymap-global-set "C-c c" #'org-capture)
-  :hook (org-mode . (lambda () (electric-indent-mode -1)))
+  :commands (org-mode org-version)
+  :mode ("\\.org\\'" . org-mode)
+  :bind (("C-c l" . #'org-store-link)
+         ("C-c a" . #'org-agenda)
+         ("C-c c" . #'org-capture))
+  :hook (org-mode . (lambda () (electric-indent-local-mode -1)))
   :config
-  (setopt org-directory (expand-file-name "~/Org"))
-  (setopt org-default-notes-file (concat org-directory "/notes.org"))
-  (setopt org-startup-folded 'content)
-  (setopt org-startup-indented t)
-  (setopt org-indent-mode-turn-on-hiding-stars nil)
-  (setopt org-hide-emphasis-markers t)
-  (setopt org-ellipsis " ⏷"))
+  (setq org-directory (expand-file-name "~/Org"))
+  (setq org-default-notes-file (concat org-directory "/notes.org"))
+  (setq org-hide-leading-stars t))
+
+(use-package typst-ts-mode
+  :ensure t
+  :mode ("\\.typ\\'" . typst-ts-mode)
+  :interpreter "typst"
+  :init
+  (add-to-list 'major-mode-remap-alist '(typst-mode . typst-ts-mode)))
 
 (use-package ox-typst
   :ensure t
-  :after org)
+  :after org
+  :init
+  (require 'ox-typst))
 
-;;;; Markdown
 (use-package markdown-mode
-  ;; GitHub flavoured markdown for README.md files
   :ensure t
+  ;; GitHub flavoured markdown for README.md files
   :mode ("README\\.md\\'" . gfm-mode))
 
 ;;; init.el ends here

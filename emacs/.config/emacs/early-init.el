@@ -25,8 +25,9 @@
 (push '(horizontal-scroll-bars . nil) default-frame-alist)
 (push '(fullscreen . maximized) default-frame-alist)
 
-(unless after-init-time
-  (setq-default mode-line-format nil))
+;; (unless after-init-time
+;;   (defvar default-mode-line-format mode-line-format)
+;;   (setq-default mode-line-format nil))
 
 ;; Early GUI toggles must be guarded for batch/tty
 (when (fboundp 'menu-bar-mode) (menu-bar-mode -1))
