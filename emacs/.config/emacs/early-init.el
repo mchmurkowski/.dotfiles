@@ -34,8 +34,8 @@
 (when (fboundp 'tool-bar-mode) (tool-bar-mode -1))
 (when (fboundp 'scroll-bar-mode) (scroll-bar-mode -1))
 
-(when (not (getenv "WSLENV"))
-  (push '(undecorated . t) default-frame-alist))
+;; (when (not (getenv "WSLENV"))
+;;   (push '(undecorated . t) default-frame-alist))
 
 ;; Disable startup screens
 (setq inhibit-startup-screen t

@@ -49,11 +49,9 @@
   :init
   (require-theme 'modus-themes)
   :config
-  (cond ((and (display-graphic-p) (getenv "WSLENV"))
-         (modus-themes-load-theme 'modus-operandi))
-        ((and (not (display-graphic-p)) (getenv "WSLENV"))
-         (modus-themes-load-theme 'modus-vivendi-tinted))
-        (t (modus-themes-load-theme 'modus-operandi))))
+  (if (display-graphic-p)
+      (modus-themes-load-theme 'modus-operandi)
+    (modus-themes-load-theme 'modus-vivendi)))
 
 ;;;; Modeline
 (use-package spacious-padding
